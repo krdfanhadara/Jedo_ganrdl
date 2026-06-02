@@ -45,7 +45,7 @@
       Check: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>,
       Share: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4Z"/></svg>,
       Cloud: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>,
-      Download: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>,
+      Download: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" x2="3"/></svg>,
       PieChart: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>,
       FileExcel: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2"/><path d="M8 17h2"/><path d="M14 13h2"/><path d="M14 17h2"/></svg>,
       ArrowLeftRight: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>
@@ -123,12 +123,19 @@
           }
         });
 
+        // [تحديث برمجي للأتمتة]: خصم حصة الشراكة تلقائياً من البنك إذا اختار المستخدم البنك كمصدر
+        partnerships.forEach(p => {
+          if (p.allocationMode === 'capital' && p.wallet === 'bank') {
+            const me = p.partners.find(pt => pt.name === 'أنت');
+            if (me) calcBankBalance -= parseFloat(me.amount || 0);
+          }
+        });
+
         const baseCash = sumIncomes - sumExpenses;
         const actualOwnCash = baseCash - activeExternal - myPartnershipCapital;
         const totalAvailableCash = actualOwnCash + activeWithMe; 
         const calcCashBalance = totalAvailableCash - calcBankBalance;
         const netWealth = actualOwnCash + activeExternal + pendingToMe + myPartnershipCapital - pendingOnMe;
-        const totalActivity = sumIncomes + sumExpenses || 1;
 
         const expenseCategories = {};
         transactions.filter(t => t.type === 'expense').forEach(t => {
@@ -191,7 +198,7 @@
         else if (type === 'new_partnership') {
           if(id) setPartnerships(partnerships.map(p => p.id === id ? { ...p, ...data } : p));
           else setPartnerships([{ id: docId, evaluations: [], ...data }, ...partnerships]);
-          showSuccessToast('تم حفظ الشراكة');
+          showSuccessToast('تم حفظ الشراكة ومزامنة الخزنة تلقائياً');
         } 
         else if (type === 'evaluation') {
           let myProfit = 0; let projName = '';
@@ -292,7 +299,6 @@
         const base64Data = btoa(unescape(encodeURIComponent(JSON.stringify(fullData))));
         const shareText = `[نسخة احتياطية - المحاسب الذكي]\nتاريخ الأرشفة: ${new Date().toLocaleDateString('ar-EG')}\n\n--- انسخ الكود بالأسفل فقط ---\n${base64Data}`;
         
-        // [تعديل الحماية]: تسجيل التاريخ فوراً وبشكل مسبق لحل عائق التجميد وإلغاء التركيز في الهواتف الذكية
         const now = Date.now();
         setLastBackup(now);
         localStorage.setItem('smart_acc_last_backup', now);
@@ -306,7 +312,6 @@
           }
         } catch (e) {
           console.log('Share prompt focus adjusted', e);
-          // حتى في حال الإغلاق السريع من النظام، السجل المالي تم نقله بنجاح للخارج
           showSuccessToast('تمت معالجة وحفظ أحدث نسخة احتياطية');
         }
       };
@@ -488,7 +493,6 @@
             </div>
           )}
           
-          {/* 1. قائمة التدفقات النقدية (الخزن المتعددة) */}
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-5 border border-slate-700 shadow-sm text-center relative overflow-hidden">
             <p className="text-slate-300 text-sm font-bold mb-2">السيولة النقدية الكلية المتوفرة 🏦</p>
             <h2 className="text-4xl font-black text-white mb-5">{calc.totalAvailableCash.toLocaleString()} <span className="text-sm text-slate-400 font-normal">ج.س</span></h2>
@@ -505,7 +509,6 @@
             </div>
           </div>
 
-          {/* 2. قائمة المركز المالي (صافي الثروة) */}
           <div className="bg-slate-800 p-5 rounded-xl border border-slate-700 text-center shadow-sm relative">
              <p className="text-slate-300 text-sm font-bold">صافي الثروة والأملاك (وزنك المالي) 💎</p>
              <h3 className="text-3xl font-black text-blue-400 mt-2">{calc.netWealth.toLocaleString()} <span className="text-xs text-slate-500 font-normal">ج.س</span></h3>
@@ -520,7 +523,6 @@
              </div>
           </div>
 
-          {/* التحليل البصري للمنصرفات */}
           {calc.totalOut > 0 && (
             <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
                <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-1.5">
@@ -542,7 +544,6 @@
             </div>
           )}
 
-          {/* سجل التدفق المالي */}
           <div className="bg-slate-800 rounded-xl p-4 border border-slate-700 mt-5">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-bold text-sm text-white">سجل حركات الخزن</h3>
@@ -612,7 +613,8 @@
                   <button onClick={()=>onDelete(proj.id)} className="p-1.5 bg-slate-700 hover:bg-slate-600 text-red-400 rounded-lg transition"><Icons.Trash/></button>
                 </div>
                 <h3 className="font-bold text-white text-base mb-1 truncate max-w-[70%]">{proj.name}</h3>
-                <p className="text-xs text-slate-400 mb-3">رأس المال: {fixedCapital.toLocaleString()} ج.س</p>
+                {/* تم تعديل العرض البرمجي ليوضح مصدر تمويل الحصة الفردية الذكي */}
+                <p className="text-xs text-slate-400 mb-3">رأس المال: {fixedCapital.toLocaleString()} ج.س {proj.allocationMode === 'capital' && `(تمويل حصتك: ${proj.wallet === 'bank' ? '📱 البنك' : '💵 الكاش'})`}</p>
                 <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 space-y-2">
                   <p className="text-xs text-slate-400 font-bold border-b border-slate-700 pb-1.5">📋 بيان توزيع أرباح الشركاء:</p>
                   {lastEval && profit > 0 ? proj.partners.map((p, i) => {
@@ -816,7 +818,7 @@
       const copyText = () => {
         triggerHaptic();
         navigator.clipboard.writeText(receiptText);
-        showToast('تم نسخ السند! يمكنك لصقه في واتساب الآن.');
+        showToast('تم نسخ السند! يمكنك لصقه in واتساب الآن.');
       };
 
       return (
@@ -844,7 +846,7 @@
       );
     }
 
-    // --- مودال الدفع الموحد (مع اختيار الخزنة) ---
+    // --- مودال الدفع الموحد ---
     function PaymentModal({ item, onClose, onSave, title, subtitle }) {
       const [amount, setAmount] = useState(''); 
       const [wallet, setWallet] = useState('bank');
@@ -870,12 +872,12 @@
       );
     }
 
-    // --- مودال الإضافة السريع ---
+    // --- مودال الإضافة السريع (محدث ليدعم أتمتة خزن الشراكات) ---
     function QuickAddModal({ type: initialType, editData, onClose, onSave, ptnrs }) {
       const isEdit = !!editData; const [type, setType] = useState(initialType);
       const [txType, setTxType] = useState(isEdit && editData.type ? editData.type : (type === 'trust' ? 'external' : 'income'));
       const [wallet, setWallet] = useState(isEdit && editData.wallet ? editData.wallet : 'bank');
-      const [direction, setDirection] = useState('bank_to_cash'); // للتحويلات
+      const [direction, setDirection] = useState('bank_to_cash'); 
       const [allocationMode, setAllocationMode] = useState(isEdit && editData.allocationMode ? editData.allocationMode : 'capital');
       const [partnersList, setPartnersList] = useState(isEdit && editData.partners ? editData.partners : [{name: 'أنت', amount: '', share: ''}, {name: 'شريك', amount: '', share: ''}]);
       const [formData, setFormData] = useState(isEdit ? {...editData} : { date: new Date().toISOString().split('T')[0], category: 'مصروف الأسرة' });
@@ -901,7 +903,8 @@
             calculatedTotalCapital = partnersList.reduce((s, p) => s + parseFloat(p.amount || 0), 0);
             if(calculatedTotalCapital <= 0) return alert('الرجاء إدخال مبالغ إيداع الشركاء بشكل صحيح');
           }
-          onSave('new_partnership', { name: (formData.projectName || formData.name), capital: calculatedTotalCapital, allocationMode, partners: partnersList.map(pt=>({name: pt.name, amount: parseFloat(pt.amount || 0), share: parseFloat(pt.share || 0)})) }, dId);
+          // حفظ محدد الخزنة (wallet) برمجياً مع تفاصيل المشروع لخصمه أوتوماتيكياً
+          onSave('new_partnership', { name: (formData.projectName || formData.name), capital: calculatedTotalCapital, allocationMode, wallet, partners: partnersList.map(pt=>({name: pt.name, amount: parseFloat(pt.amount || 0), share: parseFloat(pt.share || 0)})) }, dId);
         }
         else if(type === 'evaluation') {
           if(!formData.projectId) return alert('الرجاء اختيار المشروع');
@@ -1000,6 +1003,18 @@
                       <button type="button" onClick={()=>setAllocationMode('manual')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition ${allocationMode==='manual'?'bg-emerald-500 text-white shadow-sm':'text-slate-400 hover:text-white'}`}>يدوي (أنا أُعيِّن النسب)</button>
                     </div>
                   </div>
+
+                  {/* [تحديث واجهة الأتمتة]: سحب مصدر التمويل الفردي برمجياً لمنع السهو البشري */}
+                  {allocationMode === 'capital' && (
+                    <div className="space-y-1.5">
+                      <label className="text-xs text-slate-400 font-medium">مصدر تمويل حصتك الفردية (أنت):</label>
+                      <div className="flex gap-2 bg-slate-800 p-1.5 rounded-xl border border-slate-700">
+                        <button type="button" onClick={()=>setWallet('bank')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition ${wallet==='bank'?'bg-blue-500 text-white shadow-sm':'text-slate-400 hover:text-white'}`}>البنك 📱</button>
+                        <button type="button" onClick={()=>setWallet('cash')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition ${wallet==='cash'?'bg-emerald-500 text-white shadow-sm':'text-slate-400 hover:text-white'}`}>الكاش 💵</button>
+                      </div>
+                    </div>
+                  )}
+
                   {allocationMode === 'manual' && (
                     <input type="number" required placeholder="رأس المال الكلي للمشروع" value={formData.capital||''} onChange={e=>setFormData({...formData, capital: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none focus:border-emerald-500 transition" />
                   )}
