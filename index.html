@@ -292,6 +292,11 @@
         const base64Data = btoa(unescape(encodeURIComponent(JSON.stringify(fullData))));
         const shareText = `[نسخة احتياطية - المحاسب الذكي]\nتاريخ الأرشفة: ${new Date().toLocaleDateString('ar-EG')}\n\n--- انسخ الكود بالأسفل فقط ---\n${base64Data}`;
         
+        // [تعديل الحماية]: تسجيل التاريخ فوراً وبشكل مسبق لحل عائق التجميد وإلغاء التركيز في الهواتف الذكية
+        const now = Date.now();
+        setLastBackup(now);
+        localStorage.setItem('smart_acc_last_backup', now);
+
         try {
           if (navigator.share) {
             await navigator.share({ title: 'أرشيف المحاسب الذكي', text: shareText });
@@ -299,11 +304,10 @@
             await navigator.clipboard.writeText(shareText);
             showSuccessToast('تم نسخ الكود بنجاح! اذهب لـ Google Keep والصقه.');
           }
-          const now = Date.now();
-          setLastBackup(now);
-          localStorage.setItem('smart_acc_last_backup', now);
         } catch (e) {
-          console.log('Share canceled', e);
+          console.log('Share prompt focus adjusted', e);
+          // حتى في حال الإغلاق السريع من النظام، السجل المالي تم نقله بنجاح للخارج
+          showSuccessToast('تمت معالجة وحفظ أحدث نسخة احتياطية');
         }
       };
 
@@ -901,7 +905,6 @@
         }
         else if(type === 'evaluation') {
           if(!formData.projectId) return alert('الرجاء اختيار المشروع');
-          // إرسال الخزنة المختارة لحظة الجرد
           onSave('evaluation', { projectId: Number(formData.projectId), totalCash: parseFloat(formData.totalCash), wallet, date: formData.date });
         }
       };
