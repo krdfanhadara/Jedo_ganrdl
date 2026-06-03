@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>المحاسب الذكي - النسخة الشاملة</title>
+  <title>المحاسب الذكي - نظام الفواتير الشامل</title>
   
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -55,7 +55,6 @@
       Trash: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>,
       Edit: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>,
       Check: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>,
-      Share: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4Z"/></svg>,
       Cloud: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>,
       Download: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>,
       PieChart: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>,
@@ -68,101 +67,42 @@
       if(navigator.vibrate) navigator.vibrate(30); 
     };
 
-    // --- شاشة الدخول والتسجيل ---
     function AuthScreen({ view, setView, savedEmail, savedPwd, savedSecAnswer, onRegister, onLogin, onResetPwd }) {
-      const [email, setEmail] = useState(''); 
-      const [pwd, setPwd] = useState(''); 
-      const [sec, setSec] = useState('');
-      
-      useEffect(() => { 
-        if(savedEmail) setEmail(savedEmail); 
-      }, [savedEmail]);
+      const [email, setEmail] = useState(''); const [pwd, setPwd] = useState(''); const [sec, setSec] = useState('');
+      useEffect(() => { if(savedEmail) setEmail(savedEmail); }, [savedEmail]);
 
       const submit = e => {
-        e.preventDefault(); 
-        triggerHaptic();
-        
+        e.preventDefault(); triggerHaptic();
         if(view === 'register') { 
-          if(!email || pwd.length < 4 || !sec) {
-            return alert('الرجاء تعبئة كافة الحقول لحماية حسابك (كلمة المرور 4 رموز على الأقل)'); 
-          }
+          if(!email || pwd.length < 4 || !sec) return alert('الرجاء إكمال البيانات (الرمز 4 أحرف كحد أدنى)'); 
           onRegister(email.toLowerCase(), pwd, sec.trim()); 
-        }
-        else if (view === 'login') { 
-          if(email.toLowerCase() === savedEmail.toLowerCase() && pwd === savedPwd) {
-            onLogin(); 
-          } else {
-            alert('خطأ في البريد الإلكتروني أو كلمة المرور!'); 
-          }
-        }
-        else if (view === 'forgot') {
+        } else if (view === 'login') { 
+          if(email.toLowerCase() === savedEmail.toLowerCase() && pwd === savedPwd) onLogin(); 
+          else alert('البيانات غير صحيحة!'); 
+        } else if (view === 'forgot') {
           if (email.toLowerCase() === savedEmail.toLowerCase() && sec.trim() === savedSecAnswer.trim()) {
-            const newPassword = prompt('تم التحقق بنجاح! اكتب كلمة المرور الجديدة الآن:');
-            if (newPassword && newPassword.length >= 4) {
-              onResetPwd(newPassword);
-            } else {
-              alert('مرفوض: كلمة المرور يجب أن لا تقل عن 4 رموز');
-            }
-          } else {
-            alert('الإجابة على سؤال الأمان غير متطابقة!');
-          }
+            const newPassword = prompt('اكتب الرمز الجديد الآن:');
+            if (newPassword && newPassword.length >= 4) onResetPwd(newPassword);
+            else alert('مرفوض: أقل من 4 رموز');
+          } else { alert('الإجابة غير صحيحة!'); }
         }
       };
 
       return (
         <div className="min-h-[80vh] flex items-center justify-center p-4">
           <div className="bg-slate-800 p-8 rounded-2xl w-full max-w-sm border border-slate-700 animate-pop shadow-2xl">
-            <h1 className="text-xl font-bold text-white mb-2 text-center">🔐 نظام المحاسب الذكي</h1>
-            <p className="text-sm text-slate-400 text-center mb-6">
-              {view === 'login' ? 'سجل الدخول لحماية ملفات العائلة المادية' : view === 'register' ? 'إنشاء ملف مالي محمي للمرة الأولى' : 'استعادة الدخول عبر حقل الأمان'}
-            </p>
-            
+            <h1 className="text-xl font-bold text-white mb-6 text-center">🔐 المحاسب الذكي</h1>
             <form onSubmit={submit} className="space-y-4">
-              <input 
-                type="email" 
-                required 
-                placeholder="البريد الإلكتروني" 
-                value={email} 
-                onChange={e=>setEmail(e.target.value)} 
-                className="w-full bg-slate-900 border border-slate-600 text-white p-3.5 rounded-xl text-left text-sm focus:outline-none focus:border-emerald-500 transition" 
-              />
-              
-              {view !== 'forgot' && (
-                <input 
-                  type="password" 
-                  required 
-                  placeholder="كلمة المرور" 
-                  value={pwd} 
-                  onChange={e=>setPwd(e.target.value)} 
-                  className="w-full bg-slate-900 border border-slate-600 text-white p-3.5 rounded-xl text-left text-sm focus:outline-none focus:border-emerald-500 transition" 
-                />
-              )}
-              
-              {(view === 'register' || view === 'forgot') && (
-                <input 
-                  type="text" 
-                  required 
-                  placeholder="سؤال الأمان: ما هي مدينتك المفضلة؟" 
-                  value={sec} 
-                  onChange={e=>setSec(e.target.value)} 
-                  className="w-full bg-slate-900 border border-slate-600 text-emerald-400 p-3.5 rounded-xl text-sm focus:outline-none focus:border-emerald-500 transition" 
-                />
-              )}
-              
-              <button 
-                type="submit" 
-                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl text-sm shadow-md transition"
-              >
-                {view === 'login' ? 'تأكيد ودخول الحساب' : view === 'register' ? 'إنشاء وتأمين الملف' : 'التحقق واستعادة الرمز'}
+              <input type="email" required placeholder="البريد الإلكتروني" value={email} onChange={e=>setEmail(e.target.value)} className="w-full bg-slate-900 border border-slate-600 text-white p-3.5 rounded-xl text-left text-sm focus:outline-none focus:border-emerald-500 transition" />
+              {view !== 'forgot' && <input type="password" required placeholder="كلمة المرور" value={pwd} onChange={e=>setPwd(e.target.value)} className="w-full bg-slate-900 border border-slate-600 text-white p-3.5 rounded-xl text-left text-sm focus:outline-none focus:border-emerald-500 transition" />}
+              {(view === 'register' || view === 'forgot') && <input type="text" required placeholder="سؤال الأمان: مدينتك المفضلة؟" value={sec} onChange={e=>setSec(e.target.value)} className="w-full bg-slate-900 border border-slate-600 text-emerald-400 p-3.5 rounded-xl text-sm focus:outline-none focus:border-emerald-500 transition" />}
+              <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl text-sm shadow-md transition">
+                {view === 'login' ? 'دخول الحساب' : view === 'register' ? 'إنشاء وتأمين الملف' : 'استعادة الرمز'}
               </button>
             </form>
-            
             <div className="mt-6 flex flex-col gap-3 text-center text-sm">
               {view === 'login' ? (
-                <>
-                  <button type="button" onClick={() => setView('forgot')} className="text-slate-400 hover:text-white transition">نسيت كلمة المرور؟ 🔍</button>
-                  <button type="button" onClick={() => setView('register')} className="text-emerald-400 font-bold transition">إنشاء ملف مالي جديد ➕</button>
-                </>
+                <><button type="button" onClick={() => setView('forgot')} className="text-slate-400 hover:text-white transition">نسيت كلمة المرور؟ 🔍</button><button type="button" onClick={() => setView('register')} className="text-emerald-400 font-bold transition">إنشاء ملف مالي جديد ➕</button></>
               ) : (
                 <button type="button" onClick={() => setView('login')} className="text-slate-400 hover:text-white transition">العودة لتسجيل الدخول 🔑</button>
               )}
@@ -172,7 +112,6 @@
       );
     }
 
-    // --- التطبيق الرئيسي ---
     function App() {
       const [isAuthenticated, setIsAuthenticated] = useState(() => localStorage.getItem('smart_acc_session') === 'active');
       const [authView, setAuthView] = useState('login'); 
@@ -182,32 +121,26 @@
       const [toast, setToast] = useState(null);
       const [lastBackup, setLastBackup] = useState(() => Number(localStorage.getItem('smart_acc_last_backup')) || 0);
 
-      const showSuccessToast = (message) => { 
-        setToast(message); 
-        setTimeout(() => setToast(null), 3000); 
-      };
-
-      useEffect(() => { 
-        if (!localStorage.getItem('smart_acc_email')) {
-          setAuthView('register');
-        } 
-      }, []);
+      const showSuccessToast = (message) => { setToast(message); setTimeout(() => setToast(null), 3000); };
+      useEffect(() => { if (!localStorage.getItem('smart_acc_email')) setAuthView('register'); }, []);
 
       const [activeTab, setActiveTab] = useState('dashboard');
       const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
       const [quickAddType, setQuickAddType] = useState('transaction');
       const [editData, setEditData] = useState(null);
+      
       const [paymentModal, setPaymentModal] = useState(null);
       const [trustPaymentModal, setTrustPaymentModal] = useState(null);
+      
+      // متغير الفواتير (نظام الفواتير عاد وبقوة)
       const [receiptData, setReceiptData] = useState(null);
 
-      // استدعاء البيانات
       const [transactions, setTransactions] = useState(() => JSON.parse(localStorage.getItem('smart_accountant_tx')) || INITIAL_STATE.transactions);
       const [debts, setDebts] = useState(() => JSON.parse(localStorage.getItem('smart_accountant_dbts')) || INITIAL_STATE.debts);
       const [partnerships, setPartnerships] = useState(() => JSON.parse(localStorage.getItem('smart_accountant_ptnrs')) || INITIAL_STATE.partnerships);
       const [trusts, setTrusts] = useState(() => JSON.parse(localStorage.getItem('smart_accountant_trusts')) || INITIAL_STATE.trusts);
       
-      // قراءة الأصول بصمت
+      // قراءة الأصول
       const [assets, setAssets] = useState(() => JSON.parse(localStorage.getItem('smart_accountant_assets')) || []);
 
       useEffect(() => { localStorage.setItem('smart_accountant_tx', JSON.stringify(transactions)); }, [transactions]);
@@ -215,7 +148,6 @@
       useEffect(() => { localStorage.setItem('smart_accountant_ptnrs', JSON.stringify(partnerships)); }, [partnerships]);
       useEffect(() => { localStorage.setItem('smart_accountant_trusts', JSON.stringify(trusts)); }, [trusts]);
 
-      // --- محرك الحسابات الذكي ---
       const calculations = useMemo(() => {
         const sumIncomes = transactions.filter(t => t.type === 'income').reduce((acc, curr) => acc + curr.amount, 0);
         const sumExpenses = transactions.filter(t => t.type === 'expense').reduce((acc, curr) => acc + curr.amount, 0);
@@ -234,12 +166,9 @@
           return total;
         }, 0);
 
-        // جمع الأصول العينية (تم تصحيحها لتقرأ هنا)
         const totalAssetsValue = assets.reduce((sum, asset) => sum + parseFloat(asset.currentValue || 0), 0);
 
-        let calcBankBalance = 0; 
-        let calcCashBalance = 0;
-
+        let calcBankBalance = 0; let calcCashBalance = 0;
         transactions.forEach(t => {
           const amt = parseFloat(t.amount || 0);
           if (t.wallet === 'bank') {
@@ -269,19 +198,12 @@
         calcCashBalance += activeWithMe; 
         const totalAvailableCash = calcBankBalance + calcCashBalance;
         const actualOwnCash = totalAvailableCash - activeWithMe;
-        
-        // دمج الأصول في الثروة
         const netWealth = actualOwnCash + activeExternal + pendingToMe + myPartnershipCapital + totalAssetsValue - pendingOnMe;
 
-        // حسابات المنصرفات بشكل آمن
         const expenseCategories = {};
-        transactions.filter(t => t.type === 'expense').forEach(t => {
-          expenseCategories[t.category] = (expenseCategories[t.category] || 0) + t.amount;
-        });
-        
+        transactions.filter(t => t.type === 'expense').forEach(t => { expenseCategories[t.category] = (expenseCategories[t.category] || 0) + t.amount; });
         const expenseChartData = Object.keys(expenseCategories).map(cat => ({
-          category: cat, 
-          amount: expenseCategories[cat],
+          category: cat, amount: expenseCategories[cat],
           pct: sumExpenses > 0 ? ((expenseCategories[cat] / sumExpenses) * 100).toFixed(1) : 0
         })).sort((a,b) => b.amount - a.amount);
 
@@ -293,24 +215,19 @@
         };
       }, [transactions, debts, trusts, partnerships, assets]);
 
-      // --- دوال العمليات ---
       const handleDelete = (type, id) => {
         triggerHaptic();
         if (type === 'ptnr') {
-          const proj = partnerships.find(p => p.id === id); 
-          if (!proj) return;
-          
-          if (window.confirm(`⚠️ الحذف الذكي لشراكة (${proj.name}):\n\nاضغط موافق للحذف والاحتفاظ بالأرباح.`)) {
-            setPartnerships(partnerships.filter(p => p.id !== id)); 
-            showSuccessToast('تم الحذف والاحتفاظ بالأرباح.');
-          } else if (window.confirm(`🔄 التنظيف الكامل:\n\nهل تود مسح الشراكة وتطهير كل أرباحها من السجل؟`)) {
+          const proj = partnerships.find(p => p.id === id); if (!proj) return;
+          if (window.confirm(`خيار الحذف الذكي لشراكة (${proj.name}):\nاضغط موافق للحذف والاحتفاظ بالأرباح.`)) {
+            setPartnerships(partnerships.filter(p => p.id !== id)); showSuccessToast('تم الحذف بنجاح.');
+          } else if (window.confirm(`هل تود مسح الشراكة وتطهير كل أرباحها من السجل؟`)) {
             setPartnerships(partnerships.filter(p => p.id !== id));
             setTransactions(transactions.filter(t => !t.category.includes(`أرباح جرد (${proj.name})`)));
-            showSuccessToast('تم التطهير الكامل.');
+            showSuccessToast('تم التطهير بالكامل.');
           }
           return;
         }
-
         if(window.confirm('هل تود الحذف بالتأكيد؟')) {
           if(type === 'tx') setTransactions(transactions.filter(t => t.id !== id));
           if(type === 'debt') setDebts(debts.filter(d => d.id !== id));
@@ -321,16 +238,15 @@
 
       const handleResetData = () => {
         triggerHaptic();
-        if(window.confirm('سيتم تصفير كل السجلات المالية تماماً. هل أنت متأكد؟')) {
+        if(window.confirm('تصفير كل السجلات المالية تماماً؟')) {
           setTransactions([]); setDebts([]); setPartnerships([]); setTrusts([]);
-          localStorage.removeItem('smart_accountant_tx'); 
-          localStorage.removeItem('smart_accountant_dbts');
-          localStorage.removeItem('smart_accountant_ptnrs'); 
-          localStorage.removeItem('smart_accountant_trusts');
-          showSuccessToast('تم تصفير الحسابات بنجاح.');
+          localStorage.removeItem('smart_accountant_tx'); localStorage.removeItem('smart_accountant_dbts');
+          localStorage.removeItem('smart_accountant_ptnrs'); localStorage.removeItem('smart_accountant_trusts');
+          showSuccessToast('تم التصفير.');
         }
       };
 
+      // الدالة الرئيسية للحفظ وإصدار الفواتير
       const handleSaveItem = (type, data, id = null) => {
         triggerHaptic(); 
         const docId = id || Date.now();
@@ -339,42 +255,46 @@
           if(id) setTransactions(transactions.map(t => t.id === id ? { ...t, ...data } : t));
           else setTransactions([{ id: docId, ...data }, ...transactions]);
           showSuccessToast('تم الحفظ وتحديث السيولة');
+          
+          // --- إعادة نظام إظهار الفاتورة التلقائي ---
+          if(data.type !== 'transfer') {
+            setReceiptData({
+              title: data.type === 'income' ? 'سند قبض / إيداع' : 'سند صرف', 
+              person: data.category || 'حركة عامة',
+              amount: parseFloat(data.amount) || 0, 
+              date: data.date, 
+              ref: `TRX-${docId.toString().slice(-5)}`
+            });
+          }
         } 
         else if (type === 'debt') {
           if(id) setDebts(debts.map(d => d.id === id ? { ...d, ...data } : d));
           else setDebts([{ id: docId, paid: 0, ...data }, ...debts]);
-          showSuccessToast('تم تقييد الدين بنجاح');
+          showSuccessToast('تم القيد بنجاح');
         } 
         else if (type === 'trust') {
           if(id) setTrusts(trusts.map(t => t.id === id ? { ...t, ...data } : t));
           else setTrusts([{ id: docId, paid: 0, ...data }, ...trusts]);
-          showSuccessToast('تم تقييد الأمانة بنجاح');
+          showSuccessToast('تم التقييد بنجاح');
         }
         else if (type === 'new_partnership') {
           if(id) setPartnerships(partnerships.map(p => p.id === id ? { ...p, ...data } : p));
           else setPartnerships([{ id: docId, evaluations: [], ...data }, ...partnerships]);
-          showSuccessToast('تم حفظ الشراكة بنجاح');
+          showSuccessToast('تم حفظ الشراكة');
         } 
         else if (type === 'evaluation') {
-          let myProfit = 0; 
-          let projName = '';
+          let myProfit = 0; let projName = '';
           setPartnerships(partnerships.map(p => {
             if (p.id === Number(data.projectId)) {
               projName = p.name;
-              const currentTotalCash = parseFloat(data.totalCash || 0); 
-              const fixedCapital = parseFloat(p.capital || 0);
+              const currentTotalCash = parseFloat(data.totalCash || 0); const fixedCapital = parseFloat(p.capital || 0);
               const totalProfitFringe = currentTotalCash - fixedCapital;
-              
               if (totalProfitFringe > 0) {
                 const totalCapPool = p.allocationMode === 'capital' ? p.partners.reduce((sum, part) => sum + parseFloat(part.amount || 0), 0) || 1 : fixedCapital;
-                let computedShareRatio = 0; 
-                const meObj = p.partners.find(pt => pt.name === 'أنت');
+                let computedShareRatio = 0; const meObj = p.partners.find(pt => pt.name === 'أنت');
                 if (meObj) {
-                  if (p.allocationMode === 'capital') {
-                    computedShareRatio = parseFloat(meObj.amount || 0) / totalCapPool;
-                  } else {
-                    computedShareRatio = parseFloat(meObj.share || 0) / 100;
-                  }
+                  if (p.allocationMode === 'capital') computedShareRatio = parseFloat(meObj.amount || 0) / totalCapPool;
+                  else computedShareRatio = parseFloat(meObj.share || 0) / 100;
                 }
                 myProfit = totalProfitFringe * computedShareRatio;
               }
@@ -384,98 +304,59 @@
           }));
 
           if (myProfit > 0) {
-            setTransactions(prev => [{ 
-              id: Date.now() + 5, 
-              type: 'income', 
-              amount: parseFloat(myProfit.toFixed(2)), 
-              wallet: data.wallet, 
-              category: `أرباح جرد (${projName})`, 
-              date: data.date 
-            }, ...prev]);
+            setTransactions(prev => [{ id: Date.now() + 5, type: 'income', amount: parseFloat(myProfit.toFixed(2)), wallet: data.wallet, category: `أرباح جرد (${projName})`, date: data.date }, ...prev]);
             showSuccessToast(`تم الجرد بنجاح (+${myProfit.toLocaleString()})`);
-          } else {
-            showSuccessToast('تم تسجيل الجرد بنجاح');
-          }
+          } else showSuccessToast('تم تسجيل الجرد');
         }
-        setIsQuickAddOpen(false); 
-        setEditData(null);
+        setIsQuickAddOpen(false); setEditData(null);
       };
 
       const handlePayDebt = (debtId, amount, wallet) => {
-        triggerHaptic(); 
-        let currentDebt = null;
-        setDebts(debts.map(d => { 
-          if (d.id === debtId) { 
-            currentDebt = d; 
-            return { ...d, paid: (d.paid || 0) + amount }; 
-          } 
-          return d; 
-        }));
+        triggerHaptic(); let currentDebt = null;
+        setDebts(debts.map(d => { if (d.id === debtId) { currentDebt = d; return { ...d, paid: (d.paid || 0) + amount }; } return d; }));
         setPaymentModal(null);
-        
         if (currentDebt) {
           const isToMe = currentDebt.type === 'to_me';
-          setTransactions(prev => [{ 
-            id: Date.now(), 
-            type: isToMe ? 'income' : 'expense', 
-            amount: amount, 
-            wallet: wallet, 
-            category: isToMe ? `استرداد دين من (${currentDebt.person})` : `سداد دين إلى (${currentDebt.person})`, 
-            date: new Date().toISOString().split('T')[0] 
-          }, ...prev]);
-          showSuccessToast(`تم السداد وتحديث الرصيد`);
+          setTransactions(prev => [{ id: Date.now(), type: isToMe ? 'income' : 'expense', amount: amount, wallet: wallet, category: isToMe ? `استرداد دين من (${currentDebt.person})` : `سداد دين إلى (${currentDebt.person})`, date: new Date().toISOString().split('T')[0] }, ...prev]);
+          showSuccessToast(`تم السداد`);
+          // إظهار الفاتورة
+          setReceiptData({
+            title: isToMe ? 'سند قبض (استرداد)' : 'سند صرف (سداد دين)',
+            person: currentDebt.person, amount: amount, date: new Date().toISOString().split('T')[0],
+            ref: `REF-${Date.now().toString().slice(-5)}`
+          });
         }
       };
 
       const handlePayTrust = (trustId, amount, wallet) => {
-        triggerHaptic(); 
-        let currentTrust = null;
-        setTrusts(trusts.map(t => { 
-          if (t.id === trustId) { 
-            currentTrust = t; 
-            return { ...t, paid: (t.paid || 0) + amount }; 
-          } 
-          return t; 
-        }));
+        triggerHaptic(); let currentTrust = null;
+        setTrusts(trusts.map(t => { if (t.id === trustId) { currentTrust = t; return { ...t, paid: (t.paid || 0) + amount }; } return t; }));
         setTrustPaymentModal(null);
-        
         if (currentTrust) {
           if (wallet === 'bank') {
              const isExternal = currentTrust.type === 'external';
-             setTransactions(prev => [{ 
-               id: Date.now(), 
-               type: isExternal ? 'trust_bank_in' : 'trust_bank_out', 
-               amount: amount, 
-               wallet: 'bank', 
-               category: isExternal ? `استرداد أمانة من (${currentTrust.person})` : `تسليم أمانة إلى (${currentTrust.person})`, 
-               date: new Date().toISOString().split('T')[0] 
-             }, ...prev]);
+             setTransactions(prev => [{ id: Date.now(), type: isExternal ? 'trust_bank_in' : 'trust_bank_out', amount: amount, wallet: 'bank', category: isExternal ? `استرداد رصيد من (${currentTrust.person})` : `تسليم أمانة إلى (${currentTrust.person})`, date: new Date().toISOString().split('T')[0] }, ...prev]);
           }
-          showSuccessToast(`تمت حركة الأمانة`);
+          showSuccessToast(`تمت الحركة`);
+          // إظهار الفاتورة
+          setReceiptData({
+            title: currentTrust.type === 'external' ? 'استرداد رصيد خارجي' : 'تسليم أمانة',
+            person: currentTrust.person, amount: amount, date: new Date().toISOString().split('T')[0],
+            ref: `TRU-${Date.now().toString().slice(-5)}`
+          });
         }
       };
 
-      // --- دوال السحابة والتصدير ---
       const handleBackupData = async () => {
         triggerHaptic();
         const fullData = { tx: transactions, db: debts, pt: partnerships, tr: trusts };
         const base64Data = btoa(unescape(encodeURIComponent(JSON.stringify(fullData))));
         const shareText = `[نسخة احتياطية - المحاسب الذكي]\nتاريخ الأرشفة: ${new Date().toLocaleDateString('ar-EG')}\n\n--- انسخ الكود بالأسفل فقط ---\n${base64Data}`;
-        
-        const now = Date.now(); 
-        setLastBackup(now); 
-        localStorage.setItem('smart_acc_last_backup', now);
-        
+        const now = Date.now(); setLastBackup(now); localStorage.setItem('smart_acc_last_backup', now);
         try {
-          if (navigator.share) {
-            await navigator.share({ title: 'أرشيف المحاسب الذكي', text: shareText });
-          } else { 
-            await navigator.clipboard.writeText(shareText); 
-            showSuccessToast('تم نسخ الكود بنجاح! اذهب لـ Google Keep والصقه.'); 
-          }
-        } catch (e) { 
-          showSuccessToast('تمت معالجة وحفظ أحدث نسخة احتياطية'); 
-        }
+          if (navigator.share) await navigator.share({ title: 'أرشيف', text: shareText });
+          else { await navigator.clipboard.writeText(shareText); showSuccessToast('تم نسخ الكود! الصقه في Google Keep.'); }
+        } catch (e) { showSuccessToast('تم الحفظ'); }
       };
 
       const handleRestoreData = (backupStr) => {
@@ -484,173 +365,60 @@
           const extractBase64 = backupStr.match(/[A-Za-z0-9+/=]{50,}/)?.[0] || backupStr.trim();
           const data = JSON.parse(decodeURIComponent(escape(atob(extractBase64))));
           if(data.tx && data.db) {
-            setTransactions(data.tx); 
-            setDebts(data.db); 
-            setPartnerships(data.pt || []); 
-            setTrusts(data.tr || []);
-            const now = Date.now(); 
-            setLastBackup(now); 
-            localStorage.setItem('smart_acc_last_backup', now);
-            showSuccessToast('🎉 تمت استعادة ثروتك وسجلاتك بنجاح!');
-          } else {
-            alert('الكود تالف أو غير مكتمل.');
-          }
-        } catch (e) { 
-          alert('تعذرت الاستعادة! تأكد أنك نسخت الكود الصحيح بالكامل.'); 
-        }
+            setTransactions(data.tx); setDebts(data.db); setPartnerships(data.pt || []); setTrusts(data.tr || []);
+            const now = Date.now(); setLastBackup(now); localStorage.setItem('smart_acc_last_backup', now);
+            showSuccessToast('🎉 تمت الاستعادة بنجاح!');
+          } else alert('الكود غير مكتمل.');
+        } catch (e) { alert('فشل الاستعادة! تأكد من الكود.'); }
       };
 
       const handleExportCSV = () => {
         triggerHaptic();
-        if (transactions.length === 0) return alert('لا توجد حركات لتصديرها!');
+        if (transactions.length === 0) return alert('لا توجد حركات!');
         let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
         csvContent += "التاريخ,الخزنة,النوع,البيان والتصنيف,المبلغ\r\n";
-        
         transactions.forEach(t => {
           let typeStr = t.type === 'income' ? 'إيداع وارد' : (t.type === 'expense' ? 'منصرف' : 'حركة داخلية');
           const walletStr = t.wallet === 'bank' ? 'بنكك/حساب' : 'كاش نقدي';
           const cleanCategory = t.category.replace(/,/g, ' - ');
           csvContent += `${t.date},${walletStr},${typeStr},${cleanCategory},${t.amount}\r\n`;
         });
-        
         const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a"); 
-        link.setAttribute("href", encodedUri); 
-        link.setAttribute("download", `كشف_حساب_المحاسب_الذكي_${new Date().toISOString().split('T')[0]}.csv`);
-        document.body.appendChild(link); 
-        link.click(); 
-        document.body.removeChild(link);
-        showSuccessToast('تم تحميل كشف الحساب (Excel) بنجاح 📄');
+        const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", `كشف_حساب_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        showSuccessToast('تم تحميل الكشف (Excel) 📄');
       };
 
-      const handleLogout = () => {
-        triggerHaptic(); 
-        localStorage.removeItem('smart_acc_session'); 
-        setIsAuthenticated(false); 
-        setAuthView('login');
-      };
+      const handleLogout = () => { triggerHaptic(); localStorage.removeItem('smart_acc_session'); setIsAuthenticated(false); setAuthView('login'); };
 
       if (!isAuthenticated) {
-        return (
-          <AuthScreen 
-            view={authView} 
-            setView={setAuthView} 
-            savedEmail={savedEmail} 
-            savedPwd={savedPwd} 
-            savedSecAnswer={savedSecAnswer} 
-            onRegister={(e,p,s) => { 
-              localStorage.setItem('smart_acc_email', e); 
-              localStorage.setItem('smart_acc_pwd', p); 
-              localStorage.setItem('smart_acc_sec', s); 
-              localStorage.setItem('smart_acc_session', 'active'); 
-              setSavedEmail(e); setSavedPwd(p); setSavedSecAnswer(s); setIsAuthenticated(true); 
-            }} 
-            onLogin={() => { 
-              localStorage.setItem('smart_acc_session', 'active'); 
-              setIsAuthenticated(true); 
-            }} 
-            onResetPwd={(np) => { 
-              localStorage.setItem('smart_acc_pwd', np); 
-              setSavedPwd(np); 
-              setAuthView('login'); 
-            }} 
-          />
-        );
+        return <AuthScreen view={authView} setView={setAuthView} savedEmail={savedEmail} savedPwd={savedPwd} savedSecAnswer={savedSecAnswer} onRegister={(e,p,s) => { localStorage.setItem('smart_acc_email', e); localStorage.setItem('smart_acc_pwd', p); localStorage.setItem('smart_acc_sec', s); localStorage.setItem('smart_acc_session', 'active'); setSavedEmail(e); setSavedPwd(p); setSavedSecAnswer(s); setIsAuthenticated(true); }} onLogin={() => { localStorage.setItem('smart_acc_session', 'active'); setIsAuthenticated(true); }} onResetPwd={(np) => { localStorage.setItem('smart_acc_pwd', np); setSavedPwd(np); setAuthView('login'); }} />;
       }
 
       return (
         <div className="pb-28">
-          {toast && (
-            <div className="fixed top-6 left-4 right-4 z-[100] bg-emerald-500 text-white px-4 py-3 rounded-xl flex items-center gap-3 shadow-xl border border-emerald-400/20 animate-slide-down max-w-sm mx-auto">
-              <Icons.Check /> <span className="text-sm font-bold">{toast}</span>
-            </div>
-          )}
+          {toast && <div className="fixed top-6 left-4 right-4 z-[100] bg-emerald-500 text-white px-4 py-3 rounded-xl flex items-center gap-3 shadow-xl border border-emerald-400/20 animate-slide-down max-w-sm mx-auto"><Icons.Check /> <span className="text-sm font-bold">{toast}</span></div>}
 
-          {/* الرأس وإضافة زر الأصول */}
           <header className="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-10 flex justify-between items-center shadow-md">
             <div className="flex items-center gap-3">
               <div className="bg-emerald-500 p-2.5 rounded-xl text-white"><Icons.Wallet /></div>
-              <div>
-                <h1 className="text-base font-bold text-white">المحاسب الذكي</h1>
-                <p className="text-[11px] text-emerald-400">إدارة الخزن المزدوجة</p>
-              </div>
+              <div><h1 className="text-base font-bold text-white">المحاسب الذكي</h1><p className="text-[11px] text-emerald-400">إدارة الخزن المزدوجة</p></div>
             </div>
             <div className="flex items-center gap-2">
-              <a 
-                href="assets.html" 
-                onClick={triggerHaptic} 
-                className="flex items-center gap-1 bg-yellow-600 hover:bg-yellow-500 text-white text-xs px-3 py-2 rounded-lg font-bold shadow-md transition"
-              >
-                <Icons.Building /> الأصول
-              </a>
-              <button 
-                onClick={handleLogout} 
-                className="bg-slate-900/60 text-slate-300 text-xs hover:text-red-400 px-3 py-2 rounded-lg border border-slate-700 font-bold transition"
-              >
-                🚪 قفل
-              </button>
+              <a href="assets.html" onClick={triggerHaptic} className="flex items-center gap-1 bg-yellow-600 hover:bg-yellow-500 text-white text-xs px-3 py-2 rounded-lg font-bold shadow-md transition"><Icons.Building /> الأصول</a>
+              <button onClick={handleLogout} className="bg-slate-900/60 text-slate-300 text-xs hover:text-red-400 px-3 py-2 rounded-lg border border-slate-700 font-bold transition">🚪 قفل</button>
             </div>
           </header>
 
           <main className="p-4 max-w-md mx-auto">
-            {activeTab === 'dashboard' && (
-              <DashboardView 
-                calc={calculations} 
-                txs={transactions} 
-                lastBackup={lastBackup} 
-                onDelete={id => handleDelete('tx', id)} 
-                onEdit={t => {setQuickAddType('transaction'); setEditData(t); setIsQuickAddOpen(true);}} 
-                onReceipt={r => setReceiptData(r)} 
-              />
-            )}
-            
-            {activeTab === 'partnerships' && (
-              <PartnershipsView 
-                ptnrs={partnerships} 
-                onAdd={() => {setQuickAddType('new_partnership'); setEditData(null); setIsQuickAddOpen(true);}} 
-                onDelete={id => handleDelete('ptnr', id)} 
-                onEdit={p => {setQuickAddType('new_partnership'); setEditData(p); setIsQuickAddOpen(true);}} 
-              />
-            )}
-            
-            {activeTab === 'debts' && (
-              <DebtsView 
-                debts={debts} 
-                onDelete={id => handleDelete('debt', id)} 
-                onPay={d => {triggerHaptic(); setPaymentModal(d);}} 
-                onEdit={d => {setQuickAddType('debt'); setEditData(d); setIsQuickAddOpen(true);}} 
-              />
-            )}
-            
-            {activeTab === 'trusts' && (
-              <TrustsView 
-                trusts={trusts} 
-                onDelete={id => handleDelete('trust', id)} 
-                onPay={t => {triggerHaptic(); setTrustPaymentModal(t);}} 
-                onEdit={t => {setQuickAddType('trust'); setEditData(t); setIsQuickAddOpen(true);}} 
-              />
-            )}
-            
-            {activeTab === 'profile' && (
-              <ProfileView 
-                email={savedEmail} 
-                onReset={handleResetData} 
-                onChangePwd={pwd => { localStorage.setItem('smart_acc_pwd', pwd); setSavedPwd(pwd); showSuccessToast('تم التحديث بنجاح'); }} 
-                currentPwd={savedPwd} 
-                onBackup={handleBackupData} 
-                onRestore={handleRestoreData} 
-                lastBackup={lastBackup} 
-                onExportExcel={handleExportCSV} 
-              />
-            )}
+            {activeTab === 'dashboard' && <DashboardView calc={calculations} txs={transactions} lastBackup={lastBackup} onDelete={id => handleDelete('tx', id)} onEdit={t => {setQuickAddType('transaction'); setEditData(t); setIsQuickAddOpen(true);}} onReceipt={r => setReceiptData(r)} />}
+            {activeTab === 'partnerships' && <PartnershipsView ptnrs={partnerships} onAdd={() => {setQuickAddType('new_partnership'); setEditData(null); setIsQuickAddOpen(true);}} onDelete={id => handleDelete('ptnr', id)} onEdit={p => {setQuickAddType('new_partnership'); setEditData(p); setIsQuickAddOpen(true);}} />}
+            {activeTab === 'debts' && <DebtsView debts={debts} onDelete={id => handleDelete('debt', id)} onPay={d => {triggerHaptic(); setPaymentModal(d);}} onEdit={d => {setQuickAddType('debt'); setEditData(d); setIsQuickAddOpen(true);}} />}
+            {activeTab === 'trusts' && <TrustsView trusts={trusts} onDelete={id => handleDelete('trust', id)} onPay={t => {triggerHaptic(); setTrustPaymentModal(t);}} onEdit={t => {setQuickAddType('trust'); setEditData(t); setIsQuickAddOpen(true);}} />}
+            {activeTab === 'profile' && <ProfileView email={savedEmail} onReset={handleResetData} onChangePwd={pwd => { localStorage.setItem('smart_acc_pwd', pwd); setSavedPwd(pwd); showSuccessToast('تم التحديث بنجاح'); }} currentPwd={savedPwd} onBackup={handleBackupData} onRestore={handleRestoreData} lastBackup={lastBackup} onExportExcel={handleExportCSV} />}
           </main>
 
-          <button 
-            onClick={() => {triggerHaptic(); setQuickAddType('transaction'); setEditData(null); setIsQuickAddOpen(true);}} 
-            className="fixed bottom-24 left-6 w-14 h-14 bg-emerald-500 text-white rounded-full shadow-lg flex items-center justify-center z-20 text-2xl hover:scale-105 transition-transform"
-          >
-            ➕
-          </button>
+          <button onClick={() => {triggerHaptic(); setQuickAddType('transaction'); setEditData(null); setIsQuickAddOpen(true);}} className="fixed bottom-24 left-6 w-14 h-14 bg-emerald-500 text-white rounded-full shadow-lg flex items-center justify-center z-20 text-2xl hover:scale-105 transition-transform">➕</button>
 
           <nav className="fixed bottom-0 w-full bg-slate-800 border-t border-slate-700 py-3 z-10 px-2">
             <div className="flex justify-between items-center max-w-md mx-auto">
@@ -662,43 +430,11 @@
             </div>
           </nav>
 
-          {isQuickAddOpen && (
-            <QuickAddModal 
-              type={quickAddType} 
-              editData={editData} 
-              ptnrs={partnerships} 
-              onClose={() => {setIsQuickAddOpen(false); setEditData(null);}} 
-              onSave={handleSaveItem} 
-            />
-          )}
-          
-          {paymentModal && (
-            <PaymentModal 
-              item={paymentModal} 
-              onClose={() => setPaymentModal(null)} 
-              onSave={handlePayDebt} 
-              title="تسجيل حركة (دخول/خروج)" 
-              subtitle="المتبقي:" 
-            />
-          )}
-          
-          {trustPaymentModal && (
-            <PaymentModal 
-              item={trustPaymentModal} 
-              onClose={() => setTrustPaymentModal(null)} 
-              onSave={handlePayTrust} 
-              title="استرداد/تسليم أمانة" 
-              subtitle="المتبقي:" 
-            />
-          )}
-          
-          {receiptData && (
-            <ReceiptModal 
-              data={receiptData} 
-              onClose={() => setReceiptData(null)} 
-              showToast={showSuccessToast} 
-            />
-          )}
+          {isQuickAddOpen && <QuickAddModal type={quickAddType} editData={editData} ptnrs={partnerships} onClose={() => {setIsQuickAddOpen(false); setEditData(null);}} onSave={handleSaveItem} />}
+          {paymentModal && <PaymentModal item={paymentModal} onClose={() => setPaymentModal(null)} onSave={handlePayDebt} title="حركة أموال (دخول/خروج)" subtitle="المتبقي:" />}
+          {trustPaymentModal && <PaymentModal item={trustPaymentModal} onClose={() => setTrustPaymentModal(null)} onSave={handlePayTrust} title="استرداد/تسليم أمانة" subtitle="المتبقي:" />}
+          {/* تم حماية نافذة الفواتير لتجنب الشاشة البيضاء نهائياً */}
+          {receiptData && <ReceiptModal data={receiptData} onClose={() => setReceiptData(null)} showToast={showSuccessToast} />}
         </div>
       );
     }
@@ -711,109 +447,38 @@
 
       return (
         <div className="space-y-5 animate-pop">
-
           {needsBackup && (
             <div className="bg-red-500/10 border border-red-500/50 p-3 rounded-xl flex items-center justify-between animate-pop shadow-md">
-               <div className="flex items-center gap-3">
-                 <span className="text-2xl">⚠️</span>
-                 <div>
-                   <p className="text-red-400 font-bold text-sm">خطر فقدان البيانات!</p>
-                   <p className="text-slate-300 text-xs mt-0.5">مرت فترة دون أخذ نسخة احتياطية لسجلاتك المالية.</p>
-                 </div>
-               </div>
+               <div className="flex items-center gap-3"><span className="text-2xl">⚠️</span><div><p className="text-red-400 font-bold text-sm">تنبيه!</p><p className="text-slate-300 text-xs mt-0.5">مرت فترة دون أخذ نسخة احتياطية.</p></div></div>
             </div>
           )}
           
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-5 border border-slate-700 shadow-sm text-center relative overflow-hidden">
             <p className="text-slate-300 text-sm font-bold mb-2">السيولة النقدية المتوفرة 🏦</p>
-            <h2 className="text-4xl font-black text-white mb-5">
-              {calc.totalAvailableCash.toLocaleString()} <span className="text-sm text-slate-400 font-normal">ج.س</span>
-            </h2>
+            <h2 className="text-4xl font-black text-white mb-5">{calc.totalAvailableCash.toLocaleString()} <span className="text-sm text-slate-400 font-normal">ج.س</span></h2>
             <div className="grid grid-cols-2 gap-3 mt-3">
-                <div className="bg-blue-900/40 p-3 rounded-lg border border-blue-500/30 text-center">
-                  <p className="text-xs text-blue-200 mb-1">رصيد البنك 📱</p>
-                  <h3 className="text-lg font-black text-blue-400">{calc.bankBalance.toLocaleString()}</h3>
-                </div>
-                <div className="bg-emerald-900/40 p-3 rounded-lg border border-emerald-500/30 text-center">
-                  <p className="text-xs text-emerald-200 mb-1">كاش باليد 💵</p>
-                  <h3 className="text-lg font-black text-emerald-400">{calc.cashBalance.toLocaleString()}</h3>
-                </div>
+                <div className="bg-blue-900/40 p-3 rounded-lg border border-blue-500/30 text-center"><p className="text-xs text-blue-200 mb-1">رصيد البنك 📱</p><h3 className="text-lg font-black text-blue-400">{calc.bankBalance.toLocaleString()}</h3></div>
+                <div className="bg-emerald-900/40 p-3 rounded-lg border border-emerald-500/30 text-center"><p className="text-xs text-emerald-200 mb-1">كاش باليد 💵</p><h3 className="text-lg font-black text-emerald-400">{calc.cashBalance.toLocaleString()}</h3></div>
             </div>
           </div>
 
           <div className="bg-slate-800 p-5 rounded-xl border border-slate-700 text-center shadow-sm relative">
              <p className="text-slate-300 text-sm font-bold">صافي الثروة والأملاك (وزنك المالي) 💎</p>
-             <h3 className="text-3xl font-black text-blue-400 mt-2">
-               {calc.netWealth.toLocaleString()} <span className="text-xs text-slate-500 font-normal">ج.س</span>
-             </h3>
-             
-             <p className="text-xs text-slate-400 mt-4 mb-2 text-right px-1">القائمة المالية لصافي الثروة:</p>
-             <div className="flex flex-col gap-1.5 text-xs bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 text-right leading-relaxed">
-                <div className="flex justify-between text-emerald-400">
-                  <span>مالك الفعلي الحر:</span> 
-                  <span>{calc.actualOwnCash.toLocaleString()} +</span>
-                </div>
-                <div className="flex justify-between text-blue-400">
-                  <span>أرصدتك وأماناتك بالخارج:</span> 
-                  <span>{calc.activeExternal.toLocaleString()} +</span>
-                </div>
-                {calc.myPartnershipCapital > 0 && (
-                  <div className="flex justify-between text-blue-400">
-                    <span>رأس مالك في الشراكات:</span> 
-                    <span>{calc.myPartnershipCapital.toLocaleString()} +</span>
-                  </div>
-                )}
-                
-                {/* إظهار الأصول */}
-                {calc.totalAssetsValue > 0 && (
-                  <div className="flex justify-between text-yellow-400 font-bold border-t border-slate-700/50 pt-1 mt-1">
-                    <span>الأصول والمقتنيات العينية 🏢:</span> 
-                    <span>{calc.totalAssetsValue.toLocaleString()} +</span>
-                  </div>
-                )}
-
-                <div className="flex justify-between text-emerald-400">
-                  <span>ديون لك عند الغير:</span> 
-                  <span>{calc.pendingToMe.toLocaleString()} +</span>
-                </div>
-                <div className="flex justify-between text-red-400">
-                  <span>ديون التزام عليك:</span> 
-                  <span>{calc.pendingOnMe.toLocaleString()} -</span>
-                </div>
+             <h3 className="text-3xl font-black text-blue-400 mt-2">{calc.netWealth.toLocaleString()} <span className="text-xs text-slate-500 font-normal">ج.س</span></h3>
+             <div className="flex flex-col gap-1.5 text-xs bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 text-right mt-4">
+                <div className="flex justify-between text-emerald-400"><span>الفعلي الحر:</span> <span>{calc.actualOwnCash.toLocaleString()} +</span></div>
+                <div className="flex justify-between text-blue-400"><span>بالخارج:</span> <span>{calc.activeExternal.toLocaleString()} +</span></div>
+                {calc.myPartnershipCapital > 0 && <div className="flex justify-between text-blue-400"><span>رأس مال الشراكات:</span> <span>{calc.myPartnershipCapital.toLocaleString()} +</span></div>}
+                {calc.totalAssetsValue > 0 && <div className="flex justify-between text-yellow-400 font-bold border-t border-slate-700/50 pt-1 mt-1"><span>الأصول والمقتنيات 🏢:</span> <span>{calc.totalAssetsValue.toLocaleString()} +</span></div>}
+                <div className="flex justify-between text-emerald-400"><span>ديون لك:</span> <span>{calc.pendingToMe.toLocaleString()} +</span></div>
+                <div className="flex justify-between text-red-400"><span>ديون عليك:</span> <span>{calc.pendingOnMe.toLocaleString()} -</span></div>
              </div>
           </div>
 
-          {calc.totalOut > 0 && (
-            <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
-               <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-1.5">
-                 <Icons.PieChart /> التحليل البصري للمنصرفات
-               </h3>
-               <div className="space-y-3">
-                 {calc.expenseChartData.map((item, idx) => (
-                   <div key={idx} className="space-y-1.5">
-                     <div className="flex justify-between text-xs">
-                       <span className="text-slate-300">{item.category}</span>
-                       <span className="text-slate-400 font-bold">{item.amount.toLocaleString()} ج.س ({item.pct}%)</span>
-                     </div>
-                     <div className="w-full bg-slate-900 rounded-full h-2 overflow-hidden">
-                       <div className="bg-emerald-500 h-2 rounded-full" style={{width: `${item.pct}%`}}></div>
-                     </div>
-                   </div>
-                 ))}
-               </div>
-            </div>
-          )}
-
           <div className="bg-slate-800 rounded-xl p-4 border border-slate-700 mt-5">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-sm text-white">سجل حركات الخزن</h3>
-              <input 
-                type="text" 
-                placeholder="بحث..." 
-                value={search} 
-                onChange={e=>setSearch(e.target.value)} 
-                className="w-5/12 bg-slate-900 border border-slate-700 text-white rounded-lg py-1.5 px-3 text-xs focus:border-emerald-500 focus:outline-none" 
-              />
+              <h3 className="font-bold text-sm text-white">سجل الحركات والفواتير</h3>
+              <input type="text" placeholder="بحث..." value={search} onChange={e=>setSearch(e.target.value)} className="w-5/12 bg-slate-900 border border-slate-700 text-white rounded-lg py-1.5 px-3 text-xs focus:border-emerald-500 focus:outline-none" />
             </div>
             
             <div className="divide-y divide-slate-700/60 max-h-72 overflow-y-auto pr-1">
@@ -824,21 +489,21 @@
                 return (
                   <div key={t.id} className="py-3 flex justify-between items-center text-sm">
                     <div className="min-w-0 flex-1 pl-3">
-                      <p className="text-white font-bold truncate flex items-center gap-1.5">
-                        {isTransfer ? <Icons.ArrowLeftRight /> : (isBank ? '📱' : '💵')} {t.category}
-                      </p>
+                      <p className="text-white font-bold truncate flex items-center gap-1.5">{isTransfer ? <Icons.ArrowLeftRight /> : (isBank ? '📱' : '💵')} {t.category}</p>
                       <p className="text-xs text-slate-500 mt-0.5">{t.date}</p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <span className={`font-bold text-sm ml-2 ${isTransfer ? 'text-blue-400' : (isIncome ? 'text-emerald-400' : 'text-red-400')}`}>
-                        {!isTransfer && (isIncome ? '+' : '-')} {t.amount.toLocaleString()}
+                        {!isTransfer && (isIncome ? '+' : '-')} {parseFloat(t.amount||0).toLocaleString()}
                       </span>
-                      <button onClick={()=>onEdit(t)} className="p-1.5 bg-slate-700 hover:bg-slate-600 text-emerald-400 rounded-lg transition">
-                        <Icons.Edit/>
-                      </button>
-                      <button onClick={()=>onDelete(t.id)} className="p-1.5 bg-slate-700 hover:bg-slate-600 text-red-400 rounded-lg transition">
-                        <Icons.Trash/>
-                      </button>
+                      {/* الزر السحري الجديد لاستخراج فواتير أي حركة سابقة */}
+                      {!isTransfer && (
+                        <button onClick={()=>onReceipt({title: isIncome ? 'سند قبض / إيداع' : 'سند صرف', person: t.category, amount: t.amount, date: t.date, ref: `TRX-${t.id.toString().slice(-5)}`})} className="p-1.5 bg-slate-700 hover:bg-slate-600 text-blue-400 rounded-lg transition" title="عرض السند">
+                          <Icons.Receipt/>
+                        </button>
+                      )}
+                      <button onClick={()=>onEdit(t)} className="p-1.5 bg-slate-700 hover:bg-slate-600 text-emerald-400 rounded-lg transition"><Icons.Edit/></button>
+                      <button onClick={()=>onDelete(t.id)} className="p-1.5 bg-slate-700 hover:bg-slate-600 text-red-400 rounded-lg transition"><Icons.Trash/></button>
                     </div>
                   </div>
                 );
@@ -852,55 +517,27 @@
 
     // --- الشراكات ---
     function PartnershipsView({ ptnrs, onAdd, onDelete, onEdit }) {
-      const sendPartnerWhatsApp = (pName, pShareAmount, projName, date) => {
-        triggerHaptic();
-        const text = `📊 *إشعار جرد وتوزيع أرباح*\n-----------------------\n👤 *الشريك:* ${pName}\n💼 *المشروع:* ${projName}\n📅 *التاريخ:* ${date}\n-----------------------\n💰 *صافي الأرباح:* ${pShareAmount.toLocaleString()} ج.س`;
-        window.location.href = `whatsapp://send?text=${encodeURIComponent(text)}`;
-      };
-
       return (
         <div className="space-y-5 animate-pop">
-          <div className="flex justify-between items-center px-1">
-            <h2 className="text-sm font-bold text-white">الشراكات الكبرى</h2>
-            <button onClick={onAdd} className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
-              ➕ مشروع جديد
-            </button>
-          </div>
+          <div className="flex justify-between items-center px-1"><h2 className="text-sm font-bold text-white">إدارة الشراكات</h2><button onClick={onAdd} className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">➕ مشروع جديد</button></div>
           {ptnrs.map(proj => {
-            const evals = proj.evaluations || []; 
-            const lastEval = evals[evals.length - 1];
-            const totalCash = lastEval ? parseFloat(lastEval.totalCash || 0) : 0; 
-            const fixedCapital = parseFloat(proj.capital || 0);
+            const evals = proj.evaluations || []; const lastEval = evals[evals.length - 1];
+            const totalCash = lastEval ? parseFloat(lastEval.totalCash || 0) : 0; const fixedCapital = parseFloat(proj.capital || 0);
             const profit = totalCash > fixedCapital ? totalCash - fixedCapital : 0;
             const totalProjectCapital = proj.allocationMode === 'capital' ? proj.partners.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0) || 1 : fixedCapital;
-
             return (
               <div key={proj.id} className="bg-slate-800 rounded-xl p-4 border border-slate-700 text-sm relative shadow-sm">
-                <div className="absolute top-4 left-4 flex gap-1.5">
-                  <button onClick={()=>onEdit(proj)} className="p-1.5 bg-slate-700 hover:bg-slate-600 text-emerald-400 rounded-lg transition"><Icons.Edit/></button>
-                  <button onClick={()=>onDelete(proj.id)} className="p-1.5 bg-slate-700 hover:bg-slate-600 text-red-400 rounded-lg transition"><Icons.Trash/></button>
-                </div>
+                <div className="absolute top-4 left-4 flex gap-1.5"><button onClick={()=>onEdit(proj)} className="p-1.5 bg-slate-700 text-emerald-400 rounded-lg"><Icons.Edit/></button><button onClick={()=>onDelete(proj.id)} className="p-1.5 bg-slate-700 text-red-400 rounded-lg"><Icons.Trash/></button></div>
                 <h3 className="font-bold text-white text-base mb-1 truncate max-w-[70%]">{proj.name}</h3>
                 <p className="text-xs text-slate-400 mb-3">رأس المال: {fixedCapital.toLocaleString()} ج.س</p>
                 <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 space-y-2">
                   <p className="text-xs text-slate-400 font-bold border-b border-slate-700 pb-1.5">📋 الأرباح:</p>
                   {lastEval && profit > 0 ? proj.partners.map((p, i) => {
                     let computedShare = proj.allocationMode === 'capital' ? (parseFloat(p.amount || 0) / totalProjectCapital) * 100 : parseFloat(p.share || 0);
-                    const pShareAmount = profit * (computedShare / 100);
                     return (
-                      <div key={i} className="flex justify-between items-center text-xs text-slate-300 py-1 bg-slate-800/60 px-2.5 rounded-lg">
-                        <span className="truncate max-w-[45%] font-medium">{p.name} <span className="text-[11px] text-slate-400">({computedShare.toFixed(1)}%)</span></span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-emerald-400 font-bold">+{pShareAmount.toLocaleString()}</span>
-                          {p.name !== 'أنت' && (
-                            <button onClick={() => sendPartnerWhatsApp(p.name, pShareAmount, proj.name, lastEval.date)} className="p-1 bg-emerald-600/30 text-emerald-400 rounded hover:bg-emerald-600/50 transition">
-                              <Icons.Share />
-                            </button>
-                          )}
-                        </div>
-                      </div>
+                      <div key={i} className="flex justify-between items-center text-xs text-slate-300 py-1 bg-slate-800/60 px-2.5 rounded-lg"><span className="truncate max-w-[45%] font-medium">{p.name}</span><span className="text-emerald-400 font-bold">+{(profit * (computedShare / 100)).toLocaleString()}</span></div>
                     );
-                  }) : <p className="text-center text-xs text-slate-500 py-2">لا يوجد أرباح</p>}
+                  }) : <p className="text-center text-xs text-slate-500 py-2">الرجاء الجرد.</p>}
                 </div>
               </div>
             );
@@ -912,173 +549,70 @@
     // --- الديون ---
     function DebtsView({ debts, onDelete, onPay, onEdit }) {
       const renderList = (type, mode) => debts.filter(d => d.type === type).map(d => {
-        const rem = d.amount - (d.paid || 0); 
-        const isPaid = rem <= 0; 
-        const pct = ((d.paid || 0) / d.amount) * 100;
-        let barColor = pct >= 50 ? "bg-emerald-500" : "bg-red-500"; 
-        if (mode === 'on_me') barColor = pct >= 50 ? "bg-red-500" : "bg-emerald-500";
-
+        const rem = d.amount - (d.paid || 0); const isPaid = rem <= 0; const pct = ((d.paid || 0) / d.amount) * 100;
+        let barColor = pct >= 50 ? "bg-emerald-500" : "bg-red-500"; if (mode === 'on_me') barColor = pct >= 50 ? "bg-red-500" : "bg-emerald-500";
         return (
           <div key={d.id} className={`bg-slate-800 p-4 rounded-xl border border-slate-700/70 space-y-3 shadow-sm ${isPaid?'opacity-50':''}`}>
             <div className="flex justify-between items-center text-sm">
-              <div className="min-w-0 flex-1">
-                <h4 className="font-bold text-white text-base truncate">{d.person}</h4>
-                <p className="text-xs text-slate-400 mt-1">الكلي: {d.amount.toLocaleString()}</p>
-              </div>
+              <div className="min-w-0 flex-1"><h4 className="font-bold text-white text-base truncate">{d.person}</h4><p className="text-xs text-slate-400 mt-1">الكلي: {d.amount.toLocaleString()}</p></div>
               <div className="flex gap-2 items-center shrink-0">
-                {!isPaid ? (
-                  <button onClick={()=>onPay(d)} className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg font-bold text-xs transition">سداد</button>
-                ) : (
-                  <span className="text-emerald-400 text-xs font-bold bg-emerald-500/10 px-2 py-1 rounded-lg">✓ مصفى</span>
-                )}
-                <button onClick={()=>onEdit(d)} className="text-emerald-400 p-1.5 hover:bg-slate-700 rounded-lg transition"><Icons.Edit/></button>
-                <button onClick={()=>onDelete(d.id)} className="text-red-400 p-1.5 hover:bg-slate-700 rounded-lg transition"><Icons.Trash/></button>
+                {!isPaid ? <button onClick={()=>onPay(d)} className="bg-slate-700 text-white px-3 py-1.5 rounded-lg font-bold text-xs">سداد</button> : <span className="text-emerald-400 text-xs font-bold bg-emerald-500/10 px-2 py-1 rounded-lg">✓ مصفى</span>}
+                <button onClick={()=>onEdit(d)} className="text-emerald-400 p-1.5 hover:bg-slate-700 rounded-lg"><Icons.Edit/></button>
+                <button onClick={()=>onDelete(d.id)} className="text-red-400 p-1.5 hover:bg-slate-700 rounded-lg"><Icons.Trash/></button>
               </div>
             </div>
             {!isPaid && (
-              <div className="space-y-1.5">
-                <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden">
-                  <div style={{width: `${pct}%`}} className={`h-full rounded-full transition-all duration-300 ${barColor}`}></div>
-                </div>
-                <div className="flex justify-between text-[11px] text-slate-400 font-medium">
-                  <span>مُسدد: {(d.paid || 0).toLocaleString()}</span>
-                  <span>متبقي: {rem.toLocaleString()}</span>
-                </div>
-              </div>
+              <div className="space-y-1.5"><div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden"><div style={{width: `${pct}%`}} className={`h-full rounded-full transition-all duration-300 ${barColor}`}></div></div><div className="flex justify-between text-[11px] text-slate-400 font-medium"><span>مُسدد: {(d.paid || 0).toLocaleString()}</span><span>متبقي: {rem.toLocaleString()}</span></div></div>
             )}
           </div>
         );
       });
-
-      return (
-        <div className="space-y-5 animate-pop">
-          <h3 className="text-sm font-bold text-emerald-400 px-1">سجل ديون لك 📈</h3>
-          <div className="space-y-3">{renderList('to_me', 'to_me')}</div>
-          <h3 className="text-sm font-bold text-red-400 border-t border-slate-700/60 pt-4 px-1 mt-2">سجل ديون عليك 📉</h3>
-          <div className="space-y-3">{renderList('on_me', 'on_me')}</div>
-        </div>
-      );
+      return (<div className="space-y-5 animate-pop"><h3 className="text-sm font-bold text-emerald-400 px-1">سجل ديون لك 📈</h3><div className="space-y-3">{renderList('to_me', 'to_me')}</div><h3 className="text-sm font-bold text-red-400 border-t border-slate-700/60 pt-4 px-1 mt-2">سجل ديون عليك 📉</h3><div className="space-y-3">{renderList('on_me', 'on_me')}</div></div>);
     }
 
     // --- الأمانات ---
     function TrustsView({ trusts, onDelete, onPay, onEdit }) {
       const renderList = (type, titleColor) => trusts.filter(t => t.type === type).map(t => {
-        const rem = t.amount - (t.paid || 0);
-        const isResolved = rem <= 0;
-        const pct = ((t.paid || 0) / t.amount) * 100;
+        const rem = t.amount - (t.paid || 0); const isResolved = rem <= 0; const pct = ((t.paid || 0) / t.amount) * 100;
         const barColor = type === 'external' ? 'bg-blue-500' : 'bg-orange-500';
-
         return (
           <div key={t.id} className={`bg-slate-800 p-4 rounded-xl border border-slate-700/70 relative shadow-sm ${isResolved ? 'opacity-50' : ''}`}>
-             <div className="absolute top-3 left-3 flex gap-1.5">
-                <button onClick={()=>onEdit(t)} className="p-1.5 text-emerald-400 hover:bg-slate-700 rounded-lg transition"><Icons.Edit/></button>
-                <button onClick={()=>onDelete(t.id)} className="p-1.5 text-red-400 hover:bg-slate-700 rounded-lg transition"><Icons.Trash/></button>
-             </div>
+             <div className="absolute top-3 left-3 flex gap-1.5"><button onClick={()=>onEdit(t)} className="p-1.5 text-emerald-400 hover:bg-slate-700 rounded-lg"><Icons.Edit/></button><button onClick={()=>onDelete(t.id)} className="p-1.5 text-red-400 hover:bg-slate-700 rounded-lg"><Icons.Trash/></button></div>
              <h4 className="font-bold text-white text-base truncate max-w-[70%] mb-1">{t.person}</h4>
-             <div className="mt-3 space-y-1.5 text-xs">
-               <div className="flex justify-between">
-                 <span className="text-slate-400">الأساسي:</span>
-                 <span className={`font-bold text-${titleColor}-400 text-sm`}>{t.amount.toLocaleString()} ج.س</span>
-               </div>
-             </div>
-             
+             <div className="mt-3 space-y-1.5 text-xs"><div className="flex justify-between"><span className="text-slate-400">الأساسي:</span><span className={`font-bold text-${titleColor}-400 text-sm`}>{t.amount.toLocaleString()} ج.س</span></div></div>
              {!isResolved ? (
-               <div className="mt-4 space-y-3">
-                  <div className="space-y-1.5">
-                    <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden">
-                      <div style={{width: `${pct}%`}} className={`h-full rounded-full transition-all duration-300 ${barColor}`}></div>
-                    </div>
-                    <div className="flex justify-between text-[11px] text-slate-400 font-medium">
-                      <span>حركة: {(t.paid || 0).toLocaleString()}</span>
-                      <span>الرصيد المتبقي: {rem.toLocaleString()}</span>
-                    </div>
-                  </div>
-                  <button onClick={()=>onPay(t)} className="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-xl text-xs font-bold transition shadow-sm">
-                    حركة (استرداد/تسليم) 💸
-                  </button>
-               </div>
-             ) : (
-               <div className="w-full mt-4 bg-emerald-500/10 text-emerald-400 py-2 rounded-xl text-xs font-bold text-center border border-emerald-500/20">✅ الرصيد مصفى</div>
-             )}
+               <div className="mt-4 space-y-3"><div className="space-y-1.5"><div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden"><div style={{width: `${pct}%`}} className={`h-full rounded-full transition-all duration-300 ${barColor}`}></div></div><div className="flex justify-between text-[11px] text-slate-400 font-medium"><span>حركة: {(t.paid || 0).toLocaleString()}</span><span>الرصيد المتبقي: {rem.toLocaleString()}</span></div></div><button onClick={()=>onPay(t)} className="w-full bg-slate-700 text-white py-2 rounded-xl text-xs font-bold">تسجيل استرداد/تسليم 💸</button></div>
+             ) : (<div className="w-full mt-4 bg-emerald-500/10 text-emerald-400 py-2 rounded-xl text-xs font-bold text-center border border-emerald-500/20">✅ تم التصفية</div>)}
           </div>
         );
       });
-
-      return (
-        <div className="space-y-5 animate-pop">
-          <h3 className="text-sm font-bold text-blue-400 px-1">أرصدة بالخارج 📤</h3>
-          <div className="space-y-3">{renderList('external', 'blue')}</div>
-          
-          <h3 className="text-sm font-bold text-orange-400 border-t border-slate-700/60 pt-4 mt-2 px-1">أمانات للغير 📥</h3>
-          <div className="space-y-3">{renderList('with_me', 'orange')}</div>
-        </div>
-      );
+      return (<div className="space-y-5 animate-pop"><h3 className="text-sm font-bold text-blue-400 px-1">أرصدة بالخارج 📤</h3><div className="space-y-3">{renderList('external', 'blue')}</div><h3 className="text-sm font-bold text-orange-400 border-t border-slate-700/60 pt-4 mt-2 px-1">أمانات للغير 📥</h3><div className="space-y-3">{renderList('with_me', 'orange')}</div></div>);
     }
 
     // --- الضبط وإدارة السحابة والتصدير ---
     function ProfileView({ email, onReset, onChangePwd, currentPwd, onBackup, onRestore, lastBackup, onExportExcel }) {
-      const [pwd, setPwd] = useState(''); 
-      const [restoreCode, setRestoreCode] = useState('');
-
-      const formatLastBackup = () => {
-        if (!lastBackup) return 'لم يتم أخذ نسخة قط ⚠️';
-        return new Date(lastBackup).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' });
-      };
-
+      const [pwd, setPwd] = useState(''); const [restoreCode, setRestoreCode] = useState('');
+      const formatLastBackup = () => { if (!lastBackup) return 'لم يتم أخذ نسخة قط ⚠️'; return new Date(lastBackup).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }); };
       return (
         <div className="space-y-5 animate-pop text-sm pb-6">
-          <div className="bg-slate-800 p-4 rounded-xl text-center border border-slate-700 shadow-sm">
-            <p className="text-xs text-slate-400 mb-1">الحساب الفعال</p>
-            <p className="text-white font-bold text-base">{email}</p>
-          </div>
-
+          <div className="bg-slate-800 p-4 rounded-xl text-center border border-slate-700 shadow-sm"><p className="text-xs text-slate-400 mb-1">الحساب الفعال</p><p className="text-white font-bold text-base">{email}</p></div>
           <div className="bg-slate-800 p-4 rounded-xl border border-blue-500/30 relative overflow-hidden shadow-sm">
              <div className="absolute top-0 right-0 w-1.5 bg-blue-500 h-full"></div>
-             <h3 className="font-bold text-blue-400 mb-1.5 flex items-center gap-2 text-base"><Icons.FileExcel /> التقارير</h3>
-             <p className="text-xs text-slate-400 mb-4">تحميل جميع سجلاتك كملف إكسل.</p>
-             <button onClick={onExportExcel} className="w-full bg-slate-700 hover:bg-slate-600 text-blue-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition">
-                <Icons.Download /> تصدير (Excel)
-             </button>
+             <h3 className="font-bold text-blue-400 mb-1.5 flex items-center gap-2 text-base"><Icons.FileExcel /> التقارير</h3><p className="text-xs text-slate-400 mb-4">تحميل السجلات كملف إكسل.</p>
+             <button onClick={onExportExcel} className="w-full bg-slate-700 hover:bg-slate-600 text-blue-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2"><Icons.Download /> تصدير (Excel)</button>
           </div>
-
           <div className="bg-slate-800 p-4 rounded-xl border border-emerald-500/30 relative overflow-hidden shadow-sm">
              <div className="absolute top-0 right-0 w-1.5 bg-emerald-500 h-full"></div>
              <h3 className="font-bold text-emerald-400 mb-1.5 flex items-center gap-2 text-base"><Icons.Shield /> السحابة</h3>
-             <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 mb-4 mt-3">
-               <p className="text-xs text-slate-300 flex justify-between items-center">
-                 <span>آخر نسخة:</span>
-                 <span className={!lastBackup || (Date.now() - lastBackup > 259200000) ? 'text-red-400 font-bold bg-red-500/10 px-2 py-1 rounded' : 'text-emerald-400 font-bold bg-emerald-500/10 px-2 py-1 rounded'}>{formatLastBackup()}</span>
-               </p>
-             </div>
-
-             <button onClick={onBackup} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold shadow-md mb-5 flex items-center justify-center gap-2 transition">
-                <Icons.Cloud /> أخذ نسخة لجوجل كيب
-             </button>
-
-             <div className="border-t border-slate-700/60 pt-4">
-               <p className="text-xs font-bold text-slate-300 mb-3">استعادة الحسابات:</p>
-               <textarea 
-                 value={restoreCode} 
-                 onChange={e=>setRestoreCode(e.target.value)} 
-                 placeholder="ألصق كود النسخة هنا..." 
-                 className="w-full bg-slate-900 text-emerald-400 p-3 rounded-xl border border-slate-600 text-xs h-20 font-mono mb-3 focus:outline-none focus:border-emerald-500 transition" 
-               />
-               <button onClick={()=>{if(restoreCode.trim() && window.confirm('متأكد من الاستعادة؟')) { onRestore(restoreCode); setRestoreCode(''); } }} className="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition">
-                 <Icons.Download /> تأكيد الاستعادة
-               </button>
-             </div>
+             <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 mb-4 mt-3"><p className="text-xs text-slate-300 flex justify-between items-center"><span>آخر نسخة:</span><span className={!lastBackup || (Date.now() - lastBackup > 259200000) ? 'text-red-400 font-bold bg-red-500/10 px-2 py-1 rounded' : 'text-emerald-400 font-bold bg-emerald-500/10 px-2 py-1 rounded'}>{formatLastBackup()}</span></p></div>
+             <button onClick={onBackup} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold mb-5 flex items-center justify-center gap-2"><Icons.Cloud /> أخذ نسخة لجوجل كيب</button>
+             <div className="border-t border-slate-700/60 pt-4"><p className="text-xs font-bold text-slate-300 mb-3">استعادة الحسابات:</p><textarea value={restoreCode} onChange={e=>setRestoreCode(e.target.value)} placeholder="ألصق كود النسخة هنا..." className="w-full bg-slate-900 text-emerald-400 p-3 rounded-xl border border-slate-600 text-xs h-20 font-mono mb-3 focus:outline-none focus:border-emerald-500" /><button onClick={()=>{if(restoreCode.trim() && window.confirm('متأكد من الاستعادة؟')) { onRestore(restoreCode); setRestoreCode(''); } }} className="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2"><Icons.Download /> تأكيد الاستعادة</button></div>
           </div>
-
           <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3 mt-5 shadow-sm">
-            <p className="text-xs text-slate-400">تعديل رمز الأمان الحالي: <span className="text-white bg-slate-900 px-2.5 py-1 rounded-lg font-bold mx-1">{currentPwd}</span></p>
-            <div className="flex gap-2.5">
-              <input type="text" value={pwd} onChange={e=>setPwd(e.target.value)} placeholder="رمز جديد..." className="flex-1 bg-slate-900 p-3 rounded-xl text-white border border-slate-700 text-sm focus:outline-none focus:border-emerald-500" />
-              <button onClick={()=>{if(pwd.trim()){onChangePwd(pwd.trim()); setPwd('');}}} className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 rounded-xl font-bold transition">حفظ</button>
-            </div>
+            <p className="text-xs text-slate-400">تعديل الرمز الحالي: <span className="text-white bg-slate-900 px-2.5 py-1 rounded-lg font-bold mx-1">{currentPwd}</span></p>
+            <div className="flex gap-2.5"><input type="text" value={pwd} onChange={e=>setPwd(e.target.value)} placeholder="رمز جديد..." className="flex-1 bg-slate-900 p-3 rounded-xl text-white border border-slate-700 text-sm focus:outline-none focus:border-emerald-500" /><button onClick={()=>{if(pwd.trim()){onChangePwd(pwd.trim()); setPwd('');}}} className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 rounded-xl font-bold">حفظ</button></div>
           </div>
-          <button onClick={onReset} className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 py-3 rounded-xl font-bold mt-3 transition">
-            تصفير السجلات المالية بالكامل
-          </button>
+          <button onClick={onReset} className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 py-3 rounded-xl font-bold mt-3 transition">تصفير السجلات المالية</button>
         </div>
       );
     }
@@ -1093,8 +627,7 @@
 
     // --- مودال الإضافة السريع ---
     function QuickAddModal({ type: initialType, editData, onClose, onSave, ptnrs }) {
-      const isEdit = !!editData; 
-      const [type, setType] = useState(initialType);
+      const isEdit = !!editData; const [type, setType] = useState(initialType);
       const [txType, setTxType] = useState(isEdit && editData.type ? editData.type : (type === 'trust' ? 'external' : 'income'));
       const [wallet, setWallet] = useState(isEdit && editData.wallet ? editData.wallet : 'bank');
       const [direction, setDirection] = useState('bank_to_cash'); 
@@ -1103,9 +636,7 @@
       const [formData, setFormData] = useState(isEdit ? {...editData} : { date: new Date().toISOString().split('T')[0], category: 'مصروف الأسرة' });
 
       const handleSubmit = e => {
-        e.preventDefault(); 
-        const dId = isEdit ? formData.id : null;
-        
+        e.preventDefault(); const dId = isEdit ? formData.id : null;
         if(type === 'transaction') {
           const finalCategory = txType === 'income' ? 'إيداع وارد' : formData.category;
           onSave('transaction', { type: txType, amount: parseFloat(formData.amount), wallet, category: finalCategory, date: formData.date }, dId);
@@ -1114,28 +645,18 @@
           const catName = direction === 'bank_to_cash' ? 'سحب كاش من البنك' : 'إيداع كاش للبنك';
           onSave('transaction', { type: 'transfer', direction, amount: parseFloat(formData.amount), category: catName, date: formData.date }, dId);
         }
-        else if(type === 'debt') {
-          onSave('debt', { type: txType, person: formData.person, amount: parseFloat(formData.amount), date: formData.date }, dId);
-        }
-        else if(type === 'trust') {
-          onSave('trust', { type: txType, person: formData.person, amount: parseFloat(formData.amount), bankRef: formData.bankRef, date: formData.date }, dId);
-        }
+        else if(type === 'debt') onSave('debt', { type: txType, person: formData.person, amount: parseFloat(formData.amount), date: formData.date }, dId);
+        else if(type === 'trust') onSave('trust', { type: txType, person: formData.person, amount: parseFloat(formData.amount), bankRef: formData.bankRef, date: formData.date }, dId);
         else if(type === 'new_partnership') {
           let calculatedTotalCapital = parseFloat(formData.capital || 0);
           if (allocationMode === 'manual') {
             const sum = partnersList.reduce((s, p) => s + parseFloat(p.share || 0), 0);
-            if(sum !== 100) return alert('نسب الشركاء يجب أن تساوى 100%');
+            if(sum !== 100) return alert('النسب يجب أن تساوى 100%');
           } else {
             calculatedTotalCapital = partnersList.reduce((s, p) => s + parseFloat(p.amount || 0), 0);
             if(calculatedTotalCapital <= 0) return alert('أدخل مبالغ المساهمة بشكل صحيح');
           }
-          onSave('new_partnership', { 
-            name: (formData.projectName || formData.name), 
-            capital: calculatedTotalCapital, 
-            allocationMode, 
-            wallet, 
-            partners: partnersList.map(pt=>({name: pt.name, amount: parseFloat(pt.amount || 0), share: parseFloat(pt.share || 0)})) 
-          }, dId);
+          onSave('new_partnership', { name: (formData.projectName || formData.name), capital: calculatedTotalCapital, allocationMode, wallet, partners: partnersList.map(pt=>({name: pt.name, amount: parseFloat(pt.amount || 0), share: parseFloat(pt.share || 0)})) }, dId);
         }
         else if(type === 'evaluation') {
           if(!formData.projectId) return alert('الرجاء اختيار المشروع');
@@ -1146,43 +667,26 @@
       return (
         <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4">
           <div className="bg-slate-900 w-full max-w-sm rounded-2xl p-5 border border-slate-700 max-h-[85vh] overflow-y-auto animate-pop shadow-2xl">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="font-bold text-base text-white">{isEdit?'تعديل سجل':'إدخال مالي جديد'}</h2>
-              <button onClick={onClose} className="bg-slate-800 hover:bg-slate-700 p-1.5 rounded-lg text-lg transition">❌</button>
-            </div>
-            
+            <div className="flex justify-between items-center mb-4"><h2 className="font-bold text-base text-white">{isEdit?'تعديل سجل':'إدخال مالي'}</h2><button onClick={onClose} className="bg-slate-800 hover:bg-slate-700 p-1.5 rounded-lg text-lg">❌</button></div>
             {!isEdit && ['transaction', 'transfer', 'debt', 'trust', 'evaluation'].includes(type) && (
               <div className="flex flex-wrap gap-1.5 bg-slate-800 p-1.5 rounded-xl mb-4">
-                <button onClick={()=>setType('transaction')} className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition ${type==='transaction'?'bg-emerald-500 text-white':'text-slate-400'}`}>تدفق</button>
-                <button onClick={()=>setType('transfer')} className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition ${type==='transfer'?'bg-emerald-500 text-white':'text-slate-400'}`}>تحويل 🔄</button>
-                <button onClick={()=>setType('debt')} className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition ${type==='debt'?'bg-emerald-500 text-white':'text-slate-400'}`}>دين</button>
-                <button onClick={()=>{setType('trust'); setTxType('external');}} className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition ${type==='trust'?'bg-blue-500 text-white':'text-slate-400'}`}>أمانة</button>
-                <button onClick={()=>setType('evaluation')} className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition ${type==='evaluation'?'bg-emerald-500 text-white':'text-slate-400'}`}>جرد</button>
+                <button onClick={()=>setType('transaction')} className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold ${type==='transaction'?'bg-emerald-500 text-white':'text-slate-400'}`}>تدفق</button>
+                <button onClick={()=>setType('transfer')} className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold ${type==='transfer'?'bg-emerald-500 text-white':'text-slate-400'}`}>تحويل 🔄</button>
+                <button onClick={()=>setType('debt')} className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold ${type==='debt'?'bg-emerald-500 text-white':'text-slate-400'}`}>دين</button>
+                <button onClick={()=>{setType('trust'); setTxType('external');}} className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold ${type==='trust'?'bg-blue-500 text-white':'text-slate-400'}`}>أمانة</button>
+                <button onClick={()=>setType('evaluation')} className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold ${type==='evaluation'?'bg-emerald-500 text-white':'text-slate-400'}`}>جرد</button>
               </div>
             )}
-
             <form onSubmit={handleSubmit} className="space-y-4">
               {type === 'transaction' && (
                  <>
-                  <div className="flex gap-2">
-                    <button type="button" onClick={()=>setTxType('income')} className={`flex-1 py-2.5 rounded-xl border-2 font-bold text-xs transition ${txType==='income'?'border-emerald-500 text-emerald-400 bg-emerald-500/10':'border-slate-700 text-slate-400'}`}>وارد (+)</button>
-                    <button type="button" onClick={()=>setTxType('expense')} className={`flex-1 py-2.5 rounded-xl border-2 font-bold text-xs transition ${txType==='expense'?'border-red-500 text-red-400 bg-red-500/10':'border-slate-700 text-slate-400'}`}>منصرف (-)</button>
-                  </div>
-                  <div className="flex gap-2">
-                    <button type="button" onClick={()=>setWallet('bank')} className={`flex-1 py-2.5 rounded-xl border-2 font-bold text-xs transition ${wallet==='bank'?'bg-blue-500 border-blue-500 text-white':'bg-slate-800 text-slate-400 border-slate-600'}`}>البنك 📱</button>
-                    <button type="button" onClick={()=>setWallet('cash')} className={`flex-1 py-2.5 rounded-xl border-2 font-bold text-xs transition ${wallet==='cash'?'bg-emerald-500 border-emerald-500 text-white':'bg-slate-800 text-slate-400 border-slate-600'}`}>الكاش 💵</button>
-                  </div>
-
+                  <div className="flex gap-2"><button type="button" onClick={()=>setTxType('income')} className={`flex-1 py-2.5 rounded-xl border-2 font-bold text-xs ${txType==='income'?'border-emerald-500 text-emerald-400 bg-emerald-500/10':'border-slate-700 text-slate-400'}`}>وارد (+)</button><button type="button" onClick={()=>setTxType('expense')} className={`flex-1 py-2.5 rounded-xl border-2 font-bold text-xs ${txType==='expense'?'border-red-500 text-red-400 bg-red-500/10':'border-slate-700 text-slate-400'}`}>منصرف (-)</button></div>
+                  <div className="flex gap-2"><button type="button" onClick={()=>setWallet('bank')} className={`flex-1 py-2.5 rounded-xl border-2 font-bold text-xs ${wallet==='bank'?'bg-blue-500 border-blue-500 text-white':'bg-slate-800 text-slate-400 border-slate-600'}`}>البنك 📱</button><button type="button" onClick={()=>setWallet('cash')} className={`flex-1 py-2.5 rounded-xl border-2 font-bold text-xs ${wallet==='cash'?'bg-emerald-500 border-emerald-500 text-white':'bg-slate-800 text-slate-400 border-slate-600'}`}>الكاش 💵</button></div>
                   <input type="number" required placeholder="المبلغ المالي (ج.س)" value={formData.amount||''} onChange={e=>setFormData({...formData, amount: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-center font-bold mt-1 text-base focus:outline-none focus:border-emerald-500" />
-                  
                   {txType === 'expense' && (
                     <div className="space-y-1.5">
-                      <label className="text-xs text-slate-400 font-medium">تصنيف المنصرف:</label>
                       <select value={formData.category||'مصروف الأسرة'} onChange={e=>setFormData({...formData, category: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none">
-                        <option value="مصروف الأسرة">مصروف الأسرة</option>
-                        <option value="مصروف مدرسي">مصروف مدرسي</option>
-                        <option value="تسوق">تسوق</option>
-                        <option value="أخرى">أخرى</option>
+                        <option value="مصروف الأسرة">مصروف الأسرة</option><option value="مصروف مدرسي">مصروف مدرسي</option><option value="تسوق">تسوق</option><option value="أخرى">أخرى</option>
                       </select>
                     </div>
                   )}
@@ -1191,20 +695,14 @@
 
               {type === 'transfer' && (
                  <>
-                  <div className="flex gap-2">
-                    <button type="button" onClick={()=>setDirection('bank_to_cash')} className={`flex-1 py-3 rounded-xl border-2 font-bold text-xs transition ${direction==='bank_to_cash'?'bg-blue-500 border-blue-500 text-white':'bg-slate-800 text-slate-400 border-slate-600'}`}>سحب لليد 💵</button>
-                    <button type="button" onClick={()=>setDirection('cash_to_bank')} className={`flex-1 py-3 rounded-xl border-2 font-bold text-xs transition ${direction==='cash_to_bank'?'bg-emerald-500 border-emerald-500 text-white':'bg-slate-800 text-slate-400 border-slate-600'}`}>إيداع للبنك 📱</button>
-                  </div>
+                  <div className="flex gap-2"><button type="button" onClick={()=>setDirection('bank_to_cash')} className={`flex-1 py-3 rounded-xl border-2 font-bold text-xs ${direction==='bank_to_cash'?'bg-blue-500 border-blue-500 text-white':'bg-slate-800 text-slate-400 border-slate-600'}`}>سحب لليد 💵</button><button type="button" onClick={()=>setDirection('cash_to_bank')} className={`flex-1 py-3 rounded-xl border-2 font-bold text-xs ${direction==='cash_to_bank'?'bg-emerald-500 border-emerald-500 text-white':'bg-slate-800 text-slate-400 border-slate-600'}`}>إيداع للبنك 📱</button></div>
                   <input type="number" required placeholder="المبلغ المحول" value={formData.amount||''} onChange={e=>setFormData({...formData, amount: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-center font-bold mt-2 text-base focus:outline-none" />
                  </>
               )}
               
               {type === 'trust' && (
                  <>
-                  <div className="flex gap-2">
-                    <button type="button" onClick={()=>setTxType('external')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold transition ${txType==='external'?'border-blue-500 text-blue-400 bg-blue-500/10':'border-slate-700 text-slate-400'}`}>رصيد بالخارج</button>
-                    <button type="button" onClick={()=>setTxType('with_me')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold transition ${txType==='with_me'?'border-orange-500 text-orange-400 bg-orange-500/10':'border-slate-700 text-slate-400'}`}>أمانة بطرفي</button>
-                  </div>
+                  <div className="flex gap-2"><button type="button" onClick={()=>setTxType('external')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold ${txType==='external'?'border-blue-500 text-blue-400 bg-blue-500/10':'border-slate-700 text-slate-400'}`}>رصيد بالخارج</button><button type="button" onClick={()=>setTxType('with_me')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold ${txType==='with_me'?'border-orange-500 text-orange-400 bg-orange-500/10':'border-slate-700 text-slate-400'}`}>أمانة بطرفي</button></div>
                   <input type="text" required placeholder="الاسم" value={formData.person||''} onChange={e=>setFormData({...formData, person: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none" />
                   <input type="number" required placeholder="المبلغ" value={formData.amount||''} onChange={e=>setFormData({...formData, amount: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none" />
                  </>
@@ -1212,10 +710,7 @@
 
               {type === 'debt' && (
                  <>
-                  <div className="flex gap-2">
-                    <button type="button" onClick={()=>setTxType('to_me')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold transition ${txType==='to_me'?'border-emerald-500 text-emerald-400 bg-emerald-500/10':'border-slate-700 text-slate-400'}`}>مستحق لي</button>
-                    <button type="button" onClick={()=>setTxType('on_me')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold transition ${txType==='on_me'?'border-red-500 text-red-400 bg-red-500/10':'border-slate-700 text-slate-400'}`}>التزام علي</button>
-                  </div>
+                  <div className="flex gap-2"><button type="button" onClick={()=>setTxType('to_me')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold ${txType==='to_me'?'border-emerald-500 text-emerald-400 bg-emerald-500/10':'border-slate-700 text-slate-400'}`}>مستحق لي</button><button type="button" onClick={()=>setTxType('on_me')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold ${txType==='on_me'?'border-red-500 text-red-400 bg-red-500/10':'border-slate-700 text-slate-400'}`}>التزام علي</button></div>
                   <input type="text" required placeholder="اسم الشخص" value={formData.person||''} onChange={e=>setFormData({...formData, person: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none" />
                   <input type="number" required placeholder="المبلغ الكلي" value={formData.amount||''} onChange={e=>setFormData({...formData, amount: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none" />
                  </>
@@ -1224,41 +719,17 @@
               {type === 'new_partnership' && (
                 <>
                   <input type="text" required placeholder="اسم المشروع" value={formData.projectName||formData.name||''} onChange={e=>setFormData({...formData, projectName: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none" />
-                  <div className="space-y-2">
-                    <label className="text-xs text-slate-400 font-medium">النسب:</label>
-                    <div className="flex gap-2 bg-slate-800 p-1.5 rounded-xl border border-slate-700">
-                      <button type="button" onClick={()=>setAllocationMode('capital')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition ${allocationMode==='capital'?'bg-emerald-500 text-white':'text-slate-400'}`}>تلقائي</button>
-                      <button type="button" onClick={()=>setAllocationMode('manual')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition ${allocationMode==='manual'?'bg-emerald-500 text-white':'text-slate-400'}`}>يدوي</button>
-                    </div>
-                  </div>
-
+                  <div className="space-y-2"><label className="text-xs text-slate-400 font-medium">النسب:</label><div className="flex gap-2 bg-slate-800 p-1.5 rounded-xl border border-slate-700"><button type="button" onClick={()=>setAllocationMode('capital')} className={`flex-1 py-2 rounded-lg text-xs font-bold ${allocationMode==='capital'?'bg-emerald-500 text-white':'text-slate-400'}`}>تلقائي</button><button type="button" onClick={()=>setAllocationMode('manual')} className={`flex-1 py-2 rounded-lg text-xs font-bold ${allocationMode==='manual'?'bg-emerald-500 text-white':'text-slate-400'}`}>يدوي</button></div></div>
                   {allocationMode === 'capital' && (
-                    <div className="space-y-1.5">
-                      <label className="text-xs text-slate-400 font-medium">تمويل حصتك (أنت):</label>
-                      <div className="flex gap-2 bg-slate-800 p-1.5 rounded-xl border border-slate-700">
-                        <button type="button" onClick={()=>setWallet('bank')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition ${wallet==='bank'?'bg-blue-500 text-white':'text-slate-400'}`}>البنك 📱</button>
-                        <button type="button" onClick={()=>setWallet('cash')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition ${wallet==='cash'?'bg-emerald-500 text-white':'text-slate-400'}`}>الكاش 💵</button>
-                      </div>
-                    </div>
+                    <div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">تمويل حصتك (أنت):</label><div className="flex gap-2 bg-slate-800 p-1.5 rounded-xl border border-slate-700"><button type="button" onClick={()=>setWallet('bank')} className={`flex-1 py-2 rounded-lg text-xs font-bold ${wallet==='bank'?'bg-blue-500 text-white':'text-slate-400'}`}>البنك 📱</button><button type="button" onClick={()=>setWallet('cash')} className={`flex-1 py-2 rounded-lg text-xs font-bold ${wallet==='cash'?'bg-emerald-500 text-white':'text-slate-400'}`}>الكاش 💵</button></div></div>
                   )}
-
-                  {allocationMode === 'manual' && (
-                    <input type="number" required placeholder="رأس المال الكلي" value={formData.capital||''} onChange={e=>setFormData({...formData, capital: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none" />
-                  )}
-                  
-                  <div className="pt-4 border-t border-slate-700 mt-2">
-                    <p className="text-xs font-bold text-emerald-400 mb-3">الشركاء:</p>
+                  {allocationMode === 'manual' && (<input type="number" required placeholder="رأس المال الكلي" value={formData.capital||''} onChange={e=>setFormData({...formData, capital: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none" />)}
+                  <div className="pt-4 border-t border-slate-700 mt-2"><p className="text-xs font-bold text-emerald-400 mb-3">الشركاء:</p>
                     {partnersList.map((p, i) => (
                       <div key={i} className="flex gap-2 mb-3 items-center">
                         <input type="text" required value={p.name} onChange={e=>{let l=[...partnersList]; l[i].name=e.target.value; setPartnersList(l);}} className="w-2/5 bg-slate-800 text-white p-2.5 rounded-xl border border-slate-600 text-sm focus:outline-none" placeholder="الاسم" />
-                        {allocationMode === 'capital' ? (
-                          <input type="number" required value={p.amount} onChange={e=>{let l=[...partnersList]; l[i].amount=e.target.value; setPartnersList(l);}} className="w-3/5 bg-slate-800 text-white p-2.5 rounded-xl border border-slate-600 text-center text-sm focus:outline-none" placeholder="كم أودع؟" />
-                        ) : (
-                          <input type="number" required value={p.share} onChange={e=>{let l=[...partnersList]; l[i].share=e.target.value; setPartnersList(l);}} className="w-3/5 bg-slate-800 text-white p-2.5 rounded-xl border border-slate-600 text-center text-sm focus:outline-none" placeholder="نسبته %" />
-                        )}
-                        {i > 1 && (
-                          <button type="button" onClick={()=>setPartnersList(partnersList.filter((_, idx)=>idx!==i))} className="text-red-400 font-bold px-2 text-lg">❌</button>
-                        )}
+                        {allocationMode === 'capital' ? (<input type="number" required value={p.amount} onChange={e=>{let l=[...partnersList]; l[i].amount=e.target.value; setPartnersList(l);}} className="w-3/5 bg-slate-800 text-white p-2.5 rounded-xl border border-slate-600 text-center text-sm focus:outline-none" placeholder="كم أودع؟" />) : (<input type="number" required value={p.share} onChange={e=>{let l=[...partnersList]; l[i].share=e.target.value; setPartnersList(l);}} className="w-3/5 bg-slate-800 text-white p-2.5 rounded-xl border border-slate-600 text-center text-sm focus:outline-none" placeholder="نسبته %" />)}
+                        {i > 1 && (<button type="button" onClick={()=>setPartnersList(partnersList.filter((_, idx)=>idx!==i))} className="text-red-400 font-bold px-2 text-lg">❌</button>)}
                       </div>
                     ))}
                     <button type="button" onClick={()=>setPartnersList([...partnersList, {name:'', amount:'', share:''} || {}])} className="w-full text-emerald-400 bg-emerald-500/10 py-2.5 rounded-xl text-xs font-bold transition">➕ إضافة شريك</button>
@@ -1268,20 +739,15 @@
 
               {type === 'evaluation' && (
                 <>
-                  <div className="flex gap-2 mb-3">
-                    <button type="button" onClick={()=>setWallet('bank')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold transition ${wallet==='bank'?'bg-blue-500 border-blue-500 text-white':'bg-slate-800 text-slate-400 border-slate-600'}`}>أرباح للبنك 📱</button>
-                    <button type="button" onClick={()=>setWallet('cash')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold transition ${wallet==='cash'?'bg-emerald-500 border-emerald-500 text-white':'bg-slate-800 text-slate-400 border-slate-600'}`}>أرباح كاش 💵</button>
-                  </div>
+                  <div className="flex gap-2 mb-3"><button type="button" onClick={()=>setWallet('bank')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold ${wallet==='bank'?'bg-blue-500 border-blue-500 text-white':'bg-slate-800 text-slate-400'}`}>أرباح للبنك 📱</button><button type="button" onClick={()=>setWallet('cash')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold ${wallet==='cash'?'bg-emerald-500 border-emerald-500 text-white':'bg-slate-800 text-slate-400'}`}>أرباح كاش 💵</button></div>
                   <select required value={formData.projectId||''} onChange={e=>setFormData({...formData, projectId: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 mb-3 text-sm focus:outline-none">
-                    <option value="">اختر مشروع الشراكة لجرد المال...</option>
-                    {ptnrs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    <option value="">اختر مشروع الشراكة لجرد المال...</option>{ptnrs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                   <input type="number" required placeholder="إجمالي المال الفعلي" value={formData.totalCash||''} onChange={e=>setFormData({...formData, totalCash: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none" />
                 </>
               )}
-
               <input type="date" required value={formData.date} onChange={e=>setFormData({...formData, date: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-center text-sm focus:outline-none" />
-              <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-lg mt-2 text-sm transition">حفظ وتأكيد التغيير</button>
+              <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-lg mt-2 text-sm transition">حفظ السجل</button>
             </form>
           </div>
         </div>
@@ -1289,77 +755,52 @@
     }
 
     function PaymentModal({ item, onClose, onSave, title, subtitle }) {
-      const [amount, setAmount] = useState(''); 
-      const [wallet, setWallet] = useState('bank');
+      const [amount, setAmount] = useState(''); const [wallet, setWallet] = useState('bank');
       const rem = item.amount - (item.paid || 0);
 
       const submit = e => { 
         e.preventDefault(); 
         const v = parseFloat(amount); 
-        if(v > 0 && v <= rem) {
-          onSave(item.id, v, wallet); 
-        } else {
-          alert('المبلغ المدخل غير صحيح!');
-        }
+        if(v > 0 && v <= rem) onSave(item.id, v, wallet); 
+        else alert('المبلغ غير صحيح!');
       };
 
       return (
         <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-end justify-center p-4">
           <div className="bg-slate-900 w-full max-w-sm rounded-3xl p-5 border border-slate-700 mb-10 animate-pop shadow-2xl">
-            <h2 className="text-sm font-bold text-white mb-2">{title}</h2>
-            <p className="text-xs text-slate-400 mb-4">{subtitle} {rem.toLocaleString()} ج.س</p>
-            
-            <div className="flex gap-2.5 mb-4">
-              <button type="button" onClick={()=>setWallet('bank')} className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition ${wallet==='bank'?'bg-blue-500 text-white shadow-md':'bg-slate-800 text-slate-400 border border-slate-600'}`}>حساب بنكي 📱</button>
-              <button type="button" onClick={()=>setWallet('cash')} className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition ${wallet==='cash'?'bg-emerald-500 text-white shadow-md':'bg-slate-800 text-slate-400 border border-slate-600'}`}>كاش نقدي 💵</button>
-            </div>
-
-            <form onSubmit={submit}>
-              <input 
-                type="number" 
-                value={amount} 
-                onChange={e=>setAmount(e.target.value)} 
-                required 
-                max={rem} 
-                className="w-full bg-slate-800 text-white text-center text-xl font-black p-3.5 rounded-2xl border border-slate-600 mb-4 focus:outline-none focus:border-emerald-500 transition" 
-                placeholder="أدخل القيمة" 
-                autoFocus 
-              />
-              <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-2xl text-sm font-bold shadow-lg transition">تأكيد ومزامنة الحسابات</button>
-            </form>
-            <button onClick={onClose} className="w-full mt-3 bg-transparent hover:bg-slate-800 text-slate-400 py-3 rounded-2xl text-sm font-bold transition">إلغاء</button>
+            <h2 className="text-sm font-bold text-white mb-2">{title}</h2><p className="text-xs text-slate-400 mb-4">{subtitle} {rem.toLocaleString()} ج.س</p>
+            <div className="flex gap-2.5 mb-4"><button type="button" onClick={()=>setWallet('bank')} className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition ${wallet==='bank'?'bg-blue-500 text-white shadow-md':'bg-slate-800 text-slate-400 border border-slate-600'}`}>البنك 📱</button><button type="button" onClick={()=>setWallet('cash')} className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition ${wallet==='cash'?'bg-emerald-500 text-white shadow-md':'bg-slate-800 text-slate-400 border border-slate-600'}`}>الكاش 💵</button></div>
+            <form onSubmit={submit}><input type="number" value={amount} onChange={e=>setAmount(e.target.value)} required max={rem} className="w-full bg-slate-800 text-white text-center text-xl font-black p-3.5 rounded-2xl border border-slate-600 mb-4 focus:outline-none focus:border-emerald-500" placeholder="أدخل القيمة" autoFocus /><button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-2xl text-sm font-bold shadow-lg">تأكيد ومزامنة</button></form>
+            <button onClick={onClose} className="w-full mt-3 bg-transparent text-slate-400 py-3 rounded-2xl text-sm font-bold">إلغاء</button>
           </div>
         </div>
       );
     }
 
+    // --- مودال الفواتير المحمي والمحدث ---
     function ReceiptModal({ data, onClose, showToast }) {
-      const receiptText = `🧾 *سند محاسبي معتمد*\n-----------------------\n▪️ *رقم السند:* ${data.ref}\n▪️ *التاريخ:* ${data.date}\n▪️ *النوع:* ${data.title}\n▪️ *الجهة والبيان:* ${data.person}\n-----------------------\n💰 *المبلغ:* ${data.amount.toLocaleString()} ج.س`;
+      if (!data) return null; // حماية مطلقة ضد انهيار الشاشة
 
-      const copyText = () => {
-        triggerHaptic();
-        navigator.clipboard.writeText(receiptText);
-        showToast('تم نسخ السند! يمكنك لصقه في واتساب الآن.');
-      };
+      // ضمان أن المبالغ ستُقرأ كأرقام دائماً حتى لو كانت نصوصاً بالخطأ
+      const safeAmount = data.amount ? parseFloat(data.amount) : 0;
+      const safeRef = data.ref || 'غير محدد';
+      const safeDate = data.date || new Date().toISOString().split('T')[0];
+      const safeTitle = data.title || 'سند مالي';
+      const safePerson = data.person || 'عام';
+
+      const receiptText = `🧾 *سند محاسبي معتمد*\n-----------------------\n▪️ *رقم السند:* ${safeRef}\n▪️ *التاريخ:* ${safeDate}\n▪️ *النوع:* ${safeTitle}\n▪️ *الجهة والبيان:* ${safePerson}\n-----------------------\n💰 *المبلغ:* ${safeAmount.toLocaleString()} ج.س`;
+
+      const copyText = () => { triggerHaptic(); navigator.clipboard.writeText(receiptText); showToast('تم نسخ السند! الصقه في الواتساب.'); };
 
       return (
         <div className="fixed inset-0 bg-slate-950/80 z-[70] flex items-center justify-center p-5 animate-pop">
           <div className="bg-white text-slate-900 w-full max-w-sm rounded-2xl p-5 shadow-2xl" style={{fontFamily: 'monospace'}}>
-            <div className="border-b border-dashed border-slate-300 pb-3 mb-3 text-center">
-              <h2 className="font-bold text-base">سند مالي معتمد</h2>
-            </div>
-            <div className="space-y-2.5 text-xs mb-5 font-medium">
-              <div className="flex justify-between"><span>رقم السند:</span><span>{data.ref}</span></div>
-              <div className="flex justify-between"><span>التاريخ:</span><span>{data.date}</span></div>
-              <div className="flex justify-between"><span>النوع:</span><span>{data.title}</span></div>
-              <div className="flex justify-between"><span>الجهة/البيان:</span><span className="truncate max-w-[60%]">{data.person}</span></div>
-            </div>
-            <div className="border-t border-dashed border-slate-300 pt-3 text-center">
-              <h3 className="text-xl font-black">{data.amount.toLocaleString()} ج.س</h3>
-            </div>
+            <div className="border-b border-dashed border-slate-300 pb-3 mb-3 text-center"><h2 className="font-bold text-base">سند مالي معتمد</h2></div>
+            <div className="space-y-2.5 text-xs mb-5 font-medium"><div className="flex justify-between"><span>رقم السند:</span><span>{safeRef}</span></div><div className="flex justify-between"><span>التاريخ:</span><span>{safeDate}</span></div><div className="flex justify-between"><span>النوع:</span><span>{safeTitle}</span></div><div className="flex justify-between"><span>الجهة/البيان:</span><span className="truncate max-w-[60%]">{safePerson}</span></div></div>
+            <div className="border-t border-dashed border-slate-300 pt-3 text-center"><h3 className="text-xl font-black text-slate-900">{safeAmount.toLocaleString()} ج.س</h3></div>
             <div className="mt-6 space-y-2.5">
-              <a href={`whatsapp://send?text=${encodeURIComponent(receiptText)}`} className="w-full bg-emerald-600 text-white py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-md transition">📱 إرسال سريع لواتساب</a>
-              <button onClick={copyText} className="w-full bg-slate-100 text-slate-800 py-2.5 rounded-xl font-bold text-xs transition">📋 نسخ الفاتورة</button>
+              <a href={`whatsapp://send?text=${encodeURIComponent(receiptText)}`} className="w-full bg-emerald-600 text-white py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-md transition">📱 إرسال سريع للواتساب</a>
+              <button onClick={copyText} className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 py-2.5 rounded-xl font-bold text-xs transition">📋 نسخ كنص</button>
               <button onClick={onClose} className="w-full bg-slate-900 text-white py-2.5 rounded-xl font-bold text-xs transition">إغلاق ❌</button>
             </div>
           </div>
