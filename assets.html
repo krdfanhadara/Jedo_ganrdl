@@ -4,43 +4,44 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>نظام إدارة الأصول والمقتنيات</title>
-  
+  <title>منصة الأصول - الهندسة المالية</title>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  
   <style>
-    body { font-family: system-ui, sans-serif; background-color: #0f172a; color: #f1f5f9; -webkit-tap-highlight-color: transparent; }
+    body { font-family: system-ui, -apple-system, sans-serif; background-color: #020617; color: #f8fafc; -webkit-tap-highlight-color: transparent; }
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-    @keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-    .animate-pop { animation: popIn 0.2s ease-out forwards; }
-    @keyframes slideDown { 0% { transform: translateY(-100%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
-    .animate-slide-down { animation: slideDown 0.3s ease-out forwards; }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    .animate-pop { animation: popIn 0.2s ease-out forwards; }
   </style>
 </head>
 <body>
   <div id="root"></div>
-
   <script type="text/babel">
     const { useState, useEffect, useMemo } = React;
 
     const Icons = {
-      Building: () => <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4M8 6h2M14 6h2M8 10h2M14 10h2M8 14h2M14 14h2"/></svg>,
-      List: () => <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>,
-      Settings: () => <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 5.4 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1-2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
-      Trash: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>,
-      Edit: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>,
-      Search: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
-      Back: () => <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6"/></svg>,
-      Check: () => <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
+      Building: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4M8 6h2M14 6h2M8 10h2M14 10h2M8 14h2M14 14h2"/></svg>,
+      Gold: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2.5"/></svg>,
+      Chart: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 3v18h18M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>,
+      Calculator: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect width="14" height="18" x="5" y="3" rx="2"/><path d="M9 7h6M9 11h2M13 11h2M9 15h2M13 15h2"/></svg>,
+      Wallet: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>,
+      Settings: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 5.4 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1-2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+      Trash: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>,
+      Edit: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>,
+      Receipt: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/></svg>,
+      Check: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>,
+      Cloud: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>,
+      Download: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>,
+      FileExcel: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2M8 17h2M14 13h2M14 17h2"/></svg>
     };
 
-    const triggerHaptic = () => { if (navigator.vibrate) navigator.vibrate(30); };
+    const triggerHaptic = () => { if(navigator.vibrate) navigator.vibrate(30); };
 
+    // --- شاشة تسجيل الدخول الموحدة ---
     function AuthScreen({ view, setView, savedEmail, savedPwd, savedSecAnswer, onRegister, onLogin, onResetPwd }) {
       const [email, setEmail] = useState(''); const [pwd, setPwd] = useState(''); const [sec, setSec] = useState('');
       useEffect(() => { if(savedEmail) setEmail(savedEmail); }, [savedEmail]);
@@ -48,45 +49,39 @@
       const submit = e => {
         e.preventDefault(); triggerHaptic();
         if(view === 'register') { 
-          if(!email || pwd.length < 4 || !sec) return alert('الرجاء تعبئة كافة الحقول'); 
+          if(!email || pwd.length < 4 || !sec) return alert('الرجاء إكمال البيانات (الرمز 4 أحرف كحد أدنى)'); 
           onRegister(email.toLowerCase(), pwd, sec.trim()); 
-        }
-        else if (view === 'login') { 
+        } else if (view === 'login') { 
           if(email.toLowerCase() === savedEmail.toLowerCase() && pwd === savedPwd) onLogin(); 
-          else alert('بيانات غير صحيحة!'); 
-        }
-        else if (view === 'forgot') {
+          else alert('البيانات غير صحيحة!'); 
+        } else if (view === 'forgot') {
           if (email.toLowerCase() === savedEmail.toLowerCase() && sec.trim() === savedSecAnswer.trim()) {
-            const np = prompt('كلمة مرور جديدة:'); if (np && np.length >= 4) onResetPwd(np); else alert('مرفوض: أقل من 4 رموز');
-          } else alert('سؤال الأمان غير متطابق!');
+            const newPassword = prompt('اكتب الرمز الجديد الآن:');
+            if (newPassword && newPassword.length >= 4) onResetPwd(newPassword); else alert('مرفوض: أقل من 4 رموز');
+          } else alert('الإجابة غير صحيحة!');
         }
       };
 
       return (
         <div className="min-h-[80vh] flex items-center justify-center p-4">
-          <div className="bg-slate-800 p-8 rounded-3xl w-full max-w-sm border border-slate-700 animate-pop shadow-2xl">
-            <h1 className="text-xl font-bold text-white mb-2 text-center">🔐 الأصول والمقتنيات</h1>
-            <p className="text-sm text-slate-400 text-center mb-6">{view === 'login' ? 'سجل الدخول للمتابعة' : view === 'register' ? 'ملف جديد' : 'استعادة الدخول'}</p>
+          <div className="bg-slate-900 p-8 rounded-3xl w-full max-w-sm border border-slate-800 animate-pop shadow-2xl">
+            <h1 className="text-xl font-bold text-yellow-500 mb-2 text-center">🔐 منصة الأصول والمقتنيات</h1>
+            <p className="text-xs text-slate-400 text-center mb-6">مربوطة بنظام المحاسب الذكي المركزي</p>
             <form onSubmit={submit} className="space-y-4">
-              <input type="email" required placeholder="البريد الإلكتروني" value={email} onChange={e=>setEmail(e.target.value)} className="w-full bg-slate-900 border border-slate-600 text-white p-3.5 rounded-xl text-sm focus:outline-none focus:border-yellow-500" />
-              {view !== 'forgot' && <input type="password" required placeholder="كلمة المرور" value={pwd} onChange={e=>setPwd(e.target.value)} className="w-full bg-slate-900 border border-slate-600 text-white p-3.5 rounded-xl text-sm focus:outline-none focus:border-yellow-500" />}
-              {(view === 'register' || view === 'forgot') && <input type="text" required placeholder="سؤال الأمان: مدينتك المفضلة؟" value={sec} onChange={e=>setSec(e.target.value)} className="w-full bg-slate-900 border border-slate-600 text-yellow-400 p-3.5 rounded-xl text-sm focus:outline-none focus:border-yellow-500" />}
-              <button type="submit" className="w-full bg-yellow-600 text-white font-bold py-3.5 rounded-xl text-sm shadow-md hover:bg-yellow-500 transition">{view === 'login' ? 'دخول' : view === 'register' ? 'إنشاء' : 'استعادة'}</button>
+              <input type="email" required placeholder="البريد الإلكتروني" value={email} onChange={e=>setEmail(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-white p-3.5 rounded-xl text-left text-sm focus:outline-none focus:border-yellow-500 transition" />
+              {view !== 'forgot' && <input type="password" required placeholder="كلمة المرور" value={pwd} onChange={e=>setPwd(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-white p-3.5 rounded-xl text-left text-sm focus:outline-none focus:border-yellow-500 transition" />}
+              {(view === 'register' || view === 'forgot') && <input type="text" required placeholder="سؤال الأمان: مدينتك المفضلة؟" value={sec} onChange={e=>setSec(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-yellow-500 p-3.5 rounded-xl text-sm focus:outline-none focus:border-yellow-500 transition" />}
+              <button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600 text-slate-950 font-bold py-3.5 rounded-xl text-sm shadow-md transition">{view === 'login' ? 'دخول المنصة' : view === 'register' ? 'إنشاء الحساب' : 'استعادة الرمز'}</button>
             </form>
             <div className="mt-6 flex flex-col gap-3 text-center text-sm">
-              {view === 'login' ? <><button onClick={() => setView('forgot')} className="text-slate-400 hover:text-white transition">نسيت كلمة المرور؟</button><button onClick={() => setView('register')} className="text-yellow-400 font-bold transition">حساب جديد ➕</button></> : <button onClick={() => setView('login')} className="text-slate-400 hover:text-white transition">العودة للدخول</button>}
+              {view === 'login' ? (
+                <><button type="button" onClick={() => setView('forgot')} className="text-slate-400 hover:text-white transition">نسيت كلمة المرور؟ 🔍</button><button type="button" onClick={() => setView('register')} className="text-yellow-500 font-bold transition">إنشاء ملف جديد ➕</button></>
+              ) : (
+                <button type="button" onClick={() => setView('login')} className="text-slate-400 hover:text-white transition">العودة لتسجيل الدخول 🔑</button>
+              )}
             </div>
           </div>
         </div>
-      );
-    }
-
-    function NavItem({ icon, label, active, onClick }) {
-      return (
-        <button onClick={() => { triggerHaptic(); onClick(); }} className={`flex flex-col items-center p-2 min-w-[65px] rounded-xl transition-all ${active ? 'text-yellow-400 bg-slate-700/50' : 'text-slate-500 hover:text-slate-300'}`}>
-          <div className="scale-95">{icon}</div>
-          <span className="text-[10px] font-bold mt-1 whitespace-nowrap">{label}</span>
-        </button>
       );
     }
 
@@ -96,243 +91,352 @@
       const [savedEmail, setSavedEmail] = useState(() => localStorage.getItem('smart_acc_email') || '');
       const [savedPwd, setSavedPwd] = useState(() => localStorage.getItem('smart_acc_pwd') || '1234');
       const [savedSecAnswer, setSavedSecAnswer] = useState(() => localStorage.getItem('smart_acc_sec') || '');
-
+      
       useEffect(() => { if (!localStorage.getItem('smart_acc_email')) setAuthView('register'); }, []);
 
       const [activeTab, setActiveTab] = useState('assets');
-      const [toast, setToast] = useState(null);
-      const [actionModal, setActionModal] = useState(null);
-      const [addModalOpen, setAddModalOpen] = useState(false);
-      const [editAssetData, setEditAssetData] = useState(null);
-      const [editTxData, setEditTxData] = useState(null);
-      const [receiptData, setReceiptData] = useState(null);
-
+      const [searchQuery, setSearchQuery] = useState('');
       const [assets, setAssets] = useState(() => JSON.parse(localStorage.getItem('smart_accountant_assets')) || []);
       const [transactions, setTransactions] = useState(() => JSON.parse(localStorage.getItem('smart_accountant_tx')) || []);
+      const [goldPrice24, setGoldPrice24] = useState(() => Number(localStorage.getItem('cfg_gold_24')) || 75000);
+      const [lastBackup, setLastBackup] = useState(() => Number(localStorage.getItem('smart_acc_last_backup')) || 0);
+
+      const [isModalOpen, setIsModalOpen] = useState(false);
+      const [editData, setEditData] = useState(null);
+      const [receiptData, setReceiptData] = useState(null);
+      const [toast, setToast] = useState(null);
 
       useEffect(() => { localStorage.setItem('smart_accountant_assets', JSON.stringify(assets)); }, [assets]);
       useEffect(() => { localStorage.setItem('smart_accountant_tx', JSON.stringify(transactions)); }, [transactions]);
+      useEffect(() => { localStorage.setItem('cfg_gold_24', goldPrice24); }, [goldPrice24]);
 
       const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
 
-      const summary = useMemo(() => {
-        let totalValue = 0; let totalIncome = 0; let totalExpense = 0;
-        assets.forEach(a => { totalValue += parseFloat(a.currentValue || 0); });
-        transactions.forEach(t => {
-          if (t.assetId) {
-            if (t.type === 'income') totalIncome += parseFloat(t.amount || 0);
-            if (t.type === 'expense') totalExpense += parseFloat(t.amount || 0);
-          }
-        });
-        return { totalValue, netReturn: totalIncome - totalExpense };
-      }, [assets, transactions]);
+      const totalWealthInAssets = useMemo(() => {
+        return assets.reduce((sum, asset) => sum + parseFloat(asset.currentValue || 0), 0);
+      }, [assets]);
 
-      const handleSaveAsset = (data) => {
-        if (data.id) {
-          setAssets(assets.map(a => a.id === data.id ? { ...a, ...data, currentValue: parseFloat(data.initialValue) } : a));
-          showToast('تم تعديل الأصل بنجاح ✏️');
+      const filteredAssets = assets.filter(a => (a.name || '').includes(searchQuery));
+
+      const handleSaveAsset = (data, isEdit = false) => {
+        triggerHaptic();
+        if (isEdit) {
+          setAssets(assets.map(a => a.id === data.id ? data : a)); showToast('تم تعديل بيانات الأصل ✏️');
         } else {
-          setAssets([{ id: Date.now(), name: data.name, type: data.type, currentValue: parseFloat(data.initialValue), date: data.date }, ...assets]);
-          showToast('تم تسجيل الأصل بنجاح 🏢');
+          setAssets([{...data, id: data.id || Date.now()}, ...assets]); showToast('تم قيد الأصل 🏢');
         }
-        setAddModalOpen(false); setEditAssetData(null);
+        setIsModalOpen(false); setEditData(null);
       };
 
-      const handleAssetAction = (assetId, actionType, amount, wallet, date) => {
-        const asset = assets.find(a => a.id === assetId); if (!asset) return;
-        const txId = Date.now();
-        if (actionType === 'income' || actionType === 'expense') {
-          const newTx = { id: txId, type: actionType, amount: parseFloat(amount), wallet: wallet, assetId: asset.id, category: actionType === 'income' ? `إيراد أصل (${asset.name})` : `صيانة أصل (${asset.name})`, date: date };
-          setTransactions([newTx, ...transactions]);
-          showToast(actionType === 'income' ? 'تم إيداع العائد في الخزنة 💰' : 'تم خصم تكلفة الصيانة 🛠️');
-          setReceiptData({ title: actionType === 'income' ? 'سند إيراد أصل' : 'سند صيانة أصل', person: asset.name, amount: parseFloat(amount), date: date, ref: `AST-${txId.toString().slice(-5)}` });
-        } 
-        else if (actionType === 'revalue') {
-          setAssets(assets.map(a => a.id === assetId ? { ...a, currentValue: parseFloat(amount) } : a));
-          showToast('تم تحديث التقييم السوقي 📈');
-        }
-        setActionModal(null);
-      };
-
-      const handleSaveEditTx = (updatedTx) => {
-        setTransactions(transactions.map(t => t.id === updatedTx.id ? updatedTx : t));
-        setEditTxData(null);
-        showToast('تم تعديل الحركة والمزامنة بنجاح ✏️');
-      };
-
-      const handleDeleteAsset = (id) => {
-        triggerHaptic(); const asset = assets.find(a => a.id === id); if (!asset) return;
-        if (window.confirm(`لحذف الأصل (${asset.name}) والاحتفاظ بعوائده في الخزنة، اضغط موافق.`)) {
-          setAssets(assets.filter(a => a.id !== id)); showToast('تم الحذف.');
-        } else if (window.confirm(`تطهير شامل: هل تريد مسح الأصل وكل فواتيره تماماً؟`)) {
-          setAssets(assets.filter(a => a.id !== id)); setTransactions(transactions.filter(t => t.assetId !== id)); showToast('تم التطهير الكامل.');
-        }
-      };
-
-      const handleDeleteTx = (id) => {
+      const handleDeleteAsset = (asset) => {
         triggerHaptic();
-        if(window.confirm('هل تود حذف هذه الحركة وإرجاع الرصيد للخزينة؟')) {
-           setTransactions(transactions.filter(t => t.id !== id)); showToast('تم الحذف بنجاح.');
+        const confirmFirst = window.confirm(`هل تود حذف الأصل (${asset.name || 'غير محدد'}) مع الاحتفاظ بإيراداته السابقة؟\n\nاضغط (إلغاء) للمسح الشامل وتطهير الإيرادات.`);
+        if (confirmFirst) {
+          setAssets(assets.filter(a => a.id !== asset.id)); showToast('تم حذف الأصل 🗑️');
+        } else {
+          if (window.confirm('تأكيد التطهير الشامل؟')) {
+            setAssets(assets.filter(a => a.id !== asset.id));
+            setTransactions(transactions.filter(t => !(t.category || '').includes(`(${asset.name})`)));
+            showToast('تم التطهير بنجاح 🧹');
+          }
         }
       };
 
-      const handleResetAssets = () => {
+      const handleGenerateIncome = (asset) => {
         triggerHaptic();
-        if(window.confirm('⚠️ سيتم حذف جميع الأصول وحركاتها كلياً. هل أنت متأكد؟')) {
-          setAssets([]); setTransactions(transactions.filter(t => !t.assetId)); showToast('تم التصفير.');
-        }
+        const incomeAmt = parseFloat(asset.type === 'real_estate' ? asset.monthlyRent : asset.periodicIncome) || 0;
+        if (incomeAmt <= 0) return alert('يجب تحديد الإيراد للأصل من خلال التعديل أولاً.');
+
+        const walletChoice = window.confirm(`تحصيل إيراد (${asset.name}) بمبلغ ${incomeAmt.toLocaleString()} ج.س.\n\n- اضغط (موافق) للإيداع في البنك 📱\n- اضغط (إلغاء) للإيداع في الكاش 💵`);
+        const newTx = { id: Date.now(), type: 'income', amount: incomeAmt, wallet: walletChoice ? 'bank' : 'cash', category: `عائد أصل (${asset.name})`, date: new Date().toISOString().split('T')[0] };
+        setTransactions([newTx, ...transactions]);
+        setReceiptData({ title: 'سند قبض إيراد أصل', person: asset.name || 'أصل عام', amount: incomeAmt, date: newTx.date, ref: `INC-${newTx.id.toString().slice(-5)}` });
+        showToast('تم الترحيل وإصدار الفاتورة!');
       };
 
-      if (!isAuthenticated) return <AuthScreen view={authView} setView={setAuthView} savedEmail={savedEmail} savedPwd={savedPwd} savedSecAnswer={savedSecAnswer} onRegister={(e, p, s) => { localStorage.setItem('smart_acc_email', e); localStorage.setItem('smart_acc_pwd', p); localStorage.setItem('smart_acc_sec', s); localStorage.setItem('smart_acc_session', 'active'); setSavedEmail(e); setSavedPwd(p); setSavedSecAnswer(s); setIsAuthenticated(true); }} onLogin={() => { localStorage.setItem('smart_acc_session', 'active'); setIsAuthenticated(true); }} onResetPwd={(np) => { localStorage.setItem('smart_acc_pwd', np); setSavedPwd(np); setAuthView('login'); }} />;
+      const handleBackupData = async () => {
+        triggerHaptic();
+        const fullData = { 
+          tx: JSON.parse(localStorage.getItem('smart_accountant_tx')) || [], 
+          db: JSON.parse(localStorage.getItem('smart_accountant_dbts')) || [], 
+          pt: JSON.parse(localStorage.getItem('smart_accountant_ptnrs')) || [], 
+          tr: JSON.parse(localStorage.getItem('smart_accountant_trusts')) || [],
+          as: assets 
+        };
+        const base64Data = btoa(unescape(encodeURIComponent(JSON.stringify(fullData))));
+        const shareText = `[نسخة احتياطية - أصول ومحاسبة]\nالتاريخ: ${new Date().toLocaleDateString('ar-EG')}\n\n${base64Data}`;
+        const now = Date.now(); setLastBackup(now); localStorage.setItem('smart_acc_last_backup', now);
+        try {
+          if (navigator.share) await navigator.share({ title: 'أرشيف', text: shareText });
+          else { await navigator.clipboard.writeText(shareText); showToast('تم النسخ للحافظة!'); }
+        } catch (e) { showToast('تم الحفظ'); }
+      };
+
+      const handleRestoreData = (backupStr) => {
+        triggerHaptic();
+        try {
+          const extractBase64 = backupStr.match(/[A-Za-z0-9+/=]{50,}/)?.[0] || backupStr.trim();
+          const data = JSON.parse(decodeURIComponent(escape(atob(extractBase64))));
+          if(data.as || data.tx) {
+            if(data.as) setAssets(data.as);
+            if(data.tx) setTransactions(data.tx);
+            if(data.db) localStorage.setItem('smart_accountant_dbts', JSON.stringify(data.db));
+            if(data.pt) localStorage.setItem('smart_accountant_ptnrs', JSON.stringify(data.pt));
+            if(data.tr) localStorage.setItem('smart_accountant_trusts', JSON.stringify(data.tr));
+            const now = Date.now(); setLastBackup(now); localStorage.setItem('smart_acc_last_backup', now);
+            showToast('تمت استعادة كل الأنظمة بنجاح!');
+          } else alert('الكود غير مكتمل.');
+        } catch (e) { alert('فشل الاستعادة!'); }
+      };
+
+      const handleExportCSV = () => {
+        triggerHaptic();
+        if (assets.length === 0) return alert('لا توجد أصول!');
+        let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
+        csvContent += "تاريخ القيد,نوع الأصل,الاسم,القيمة السوقية\r\n";
+        assets.forEach(a => {
+          let typeStr = a.type === 'real_estate' ? 'عقار' : (a.type === 'gold' ? 'ذهب/مقتنيات' : 'مركبات/حيوانية');
+          csvContent += `${a.date},${typeStr},${a.name},${a.currentValue}\r\n`;
+        });
+        const encodedUri = encodeURI(csvContent); const link = document.createElement("a"); 
+        link.setAttribute("href", encodedUri); link.setAttribute("download", `سجل_الأصول.csv`);
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        showToast('تم تحميل السجل 📄');
+      };
+
+      if (!isAuthenticated) {
+        return <AuthScreen view={authView} setView={setAuthView} savedEmail={savedEmail} savedPwd={savedPwd} savedSecAnswer={savedSecAnswer} onRegister={(e,p,s) => { localStorage.setItem('smart_acc_email', e); localStorage.setItem('smart_acc_pwd', p); localStorage.setItem('smart_acc_sec', s); localStorage.setItem('smart_acc_session', 'active'); setSavedEmail(e); setSavedPwd(p); setSavedSecAnswer(s); setIsAuthenticated(true); }} onLogin={() => { localStorage.setItem('smart_acc_session', 'active'); setIsAuthenticated(true); }} onResetPwd={(np) => { localStorage.setItem('smart_acc_pwd', np); setSavedPwd(np); setAuthView('login'); }} />;
+      }
 
       return (
-        <div className="pb-24">
-          {toast && <div className="fixed top-6 left-4 right-4 z-[100] bg-emerald-500 text-white px-4 py-3 rounded-xl flex items-center gap-3 shadow-xl animate-slide-down"><Icons.Check /><span className="text-sm font-bold">{toast}</span></div>}
+        <div className="pb-28">
+          {toast && <div className="fixed top-6 left-4 right-4 z-[100] bg-yellow-500 text-slate-900 px-4 py-3 rounded-xl flex items-center gap-3 shadow-xl border border-yellow-400/20 animate-slide-down max-w-sm mx-auto font-bold"><Icons.Check /> <span className="text-sm">{toast}</span></div>}
 
-          <header className="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-10 flex justify-between items-center shadow-md">
-            <div className="flex items-center gap-3"><div className="bg-yellow-600 p-2.5 rounded-xl text-white"><Icons.Building /></div><div><h1 className="text-base font-bold text-white">نظام الأصول</h1><p className="text-[11px] text-yellow-400">المقتنيات والعقارات</p></div></div>
-            <a href="index.html" onClick={triggerHaptic} className="flex items-center gap-1 bg-slate-900/60 text-slate-300 text-xs hover:text-emerald-400 px-3 py-2 rounded-lg border border-slate-700 font-bold transition"><Icons.Back /> الخزينة 💰</a>
+          <header className="bg-slate-900 border-b border-yellow-600/30 p-4 sticky top-0 z-10 flex justify-between items-center shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-yellow-400 to-yellow-600 p-2.5 rounded-xl text-slate-950 font-bold"><Icons.Building /></div>
+              <div><h1 className="text-base font-black text-white">إدارة الأصول</h1><p className="text-[11px] text-yellow-500">الهندسة والاستشراف</p></div>
+            </div>
+            <a href="index.html" onClick={triggerHaptic} className="bg-slate-800 hover:bg-slate-700 text-white text-xs px-3 py-2 rounded-xl font-bold border border-slate-700 flex items-center gap-1.5 shadow-sm transition"><Icons.Wallet /> المحاسب الذكي</a>
           </header>
 
-          <main className="p-4 max-w-md mx-auto space-y-5">
-            {activeTab === 'assets' && <AssetsView assets={assets} txs={transactions} summary={summary} onAdd={() => {setEditAssetData(null); setAddModalOpen(true);}} onEdit={(a) => {setEditAssetData(a); setAddModalOpen(true);}} onDelete={handleDeleteAsset} onAction={(id, type) => { triggerHaptic(); setActionModal({ id, type }); }} />}
-            {activeTab === 'history' && <HistoryView txs={transactions.filter(t => t.assetId)} onEdit={(t) => {setEditTxData(t);}} onDelete={handleDeleteTx} />}
-            {activeTab === 'settings' && <ProfileView email={savedEmail} onReset={handleResetAssets} onLogout={() => {triggerHaptic(); localStorage.removeItem('smart_acc_session'); setIsAuthenticated(false); setAuthView('login');}} />}
+          <main className="p-4 max-w-md mx-auto">
+            {activeTab !== 'profile' && (
+              <div className="bg-gradient-to-br from-slate-900 to-slate-950 p-6 rounded-3xl border border-yellow-500/20 text-center relative overflow-hidden mb-6 shadow-xl animate-pop">
+                <p className="text-slate-400 text-xs font-bold mb-2">إجمالي قيمة المحفظة والأصول العينية 🏢</p>
+                <h2 className="text-4xl font-black text-yellow-500">{totalWealthInAssets.toLocaleString()} <span className="text-xs font-normal text-slate-400">ج.س</span></h2>
+                <div className="mt-4 pt-4 border-t border-slate-800/80 flex flex-col justify-center gap-3 items-center">
+                  <div className="flex justify-between items-center w-full">
+                    <span className="text-xs text-slate-400 font-medium">تسعيرة جرام الذهب (24) اليوم:</span>
+                    <input type="number" value={goldPrice24 || ''} onChange={e => { const price = Number(e.target.value) || 0; setGoldPrice24(price); setAssets(assets.map(a => a.type === 'gold' ? { ...a, currentValue: ((a.grams || 0) + ((a.habba || 0) * 0.058)) * price * (a.purity || 1) } : a)); }} className="w-28 bg-slate-950 text-center text-sm font-bold text-yellow-400 border border-yellow-500/40 p-2.5 rounded-xl focus:outline-none focus:border-yellow-400 transition" />
+                  </div>
+                  <div className="w-full flex justify-around bg-slate-950/50 p-2 rounded-lg border border-slate-800 text-[10px] text-yellow-500/70 font-bold">
+                    <span>عيار 21: {(goldPrice24 * 0.875).toLocaleString()} ج</span><span>عيار 18: {(goldPrice24 * 0.750).toLocaleString()} ج</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'assets' && (
+              <div className="space-y-4 animate-pop">
+                <div className="flex justify-between items-center px-1 mb-2">
+                  <input type="text" placeholder="ابحث عن أصل..." value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} className="w-1/2 bg-slate-900 border border-slate-800 text-white rounded-xl py-2 px-3 text-xs focus:outline-none focus:border-yellow-500" />
+                  <button onClick={()=>{setEditData(null); setIsModalOpen(true);}} className="bg-yellow-500 hover:bg-yellow-600 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold shadow-md transition">➕ أصل جديد</button>
+                </div>
+                
+                {filteredAssets.map(asset => (
+                  <div key={asset.id} className="bg-slate-900 p-5 rounded-3xl border border-slate-800 shadow-md relative">
+                    <div className="absolute top-4 left-4 flex gap-2">
+                      <button onClick={()=>setReceiptData({title: 'شهادة تقييم أصل', person: asset.name || 'أصل عام', amount: asset.currentValue || 0, date: asset.date || new Date().toISOString().split('T')[0], ref: `AST-${(asset.id||0).toString().slice(-5)}`})} className="p-2 bg-slate-800 text-blue-400 hover:bg-slate-700 rounded-xl transition" title="شهادة تقييم"><Icons.Receipt /></button>
+                      <button onClick={()=>{setEditData(asset); setIsModalOpen(true);}} className="p-2 bg-slate-800 text-emerald-400 hover:bg-slate-700 rounded-xl transition"><Icons.Edit /></button>
+                      <button onClick={()=>handleDeleteAsset(asset)} className="p-2 bg-slate-800 text-red-400 hover:bg-slate-700 rounded-xl transition"><Icons.Trash /></button>
+                    </div>
+                    <h4 className="font-black text-white text-lg mb-1 truncate max-w-[60%]">{asset.name || 'أصل غير مسمى'}</h4>
+                    <p className="text-xs text-slate-500 mb-4">{asset.date || ''} • {asset.type === 'gold' ? 'معادن ثمينة 🪙' : asset.type === 'vehicle_livestock' ? 'مركبات/حيوانية 🛺🐪' : 'أصول عقارية 🏗️'}</p>
+                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800/80 space-y-3">
+                       <div className="flex justify-between items-center text-sm"><span className="text-slate-400">القيمة السوقية:</span><span className="font-black text-yellow-500 text-lg">{parseFloat(asset.currentValue || 0).toLocaleString()} ج.س</span></div>
+                       {asset.type === 'real_estate' && <div className="flex justify-between items-center text-xs text-slate-400 border-t border-slate-800/80 pt-3"><span className="bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-800">مساحة: {asset.area || 0} م²</span><span className="bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-800">متر: {parseFloat(asset.pricePerMeter || 0).toLocaleString()}</span></div>}
+                       {asset.type === 'gold' && <div className="flex justify-between items-center text-xs text-slate-400 border-t border-slate-800/80 pt-3"><span className="bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-800">الوزن: {(asset.totalGrams || (asset.grams + (asset.habba||0)*0.058) || 0).toFixed(2)} جم</span><span className="bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-800">عيار: {asset.purity == 1 ? '24' : asset.purity == 0.875 ? '21' : '18'}</span></div>}
+                    </div>
+                    {asset.isRented && <button onClick={()=>handleGenerateIncome(asset)} className="w-full mt-4 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 py-3 rounded-2xl text-sm font-bold transition flex items-center justify-center gap-1.5 shadow-sm">تحصيل الإيراد ({parseFloat(asset.type === 'real_estate' ? asset.monthlyRent : asset.periodicIncome || 0).toLocaleString()}) 💸</button>}
+                  </div>
+                ))}
+                {filteredAssets.length === 0 && <p className="text-center py-10 text-xs text-slate-500 border border-dashed border-slate-800 rounded-3xl">لا يوجد نتائج.</p>}
+              </div>
+            )}
+
+            {activeTab === 'projection' && (
+              <div className="space-y-5 animate-pop">
+                <div className="bg-blue-950/20 p-5 rounded-2xl border border-blue-500/20 text-xs text-blue-300 leading-relaxed shadow-sm">🔮 <b>الاستشراف المالي:</b> يوضح القيمة المستقبلية لعقاراتك (نمو مركب) وإجمالي النقد المتراكم للمركبات والثروة الحيوانية.</div>
+                
+                {assets.filter(a => a.isRented).map(asset => {
+                  let p3 = 0, p5 = 0, p10 = 0, rateLabel = "";
+                  
+                  if (asset.type === 'real_estate') {
+                    const r = (parseFloat(asset.annualGrowth) || 0) / 100; const rent = parseFloat(asset.monthlyRent) || 0;
+                    p3 = rent * Math.pow(1 + r, 3); p5 = rent * Math.pow(1 + r, 5); p10 = rent * Math.pow(1 + r, 10);
+                    rateLabel = `إيجار شهري بنمو سنوي مركب: %${asset.annualGrowth || 0}`;
+                  } else if (asset.type === 'vehicle_livestock') {
+                    const multipliers = { 'daily': 30 * 12, 'weekly': 52, 'monthly': 12, 'yearly': 1 };
+                    const annual = (parseFloat(asset.periodicIncome) || 0) * multipliers[asset.incomeFreq || 'daily'];
+                    p3 = annual * 3; p5 = annual * 5; p10 = annual * 10;
+                    rateLabel = `إجمالي العائد النقدي التراكمي للتشغيل`;
+                  }
+
+                  return (
+                    <div key={asset.id} className="bg-slate-900 p-5 rounded-3xl border border-slate-800 space-y-4 text-xs shadow-sm">
+                      <h4 className="font-black text-white text-sm border-b border-slate-800 pb-3">📈 استشراف: {asset.name || 'غير محدد'}</h4>
+                      <div className="grid grid-cols-3 gap-3 text-center">
+                        <div className="bg-slate-950 p-3 rounded-xl border border-slate-800"><p className="text-[10px] text-slate-500 mb-2">بعد 3 سنوات</p><p className="text-yellow-500 font-bold text-sm">{Math.round(p3 || 0).toLocaleString()}</p></div>
+                        <div className="bg-slate-950 p-3 rounded-xl border border-slate-800"><p className="text-[10px] text-slate-500 mb-2">بعد 5 سنوات</p><p className="text-yellow-500 font-bold text-sm">{Math.round(p5 || 0).toLocaleString()}</p></div>
+                        <div className="bg-slate-950 p-3 rounded-xl border border-slate-800"><p className="text-[10px] text-slate-500 mb-2">بعد 10 سنوات</p><p className="text-yellow-500 font-black text-base">{Math.round(p10 || 0).toLocaleString()}</p></div>
+                      </div>
+                      <p className="text-[10px] text-slate-400 text-center bg-slate-950 py-2 rounded-xl border border-slate-800/50">{rateLabel}</p>
+                    </div>
+                  );
+                })}
+                {assets.filter(a => a.isRented).length === 0 && <p className="text-center py-10 text-xs text-slate-500 border border-dashed border-slate-800 rounded-3xl">لا توجد أصول استثمارية لتطبيق الاستشراف عليها.</p>}
+              </div>
+            )}
+
+            {activeTab === 'feasibility' && <FeasibilityStudio />}
+            
+            {activeTab === 'profile' && (
+              <ProfileView email={savedEmail} currentPwd={savedPwd} lastBackup={lastBackup} onBackup={handleBackupData} onRestore={handleRestoreData} onExportExcel={handleExportCSV} onChangePwd={pwd => { localStorage.setItem('smart_acc_pwd', pwd); setSavedPwd(pwd); showToast('تم التحديث بنجاح'); }} onReset={() => { if(window.confirm('سيتم تصفير منصة الأصول تماماً؟')) { setAssets([]); showToast('تم التصفير'); } }} onLogout={() => { triggerHaptic(); localStorage.removeItem('smart_acc_session'); setIsAuthenticated(false); setAuthView('login'); }} />
+            )}
           </main>
 
-          <button onClick={() => {triggerHaptic(); setEditAssetData(null); setAddModalOpen(true);}} className="fixed bottom-24 left-6 w-14 h-14 bg-yellow-500 text-slate-900 rounded-full shadow-lg flex items-center justify-center z-20 text-2xl font-bold hover:scale-105 transition-transform">➕</button>
-
-          <nav className="fixed bottom-0 w-full bg-slate-800 border-t border-slate-700 py-3 z-10 px-4">
-            <div className="flex justify-around items-center max-w-sm mx-auto">
-              <NavItem icon={<Icons.Building />} label="الأصول" active={activeTab==='assets'} onClick={() => setActiveTab('assets')} />
-              <NavItem icon={<Icons.List />} label="سجل الحركات" active={activeTab==='history'} onClick={() => setActiveTab('history')} />
-              <NavItem icon={<Icons.Settings />} label="الضبط" active={activeTab==='settings'} onClick={() => setActiveTab('settings')} />
+          <nav className="fixed bottom-0 w-full bg-slate-900 border-t border-slate-800 py-3 z-20 px-2 shadow-2xl">
+            <div className="flex justify-between items-center max-w-md mx-auto">
+              <button onClick={() => { triggerHaptic(); setActiveTab('assets'); }} className={`flex flex-col items-center p-2 rounded-xl transition-all min-w-[65px] ${activeTab === 'assets' ? 'text-yellow-400 bg-slate-800' : 'text-slate-500 hover:text-slate-300'}`}><div><Icons.Building /></div><span className="text-[10px] font-bold mt-1">الأصول</span></button>
+              <button onClick={() => { triggerHaptic(); setActiveTab('projection'); }} className={`flex flex-col items-center p-2 rounded-xl transition-all min-w-[65px] ${activeTab === 'projection' ? 'text-blue-400 bg-slate-800' : 'text-slate-500 hover:text-slate-300'}`}><div><Icons.Chart /></div><span className="text-[10px] font-bold mt-1">الاستشراف</span></button>
+              <button onClick={() => { triggerHaptic(); setActiveTab('feasibility'); }} className={`flex flex-col items-center p-2 rounded-xl transition-all min-w-[65px] ${activeTab === 'feasibility' ? 'text-emerald-400 bg-slate-800' : 'text-slate-500 hover:text-slate-300'}`}><div><Icons.Calculator /></div><span className="text-[10px] font-bold mt-1">الجدوى</span></button>
+              <button onClick={() => { triggerHaptic(); setActiveTab('profile'); }} className={`flex flex-col items-center p-2 rounded-xl transition-all min-w-[65px] ${activeTab === 'profile' ? 'text-yellow-400 bg-slate-800' : 'text-slate-500 hover:text-slate-300'}`}><div><Icons.Settings /></div><span className="text-[10px] font-bold mt-1">الضبط</span></button>
             </div>
           </nav>
 
-          {addModalOpen && <AddAssetModal editData={editAssetData} onClose={() => {setAddModalOpen(false); setEditAssetData(null);}} onSave={handleSaveAsset} />}
-          {actionModal && <AssetActionModal details={actionModal} asset={assets.find(a => a.id === actionModal.id)} onClose={() => setActionModal(null)} onSave={handleAssetAction} />}
-          {editTxData && <EditTxModal tx={editTxData} onClose={() => setEditTxData(null)} onSave={handleSaveEditTx} />}
+          {isModalOpen && <AssetModal goldPrice24={goldPrice24} editData={editData} onClose={() => {setIsModalOpen(false); setEditData(null);}} onSave={handleSaveAsset} />}
           {receiptData && <ReceiptModal data={receiptData} onClose={() => setReceiptData(null)} showToast={showToast} />}
         </div>
       );
     }
 
-    function AssetsView({ assets, txs, summary, onAdd, onEdit, onDelete, onAction }) {
-      const [search, setSearch] = useState('');
-      const filtered = assets.filter(a => a.name.includes(search));
+    function ProfileView({ email, currentPwd, lastBackup, onBackup, onRestore, onExportExcel, onChangePwd, onReset, onLogout }) {
+      const [pwd, setPwd] = useState(''); const [restoreCode, setRestoreCode] = useState('');
+      const formatLastBackup = () => !lastBackup ? 'لم يتم أخذ نسخة ⚠️' : new Date(lastBackup).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' });
+      return (
+        <div className="space-y-5 animate-pop text-sm pb-6">
+          <div className="bg-slate-900 p-4 rounded-2xl text-center border border-slate-800 shadow-sm"><p className="text-xs text-slate-400 mb-1">حساب الأصول المتصل</p><p className="text-white font-bold text-base">{email}</p></div>
+          <div className="bg-slate-900 p-4 rounded-2xl border border-blue-500/30 relative overflow-hidden shadow-sm"><div className="absolute top-0 right-0 w-1.5 bg-blue-500 h-full"></div><h3 className="font-bold text-blue-400 mb-1.5 flex items-center gap-2 text-base"><Icons.FileExcel /> تقرير الممتلكات</h3><p className="text-xs text-slate-400 mb-4">تحميل سجلات الأصول كملف إكسل.</p><button onClick={onExportExcel} className="w-full bg-slate-800 hover:bg-slate-700 text-blue-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2"><Icons.Download /> تصدير السجل</button></div>
+          <div className="bg-slate-900 p-4 rounded-2xl border border-yellow-500/30 relative overflow-hidden shadow-sm"><div className="absolute top-0 right-0 w-1.5 bg-yellow-500 h-full"></div><h3 className="font-bold text-yellow-500 mb-1.5 flex items-center gap-2 text-base"><Icons.Cloud /> السحابة الشاملة</h3><div className="bg-slate-950 p-3 rounded-xl border border-slate-800 mb-4 mt-3"><p className="text-xs text-slate-300 flex justify-between items-center"><span>آخر أرشفة للأنظمة:</span><span className={!lastBackup ? 'text-red-400' : 'text-emerald-400'}>{formatLastBackup()}</span></p></div><button onClick={onBackup} className="w-full bg-yellow-600 hover:bg-yellow-500 text-slate-900 py-3 rounded-xl font-bold mb-5 flex items-center justify-center gap-2">أخذ نسخة أمان (كل الأنظمة)</button><div className="border-t border-slate-800 pt-4"><p className="text-xs font-bold text-slate-300 mb-3">استعادة الحسابات:</p><textarea value={restoreCode} onChange={e=>setRestoreCode(e.target.value)} placeholder="ألصق كود النسخة هنا..." className="w-full bg-slate-950 text-emerald-400 p-3 rounded-xl border border-slate-800 text-xs h-20 font-mono mb-3 focus:outline-none" /><button onClick={()=>{if(restoreCode.trim() && window.confirm('متأكد من الاستعادة الشاملة؟')) { onRestore(restoreCode); setRestoreCode(''); } }} className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">تأكيد الاستعادة</button></div></div>
+          <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 shadow-sm"><p className="text-xs text-slate-400">رمز الأمان: <span className="text-white bg-slate-950 px-2 py-1 rounded font-bold mx-1">{currentPwd}</span></p><div className="flex gap-2"><input type="text" value={pwd} onChange={e=>setPwd(e.target.value)} placeholder="تغيير الرمز..." className="flex-1 bg-slate-950 p-3 rounded-xl text-white border border-slate-800 text-sm focus:outline-none" /><button onClick={()=>{if(pwd.trim()){onChangePwd(pwd.trim()); setPwd('');}}} className="bg-yellow-500 text-slate-900 px-4 rounded-xl font-bold">حفظ</button></div></div>
+          <button onClick={onReset} className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 py-3 rounded-xl font-bold mt-2">تصفير سجلات الأصول</button>
+          <button onClick={onLogout} className="w-full bg-slate-800 text-white py-3 rounded-xl font-bold mt-2">تسجيل الخروج 🚪</button>
+        </div>
+      );
+    }
+
+    function FeasibilityStudio() {
+      const [capital, setCapital] = useState(''); const [revInput, setRevInput] = useState(''); const [revFreq, setRevFreq] = useState('monthly');
+      const [expInput, setExpInput] = useState(''); const [expFreq, setExpFreq] = useState('monthly');
+      const [discountRate, setDiscountRate] = useState('15'); const [years, setYears] = useState('5'); const [result, setResult] = useState(null);
+
+      const handleCalculateFeasibility = (e) => {
+        e.preventDefault(); triggerHaptic();
+        const cap = parseFloat(capital) || 0; const rev = parseFloat(revInput) || 0; const exp = parseFloat(expInput) || 0;
+        const rate = (parseFloat(discountRate) || 0) / 100; const n = parseInt(years) || 1;
+        if (cap <= 0 || rev <= 0) return alert('الرجاء إدخال بيانات صحيحة לרأس المال والإيراد');
+        const multipliers = { 'daily': 30 * 12, 'weekly': 52, 'monthly': 12, 'yearly': 1 };
+        const annualRev = rev * multipliers[revFreq]; const annualExp = exp * multipliers[expFreq]; const annualFlow = annualRev - annualExp;
+        if(annualFlow <= 0) { setResult({ isViable: false, error: 'المصروفات تفوق الإيرادات! المشروع يخسر دائماً.' }); return; }
+        let npvSum = 0; for (let t = 1; t <= n; t++) { npvSum += annualFlow / Math.pow(1 + rate, t); }
+        const finalNPV = npvSum - cap; const totalReturn = (annualFlow * n) - cap; const roi = (totalReturn / cap) * 100;
+        const paybackYears = cap / annualFlow; const paybackMonths = Math.floor(paybackYears * 12); const paybackDays = Math.round((paybackYears * 12 - paybackMonths) * 30);
+        setResult({ annualFlow, npv: finalNPV, roi, months: paybackMonths, days: paybackDays, isViable: finalNPV > 0 });
+      };
 
       return (
-        <div className="animate-pop space-y-5">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-5 border border-slate-700 shadow-lg text-center relative">
-            <p className="text-slate-300 text-sm font-bold mb-2">إجمالي قيمة الأصول 🏢</p>
-            <h2 className="text-3xl font-black text-white mb-4">{summary.totalValue.toLocaleString()} <span className="text-sm text-slate-400">ج.س</span></h2>
-            <div className="bg-slate-900/60 p-3 rounded-xl border border-slate-700 inline-block px-6"><p className="text-[11px] text-slate-400 mb-1">صافي الأرباح (عائد - صيانة)</p><p className={`text-lg font-black ${summary.netReturn >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{summary.netReturn > 0 ? '+' : ''}{summary.netReturn.toLocaleString()}</p></div>
-          </div>
-          <div className="flex items-center gap-2 bg-slate-800 p-2.5 rounded-xl border border-slate-700 text-slate-400 px-3"><Icons.Search /><input type="text" placeholder="بحث في الأصول..." value={search} onChange={e=>setSearch(e.target.value)} className="bg-transparent border-none focus:outline-none text-sm text-white w-full" /></div>
-          {filtered.length === 0 ? <p className="text-center py-6 text-slate-500 text-sm">لا توجد أصول.</p> : filtered.map(asset => {
-            const assetIncomes = txs.filter(t => t.type === 'income' && t.assetId === asset.id).reduce((sum, t) => sum + parseFloat(t.amount), 0);
-            const assetExpenses = txs.filter(t => t.type === 'expense' && t.assetId === asset.id).reduce((sum, t) => sum + parseFloat(t.amount), 0);
-            const netAssetReturn = assetIncomes - assetExpenses;
-            return (
-              <div key={asset.id} className="bg-slate-800 rounded-2xl p-4 border border-slate-700 shadow-md relative group">
-                <div className="absolute top-4 left-4 flex gap-1.5"><button onClick={() => onEdit(asset)} className="p-2 bg-slate-900 text-blue-400 rounded-lg"><Icons.Edit /></button><button onClick={() => onDelete(asset.id)} className="p-2 bg-slate-900 text-red-400 rounded-lg"><Icons.Trash /></button></div>
-                <h4 className="font-bold text-white text-base truncate max-w-[65%] mb-1">{asset.name}</h4>
-                <p className="text-xs text-slate-400 mb-4">{asset.type === 'property' ? '🏢 عقار' : asset.type === 'gold' ? '🪙 ذهب ومعادن' : '📦 أخرى'}</p>
-                <div className="grid grid-cols-2 gap-3 text-center mb-4"><div className="bg-slate-900/80 p-3 rounded-xl border border-slate-700"><p className="text-[10px] text-slate-400">القيمة السوقية</p><p className="text-sm font-black text-yellow-400 mt-1">{parseFloat(asset.currentValue).toLocaleString()}</p></div><div className="bg-slate-900/80 p-3 rounded-xl border border-slate-700"><p className="text-[10px] text-slate-400">الصافي التشغيلي</p><p className={`text-sm font-black mt-1 ${netAssetReturn >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{netAssetReturn.toLocaleString()}</p></div></div>
-                <div className="grid grid-cols-3 gap-2"><button onClick={() => onAction(asset.id, 'income')} className="bg-emerald-500/10 text-emerald-400 py-2 rounded-xl text-xs font-bold transition">➕ إيراد</button><button onClick={() => onAction(asset.id, 'expense')} className="bg-red-500/10 text-red-400 py-2 rounded-xl text-xs font-bold transition">🛠️ صيانة</button><button onClick={() => onAction(asset.id, 'revalue')} className="bg-blue-500/10 text-blue-400 py-2 rounded-xl text-xs font-bold transition">📈 تقييم</button></div>
+        <div className="space-y-5 animate-pop pb-6">
+          <div className="bg-slate-900 p-6 rounded-3xl border border-slate-800 space-y-5 shadow-lg">
+            <h3 className="text-sm font-black text-white border-b border-slate-800 pb-3 flex items-center gap-2"><Icons.Calculator /> استوديو تحليل الجدوى</h3>
+            <form onSubmit={handleCalculateFeasibility} className="space-y-5">
+              <div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium block">رأس المال الاستثماري للمشروع (ج.س):</label><input type="number" required value={capital} onChange={e=>setCapital(e.target.value)} placeholder="مثال: 5000000" className="w-full bg-slate-950 text-white p-3.5 rounded-xl text-sm border border-slate-700 text-center font-bold focus:outline-none focus:border-yellow-500" /></div>
+              <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-4">
+                <div className="space-y-1.5"><label className="text-xs text-emerald-400 font-medium block">الإيرادات المتوقعة (المبيعات):</label><div className="flex gap-2"><input type="number" required value={revInput} onChange={e=>setRevInput(e.target.value)} placeholder="المبلغ" className="flex-1 bg-slate-900 text-emerald-400 p-3.5 rounded-xl text-sm border border-slate-700 text-center font-bold focus:outline-none focus:border-emerald-500" /><select value={revFreq} onChange={e=>setRevFreq(e.target.value)} className="w-1/3 bg-slate-900 text-white p-2 rounded-xl text-xs border border-slate-700 focus:outline-none font-bold"><option value="daily">يومياً</option><option value="weekly">أسبوعياً</option><option value="monthly">شهرياً</option><option value="yearly">سنوياً</option></select></div></div>
+                <div className="space-y-1.5 border-t border-slate-800 pt-3"><label className="text-xs text-red-400 font-medium block">المصروفات المتوقعة (تشغيل/رواتب):</label><div className="flex gap-2"><input type="number" required value={expInput} onChange={e=>setExpInput(e.target.value)} placeholder="المبلغ" className="flex-1 bg-slate-900 text-red-400 p-3.5 rounded-xl text-sm border border-slate-700 text-center font-bold focus:outline-none focus:border-red-500" /><select value={expFreq} onChange={e=>setExpFreq(e.target.value)} className="w-1/3 bg-slate-900 text-white p-2 rounded-xl text-xs border border-slate-700 focus:outline-none font-bold"><option value="daily">يومياً</option><option value="weekly">أسبوعياً</option><option value="monthly">شهرياً</option><option value="yearly">سنوياً</option></select></div></div>
               </div>
-            );
-          })}
-        </div>
-      );
-    }
-
-    function HistoryView({ txs, onEdit, onDelete }) {
-      const [search, setSearch] = useState('');
-      const filtered = txs.filter(t => t.category.includes(search) || t.amount.toString().includes(search));
-
-      return (
-        <div className="animate-pop space-y-4">
-          <div className="flex items-center gap-2 bg-slate-800 p-2.5 rounded-xl border border-slate-700 text-slate-400 px-3"><Icons.Search /><input type="text" placeholder="بحث بالاسم أو المبلغ..." value={search} onChange={e=>setSearch(e.target.value)} className="bg-transparent border-none focus:outline-none text-sm text-white w-full" /></div>
-          <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden"><div className="divide-y divide-slate-700/60 max-h-[60vh] overflow-y-auto">
-              {filtered.length === 0 ? <p className="text-center py-6 text-xs text-slate-500">لا توجد حركات مسجلة.</p> : filtered.map(t => (
-                <div key={t.id} className="py-3 px-4 flex justify-between items-center text-sm">
-                  <div className="min-w-0 flex-1"><p className="text-white font-bold truncate">{t.category}</p><p className="text-[10px] text-slate-500 mt-1">{t.date} • {t.wallet === 'bank' ? 'البنك 📱' : 'الكاش 💵'}</p></div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className={`font-bold text-sm ml-2 ${t.type === 'income' ? 'text-emerald-400' : 'text-red-400'}`}>{t.type === 'income' ? '+' : '-'} {parseFloat(t.amount).toLocaleString()}</span>
-                    <button onClick={() => onEdit(t)} className="p-1.5 bg-slate-700 text-blue-400 rounded-lg"><Icons.Edit/></button>
-                    <button onClick={() => onDelete(t.id)} className="p-1.5 bg-slate-700 text-red-400 rounded-lg"><Icons.Trash/></button>
-                  </div>
-                </div>
-              ))}
-          </div></div>
-        </div>
-      );
-    }
-
-    function ProfileView({ email, onReset, onLogout }) {
-      return (
-        <div className="animate-pop space-y-5">
-          <div className="bg-slate-800 p-4 rounded-xl text-center border border-slate-700 shadow-sm"><p className="text-xs text-slate-400 mb-1">حسابك الفعال</p><p className="text-white font-bold text-base">{email}</p></div>
-          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-sm space-y-4"><h3 className="font-bold text-white text-sm">إدارة النظام</h3><button onClick={onLogout} className="w-full bg-slate-900 text-white py-3 rounded-xl border border-slate-600 font-bold text-sm">🚪 قفل النظام</button><button onClick={onReset} className="w-full bg-red-500/10 text-red-400 py-3 rounded-xl border border-red-500/20 font-bold text-sm">🗑️ تصفير ومسح الأصول</button></div>
-        </div>
-      );
-    }
-
-    function AddAssetModal({ editData, onClose, onSave }) {
-      const [formData, setFormData] = useState(editData || { name: '', type: 'property', initialValue: '', date: new Date().toISOString().split('T')[0] });
-      const submit = (e) => { e.preventDefault(); triggerHaptic(); if (formData.name && formData.initialValue) onSave(formData); };
-      return (
-        <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4 animate-pop">
-          <div className="bg-slate-900 w-full max-w-sm rounded-3xl p-6 border border-slate-700 shadow-2xl">
-            <h2 className="text-base font-bold text-white mb-5 text-center">{editData ? 'تعديل الأصل ✏️' : 'مقتنى جديد 🏢'}</h2>
-            <form onSubmit={submit} className="space-y-4">
-              <input type="text" required autoFocus value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-slate-800 text-white p-3.5 rounded-xl border border-slate-600 text-sm focus:outline-none" placeholder="اسم الأصل" />
-              <select required value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full bg-slate-800 text-white p-3.5 rounded-xl border border-slate-600 text-sm focus:outline-none"><option value="property">عقار (مبنى/أرض)</option><option value="gold">ذهب ومقتنيات</option><option value="other">أصول أخرى</option></select>
-              <input type="number" required value={formData.initialValue || formData.currentValue} onChange={e => setFormData({...formData, initialValue: e.target.value})} className="w-full bg-slate-800 text-yellow-400 font-bold p-3.5 rounded-xl border border-slate-600 text-center text-lg focus:outline-none" placeholder="المبلغ التقديري" />
-              <input type="date" required value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm text-center focus:outline-none" />
-              <div className="pt-2"><button type="submit" className="w-full bg-yellow-600 text-white py-3.5 rounded-xl font-bold text-sm">حفظ البيانات</button><button type="button" onClick={onClose} className="w-full mt-3 text-slate-400 py-2 text-sm font-bold">إلغاء</button></div>
+              <div className="space-y-4">
+                <div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium block">معدل التضخم/الخصم السنوي:</label><select value={discountRate} onChange={e=>setDiscountRate(e.target.value)} className="w-full bg-slate-950 text-white p-3.5 rounded-xl text-xs border border-slate-700 focus:outline-none font-bold"><option value="10">10% (تضخم منخفض - بيئة مستقرة)</option><option value="15">15% (المعدل المحاسبي المعياري الافتراضي)</option><option value="20">20% (تضخم عالي - مخاطرة)</option><option value="25">25% (تضخم مفرط - مخاطرة عالية جداً)</option></select></div>
+                <div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium block">عمر الدراسة المطلوب:</label><select value={years} onChange={e=>setYears(e.target.value)} className="w-full bg-slate-950 text-white p-3.5 rounded-xl text-xs border border-slate-700 focus:outline-none font-bold text-center"><option value="3">3 سنوات</option><option value="5">5 سنوات (معياري)</option><option value="10">10 سنوات (طويل الأجل)</option></select></div>
+              </div>
+              <button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600 text-slate-950 font-black py-4 rounded-xl text-sm shadow-lg mt-2">استخراج القرار الاستثماري ⚙️</button>
             </form>
           </div>
+          {result && !result.error && (
+            <div className="bg-slate-900 p-6 rounded-3xl border border-slate-800 space-y-5 animate-pop text-sm shadow-xl">
+              <h4 className="font-black text-white text-center text-base border-b border-slate-800 pb-3">📋 تقرير الجدوى المالي</h4>
+              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex justify-between items-center font-bold"><span className="text-slate-400">الصافي السنوي المُستنتج آلياً:</span><span className="text-emerald-400 text-lg">{(result.annualFlow||0).toLocaleString()} ج.س</span></div>
+              <div className="flex flex-col gap-3">
+                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex justify-between items-center"><p className="text-xs text-slate-500">القيمة الحالية (NPV)</p><p className={`font-black text-lg ${result.isViable?'text-emerald-400':'text-red-400'}`}>{Math.round(result.npv||0).toLocaleString()}</p></div>
+                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex justify-between items-center"><p className="text-xs text-slate-500">معدل العائد (ROI)</p><p className="text-yellow-400 font-black text-lg">{(result.roi||0).toFixed(1)}%</p></div>
+              </div>
+              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-center"><p className="text-xs text-slate-500 mb-2">فترة استرداد رأس المال بالكامل (Payback)</p><p className="text-white font-black text-lg">{result.months||0} أشهر و {result.days||0} أيام</p></div>
+              <div className={`p-4 rounded-2xl text-center border font-bold text-sm leading-relaxed ${result.isViable?'bg-emerald-500/10 text-emerald-400 border-emerald-500/20':'bg-red-500/10 text-red-400 border-red-500/20'}`}>{result.isViable ? '✅ قرار الخوارزمية: المشروع مُربح ومقاوم للتضخم بامتياز.' : '❌ قرار الخوارزمية: التضخم سيأكل أرباح المشروع، لا يُنصح به.'}</div>
+            </div>
+          )}
+          {result && result.error && <div className="bg-red-500/10 border border-red-500/30 p-5 rounded-3xl text-red-400 font-bold text-center text-sm">{result.error}</div>}
         </div>
       );
     }
 
-    function AssetActionModal({ details, asset, onClose, onSave }) {
-      const [amount, setAmount] = useState(''); const [wallet, setWallet] = useState('bank'); const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-      if (!asset) return null;
-      const isRevalue = details.type === 'revalue';
-      const title = details.type === 'income' ? `إيراد (${asset.name})` : details.type === 'expense' ? `صيانة (${asset.name})` : `تقييم (${asset.name})`;
-      const submit = (e) => { e.preventDefault(); triggerHaptic(); if(parseFloat(amount) > 0) onSave(asset.id, details.type, parseFloat(amount), wallet, date); };
+    function AssetModal({ goldPrice24, editData, onClose, onSave }) {
+      const isEdit = !!editData;
+      let guessedType = 'real_estate';
+      if (isEdit) { if (editData.type) guessedType = editData.type; else if (editData.grams !== undefined) guessedType = 'gold'; }
+      const [type, setType] = useState(guessedType);
+      const [formData, setFormData] = useState(isEdit ? {...editData} : { name: '', area: '', totalValue: '', isRented: 'no', monthlyRent: '', annualGrowth: '', grams: '', habba: '', purity: '1', periodicIncome: '', incomeFreq: 'daily' });
+
+      useEffect(() => { if (isEdit && type === 'real_estate' && !formData.totalValue && formData.currentValue) { setFormData(prev => ({...prev, totalValue: prev.currentValue})); } }, [isEdit, type]);
+      const autoPricePerMeter = (parseFloat(formData.area) > 0 && parseFloat(formData.totalValue) > 0) ? (parseFloat(formData.totalValue) / parseFloat(formData.area)) : 0;
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        const safeId = isEdit ? (editData.id || Date.now()) : Date.now();
+        const safeDate = isEdit ? (editData.date || new Date().toISOString().split('T')[0]) : new Date().toISOString().split('T')[0];
+
+        if (type === 'real_estate') {
+          const area = parseFloat(formData.area) || 0; const totalValue = parseFloat(formData.totalValue) || 0; const pricePerMeter = area > 0 ? (totalValue / area) : 0;
+          onSave({ id: safeId, type: 'real_estate', name: formData.name || '', area, pricePerMeter, currentValue: totalValue, isRented: formData.isRented === 'yes', monthlyRent: parseFloat(formData.monthlyRent) || 0, annualGrowth: parseFloat(formData.annualGrowth) || 0, date: safeDate }, isEdit);
+        } else if (type === 'gold') {
+          const grams = parseFloat(formData.grams) || 0; const habba = parseFloat(formData.habba) || 0; const totalGrams = grams + (habba * 0.058); const purity = parseFloat(formData.purity) || 1;
+          onSave({ id: safeId, type: 'gold', name: formData.name || `ذهب عيار ${purity == 1 ? '24' : purity == 0.875 ? '21' : '18'}`, grams, habba, totalGrams, purity, currentValue: totalGrams * (goldPrice24 || 0) * purity, date: safeDate }, isEdit);
+        } else if (type === 'vehicle_livestock') {
+          const totalValue = parseFloat(formData.totalValue) || 0;
+          onSave({ id: safeId, type: 'vehicle_livestock', name: formData.name || 'أصل غير محدد', currentValue: totalValue, isRented: formData.isRented === 'yes', periodicIncome: parseFloat(formData.periodicIncome) || 0, incomeFreq: formData.incomeFreq || 'daily', date: safeDate }, isEdit);
+        }
+      };
 
       return (
-        <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-end justify-center p-4 animate-pop">
-          <div className="bg-slate-900 w-full max-w-sm rounded-3xl p-6 border border-slate-700 mb-10 shadow-2xl">
-            <h2 className="text-base font-bold text-white mb-4 text-center">{title}</h2>
-            {!isRevalue && <div className="mb-5"><label className="block text-xs text-slate-400 mb-2 text-center">مكان الحفظ (يتزامن مع الخزينة)</label><div className="flex gap-2"><button type="button" onClick={() => setWallet('bank')} className={`flex-1 py-3 rounded-xl text-sm font-bold transition ${wallet==='bank'?'bg-blue-500 text-white':'bg-slate-800 text-slate-400'}`}>البنك 📱</button><button type="button" onClick={() => setWallet('cash')} className={`flex-1 py-3 rounded-xl text-sm font-bold transition ${wallet==='cash'?'bg-emerald-500 text-white':'bg-slate-800 text-slate-400'}`}>الكاش 💵</button></div></div>}
-            <form onSubmit={submit} className="space-y-4">
-              <input type="number" required autoFocus value={amount} onChange={e => setAmount(e.target.value)} className="w-full bg-slate-800 text-white text-center text-2xl font-black p-4 rounded-2xl border border-slate-600 focus:outline-none" placeholder="أدخل المبلغ..." />
-              <input type="date" required value={date} onChange={e => setDate(e.target.value)} className="w-full bg-slate-800 text-white text-center p-3 rounded-xl border border-slate-600 text-sm focus:outline-none" />
-              <div className="pt-2"><button type="submit" className="w-full bg-yellow-600 text-white py-3.5 rounded-2xl font-bold text-sm">تأكيد المزامنة</button><button type="button" onClick={onClose} className="w-full mt-3 text-slate-400 py-2 text-sm font-bold">إلغاء</button></div>
-            </form>
-          </div>
-        </div>
-      );
-    }
-
-    function EditTxModal({ tx, onClose, onSave }) {
-      const [amount, setAmount] = useState(tx.amount); const [date, setDate] = useState(tx.date); const [wallet, setWallet] = useState(tx.wallet);
-      const submit = (e) => { e.preventDefault(); triggerHaptic(); onSave({ ...tx, amount: parseFloat(amount), date, wallet }); };
-      return (
-        <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4 animate-pop">
-          <div className="bg-slate-900 w-full max-w-sm rounded-3xl p-6 border border-slate-700 shadow-2xl">
-            <h2 className="text-base font-bold text-white mb-4 text-center">تعديل الحركة ✏️</h2>
-            <form onSubmit={submit} className="space-y-4">
-              <div className="flex gap-2"><button type="button" onClick={() => setWallet('bank')} className={`flex-1 py-3 rounded-xl text-sm font-bold transition ${wallet==='bank'?'bg-blue-500 text-white':'bg-slate-800 text-slate-400'}`}>البنك 📱</button><button type="button" onClick={() => setWallet('cash')} className={`flex-1 py-3 rounded-xl text-sm font-bold transition ${wallet==='cash'?'bg-emerald-500 text-white':'bg-slate-800 text-slate-400'}`}>الكاش 💵</button></div>
-              <input type="number" required value={amount} onChange={e=>setAmount(e.target.value)} className="w-full bg-slate-800 text-white text-center text-2xl font-black p-4 rounded-2xl focus:outline-none" />
-              <input type="date" required value={date} onChange={e=>setDate(e.target.value)} className="w-full bg-slate-800 text-white text-center p-3 rounded-xl focus:outline-none" />
-              <div className="pt-2"><button type="submit" className="w-full bg-yellow-600 text-white py-3.5 rounded-xl font-bold">تحديث البيانات</button><button type="button" onClick={onClose} className="w-full mt-3 text-slate-400 py-2 font-bold">إلغاء</button></div>
+        <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 w-full max-w-sm rounded-3xl p-6 border border-slate-800 shadow-2xl animate-pop max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6"><h2 className="font-bold text-lg text-white">{isEdit ? 'تعديل بيانات الأصل ✏️' : 'إضافة أصل جديد 🏢'}</h2><button onClick={onClose} className="bg-slate-800 hover:bg-slate-700 p-2.5 rounded-xl transition text-slate-300">❌</button></div>
+            {!isEdit && (
+              <div className="flex flex-wrap gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800 mb-6"><button type="button" onClick={()=>setType('real_estate')} className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition ${type==='real_estate'?'bg-yellow-500 text-slate-950':'text-slate-400'}`}>عقار / أرض</button><button type="button" onClick={()=>setType('gold')} className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition ${type==='gold'?'bg-yellow-500 text-slate-950':'text-slate-400'}`}>ذهب / مقتنيات</button><button type="button" onClick={()=>setType('vehicle_livestock')} className={`flex-1 min-w-[100px] py-2.5 rounded-lg text-xs font-bold transition ${type==='vehicle_livestock'?'bg-yellow-500 text-slate-950':'text-slate-400'}`}>مركبات/حيوانية</button></div>
+            )}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {type === 'real_estate' && (
+                <><div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">اسم العقار أو الأرض:</label><input type="text" required value={formData.name || ''} onChange={e=>setFormData({...formData, name: e.target.value})} placeholder="مثال: عمارة المعمورة..." className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-sm focus:outline-none focus:border-yellow-500" /></div><div className="space-y-4"><div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">المساحة الإجمالية (م²):</label><input type="number" step="any" required value={formData.area || ''} onChange={e=>setFormData({...formData, area: e.target.value})} placeholder="0" className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-center text-sm font-bold focus:outline-none focus:border-yellow-500" /></div><div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">القيمة التقديرية الحالية (ج.س):</label><input type="number" required value={formData.totalValue || ''} onChange={e=>setFormData({...formData, totalValue: e.target.value})} placeholder="مثال: 10000000" className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-center text-sm font-bold focus:outline-none focus:border-yellow-500" /></div></div>
+                  {autoPricePerMeter > 0 && <div className="bg-slate-950/50 p-3 rounded-xl border border-slate-800 text-center flex justify-between items-center"><p className="text-xs text-slate-500 font-bold">سعر المتر المُستنتج آلياً:</p><p className="text-sm font-black text-emerald-400">{Math.round(autoPricePerMeter).toLocaleString()} ج.س/م²</p></div>}
+                  <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center mt-2"><label className="text-sm text-slate-300 font-bold">هل الأصل مُؤجّر (يُدر عائداً)؟</label><select value={formData.isRented || 'no'} onChange={e=>setFormData({...formData, isRented: e.target.value})} className="bg-slate-900 text-white p-2 rounded-lg text-sm focus:outline-none border border-slate-700 font-bold"><option value="no">لا</option><option value="yes">نعم</option></select></div>
+                  {formData.isRented === 'yes' && <div className="space-y-4 pt-2 border-t border-slate-800"><div className="space-y-1.5"><label className="text-xs text-emerald-400 font-medium">الإيجار الشهري الحالي (ج.س):</label><input type="number" required value={formData.monthlyRent || ''} onChange={e=>setFormData({...formData, monthlyRent: e.target.value})} placeholder="0" className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-center text-sm font-bold focus:outline-none focus:border-emerald-500" /></div><div className="space-y-1.5"><label className="text-xs text-blue-400 font-medium">الزيادة السنوية المتوقعة للإيجار (%):</label><input type="number" required value={formData.annualGrowth || ''} onChange={e=>setFormData({...formData, annualGrowth: e.target.value})} placeholder="مثال: 10" className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-center text-sm font-bold focus:outline-none focus:border-blue-500" /></div></div>}</>
+              )}
+              {type === 'gold' && (
+                <><div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">وصف المقتنى (اختياري):</label><input type="text" value={formData.name || ''} onChange={e=>setFormData({...formData, name: e.target.value})} placeholder="مثال: غويشة، سبيكة..." className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-sm focus:outline-none focus:border-yellow-500" /></div><div className="space-y-4"><div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">الوزن بالجرام الصحيح:</label><input type="number" step="any" required value={formData.grams || ''} onChange={e=>setFormData({...formData, grams: e.target.value})} placeholder="0" className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-center text-sm font-bold focus:outline-none focus:border-yellow-500" /></div><div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">عدد الحبات الكسرية (إن وجدت):</label><input type="number" step="any" value={formData.habba || ''} onChange={e=>setFormData({...formData, habba: e.target.value})} placeholder="0" className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-center text-sm font-bold focus:outline-none focus:border-yellow-500" /></div></div><div className="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2 mt-2"><label className="text-sm text-slate-300 font-bold block">العيار الصياغي للمقتنى:</label><select value={formData.purity || '1'} onChange={e=>setFormData({...formData, purity: e.target.value})} className="w-full bg-slate-900 text-yellow-500 p-3.5 rounded-xl text-sm font-bold focus:outline-none border border-slate-700"><option value="1">24 قيراط ({Math.round(goldPrice24).toLocaleString()} ج.س/جم)</option><option value="0.875">21 قيراط ({Math.round(goldPrice24 * 0.875).toLocaleString()} ج.س/جم)</option><option value="0.750">18 قيراط ({Math.round(goldPrice24 * 0.750).toLocaleString()} ج.س/جم)</option></select></div></>
+              )}
+              {type === 'vehicle_livestock' && (
+                <><div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">اسم/وصف الأصل:</label><input type="text" required value={formData.name || ''} onChange={e=>setFormData({...formData, name: e.target.value})} placeholder="مثال: ركشة، تكتك، 50 رأس ضأن..." className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-sm focus:outline-none focus:border-yellow-500" /></div><div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">القيمة الرأسمالية الحالية (ج.س):</label><input type="number" required value={formData.totalValue || ''} onChange={e=>setFormData({...formData, totalValue: e.target.value})} placeholder="مثال: 3000000" className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-center text-sm font-bold focus:outline-none focus:border-yellow-500" /></div><div className="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center mt-2"><label className="text-sm text-slate-300 font-bold">هل الأصل يُدر عائداً؟</label><select value={formData.isRented || 'no'} onChange={e=>setFormData({...formData, isRented: e.target.value})} className="bg-slate-900 text-white p-2 rounded-lg text-sm focus:outline-none border border-slate-700 font-bold"><option value="no">لا</option><option value="yes">نعم، يعمل ويُدر دخلاً</option></select></div>{formData.isRented === 'yes' && <div className="space-y-4 pt-2 border-t border-slate-800"><div className="space-y-1.5"><label className="text-xs text-emerald-400 font-medium">مبلغ الإيراد الدوري (ج.س):</label><div className="flex gap-2"><input type="number" required value={formData.periodicIncome || ''} onChange={e=>setFormData({...formData, periodicIncome: e.target.value})} placeholder="مثال: 25000" className="flex-1 bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-center text-sm font-bold focus:outline-none focus:border-emerald-500" /><select value={formData.incomeFreq || 'daily'} onChange={e=>setFormData({...formData, incomeFreq: e.target.value})} className="w-1/3 bg-slate-900 text-white p-2 rounded-xl text-xs border border-slate-700 focus:outline-none font-bold"><option value="daily">يومياً</option><option value="weekly">أسبوعياً</option><option value="monthly">شهرياً</option></select></div></div></div>}</>
+              )}
+              <button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600 text-slate-950 font-black py-4 rounded-xl text-base mt-4 shadow-lg transition">حفظ وتأكيد بيانات الأصل</button>
             </form>
           </div>
         </div>
@@ -340,22 +444,22 @@
     }
 
     function ReceiptModal({ data, onClose, showToast }) {
-      const receiptText = `سند محاسبي\nرقم: ${data.ref}\nالتاريخ: ${data.date}\nالنوع: ${data.title}\nالبيان: ${data.person}\nالمبلغ: ${data.amount.toLocaleString()} ج.س`;
+      if (!data) return null;
+      const safeAmount = data.amount ? parseFloat(data.amount) : 0; const safeRef = data.ref || 'غير محدد'; const safeDate = data.date || new Date().toISOString().split('T')[0]; const safeTitle = data.title || 'سند مالي'; const safePerson = data.person || 'عام';
+      const receiptText = `🧾 *${safeTitle}*\n-----------------------\n▪️ *المرجع:* ${safeRef}\n▪️ *التاريخ:* ${safeDate}\n▪️ *الجهة:* ${safePerson}\n-----------------------\n💰 *القيمة:* ${safeAmount.toLocaleString()} ج.س`;
+      const copyText = () => { triggerHaptic(); navigator.clipboard.writeText(receiptText); showToast('تم نسخ السند بنجاح!'); };
+
       return (
-        <div className="fixed inset-0 bg-slate-950/80 z-[70] flex items-center justify-center p-4 animate-pop">
-          <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-xl text-center">
-            <h2 className="text-xl font-bold text-white mb-2">{data.title}</h2>
-            <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700 mb-4 text-sm text-slate-300 space-y-2 text-right">
-              <p>رقم السند: <span className="text-white">{data.ref}</span></p>
-              <p>التاريخ: <span className="text-white">{data.date}</span></p>
-              <p>البيان: <span className="text-white">{data.person}</span></p>
-              <p className="text-xl font-bold text-yellow-400 mt-3 text-center border-t border-slate-700 pt-2">{data.amount.toLocaleString()} ج.س</p>
+        <div className="fixed inset-0 bg-slate-950/80 z-[70] flex items-center justify-center p-5 animate-pop">
+          <div className="bg-white text-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl" style={{fontFamily: 'monospace'}}>
+            <div className="border-b border-dashed border-slate-300 pb-3 mb-4 text-center"><h2 className="font-bold text-lg">{safeTitle}</h2></div>
+            <div className="space-y-3 text-sm mb-5 font-medium"><div className="flex justify-between"><span>المرجع:</span><span>{safeRef}</span></div><div className="flex justify-between"><span>التاريخ:</span><span>{safeDate}</span></div><div className="flex justify-between"><span>الأصل/الجهة:</span><span className="truncate max-w-[60%]">{safePerson}</span></div></div>
+            <div className="border-t border-dashed border-slate-300 pt-5 text-center"><h3 className="text-3xl font-black text-slate-900">{safeAmount.toLocaleString()} <span className="text-base">ج.س</span></h3></div>
+            <div className="mt-8 space-y-3">
+              <a href={`whatsapp://send?text=${encodeURIComponent(receiptText)}`} className="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-md transition">📱 إرسال للواتساب</a>
+              <button onClick={copyText} className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 py-3.5 rounded-xl font-bold text-sm transition">📋 نسخ كنص</button>
+              <button onClick={onClose} className="w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold text-sm transition">إغلاق النافذة ❌</button>
             </div>
-            <div className="flex gap-2 mb-3">
-              <a href={`whatsapp://send?text=${encodeURIComponent(receiptText)}`} className="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold text-sm">واتساب 📱</a>
-              <button onClick={()=>{navigator.clipboard.writeText(receiptText); showToast('تم النسخ');}} className="flex-1 bg-slate-700 text-white py-3 rounded-xl font-bold text-sm">نسخ 📋</button>
-            </div>
-            <button onClick={onClose} className="w-full bg-slate-900 text-slate-400 py-3 rounded-xl font-bold text-sm">إغلاق</button>
           </div>
         </div>
       );
