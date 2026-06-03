@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>نظام إدارة الأصول والمقتنيات</title>
+  
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <style>
+    body { font-family: system-ui, sans-serif; background-color: #0f172a; color: #f1f5f9; -webkit-tap-highlight-color: transparent; }
+    input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    @keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    .animate-pop { animation: popIn 0.2s ease-out forwards; }
+    @keyframes slideDown { 0% { transform: translateY(-100%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+    .animate-slide-down { animation: slideDown 0.3s ease-out forwards; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    const Icons = {
+      Building: () => <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4M8 6h2M14 6h2M8 10h2M14 10h2M8 14h2M14 14h2"/></svg>,
+      List: () => <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>,
+      Settings: () => <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 5.4 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1-2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+      Trash: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>,
+      Edit: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>,
+      Search: () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+      Back: () => <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6"/></svg>,
+      Check: () => <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
+    };
+
+    const triggerHaptic = () => { if (navigator.vibrate) navigator.vibrate(30); };
+
+    function AuthScreen({ view, setView, savedEmail, savedPwd, savedSecAnswer, onRegister, onLogin, onResetPwd }) {
+      const [email, setEmail] = useState(''); const [pwd, setPwd] = useState(''); const [sec, setSec] = useState('');
+      useEffect(() => { if(savedEmail) setEmail(savedEmail); }, [savedEmail]);
+
+      const submit = e => {
+        e.preventDefault(); triggerHaptic();
+        if(view === 'register') { 
+          if(!email || pwd.length < 4 || !sec) return alert('الرجاء تعبئة كافة الحقول'); 
+          onRegister(email.toLowerCase(), pwd, sec.trim()); 
+        }
+        else if (view === 'login') { 
+          if(email.toLowerCase() === savedEmail.toLowerCase() && pwd === savedPwd) onLogin(); 
+          else alert('بيانات غير صحيحة!'); 
+        }
+        else if (view === 'forgot') {
+          if (email.toLowerCase() === savedEmail.toLowerCase() && sec.trim() === savedSecAnswer.trim()) {
+            const np = prompt('كلمة مرور جديدة:'); if (np && np.length >= 4) onResetPwd(np); else alert('مرفوض: أقل من 4 رموز');
+          } else alert('سؤال الأمان غير متطابق!');
+        }
+      };
+
+      return (
+        <div className="min-h-[80vh] flex items-center justify-center p-4">
+          <div className="bg-slate-800 p-8 rounded-3xl w-full max-w-sm border border-slate-700 animate-pop shadow-2xl">
+            <h1 className="text-xl font-bold text-white mb-2 text-center">🔐 الأصول والمقتنيات</h1>
+            <p className="text-sm text-slate-400 text-center mb-6">{view === 'login' ? 'سجل الدخول للمتابعة' : view === 'register' ? 'ملف جديد' : 'استعادة الدخول'}</p>
+            <form onSubmit={submit} className="space-y-4">
+              <input type="email" required placeholder="البريد الإلكتروني" value={email} onChange={e=>setEmail(e.target.value)} className="w-full bg-slate-900 border border-slate-600 text-white p-3.5 rounded-xl text-sm focus:outline-none focus:border-yellow-500" />
+              {view !== 'forgot' && <input type="password" required placeholder="كلمة المرور" value={pwd} onChange={e=>setPwd(e.target.value)} className="w-full bg-slate-900 border border-slate-600 text-white p-3.5 rounded-xl text-sm focus:outline-none focus:border-yellow-500" />}
+              {(view === 'register' || view === 'forgot') && <input type="text" required placeholder="سؤال الأمان: مدينتك المفضلة؟" value={sec} onChange={e=>setSec(e.target.value)} className="w-full bg-slate-900 border border-slate-600 text-yellow-400 p-3.5 rounded-xl text-sm focus:outline-none focus:border-yellow-500" />}
+              <button type="submit" className="w-full bg-yellow-600 text-white font-bold py-3.5 rounded-xl text-sm shadow-md hover:bg-yellow-500 transition">{view === 'login' ? 'دخول' : view === 'register' ? 'إنشاء' : 'استعادة'}</button>
+            </form>
+            <div className="mt-6 flex flex-col gap-3 text-center text-sm">
+              {view === 'login' ? <><button onClick={() => setView('forgot')} className="text-slate-400 hover:text-white transition">نسيت كلمة المرور؟</button><button onClick={() => setView('register')} className="text-yellow-400 font-bold transition">حساب جديد ➕</button></> : <button onClick={() => setView('login')} className="text-slate-400 hover:text-white transition">العودة للدخول</button>}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function NavItem({ icon, label, active, onClick }) {
+      return (
+        <button onClick={() => { triggerHaptic(); onClick(); }} className={`flex flex-col items-center p-2 min-w-[65px] rounded-xl transition-all ${active ? 'text-yellow-400 bg-slate-700/50' : 'text-slate-500 hover:text-slate-300'}`}>
+          <div className="scale-95">{icon}</div>
+          <span className="text-[10px] font-bold mt-1 whitespace-nowrap">{label}</span>
+        </button>
+      );
+    }
+
+    function App() {
+      const [isAuthenticated, setIsAuthenticated] = useState(() => localStorage.getItem('smart_acc_session') === 'active');
+      const [authView, setAuthView] = useState('login'); 
+      const [savedEmail, setSavedEmail] = useState(() => localStorage.getItem('smart_acc_email') || '');
+      const [savedPwd, setSavedPwd] = useState(() => localStorage.getItem('smart_acc_pwd') || '1234');
+      const [savedSecAnswer, setSavedSecAnswer] = useState(() => localStorage.getItem('smart_acc_sec') || '');
+
+      useEffect(() => { if (!localStorage.getItem('smart_acc_email')) setAuthView('register'); }, []);
+
+      const [activeTab, setActiveTab] = useState('assets');
+      const [toast, setToast] = useState(null);
+      const [actionModal, setActionModal] = useState(null);
+      const [addModalOpen, setAddModalOpen] = useState(false);
+      const [editAssetData, setEditAssetData] = useState(null);
+      const [editTxData, setEditTxData] = useState(null);
+      const [receiptData, setReceiptData] = useState(null);
+
+      const [assets, setAssets] = useState(() => JSON.parse(localStorage.getItem('smart_accountant_assets')) || []);
+      const [transactions, setTransactions] = useState(() => JSON.parse(localStorage.getItem('smart_accountant_tx')) || []);
+
+      useEffect(() => { localStorage.setItem('smart_accountant_assets', JSON.stringify(assets)); }, [assets]);
+      useEffect(() => { localStorage.setItem('smart_accountant_tx', JSON.stringify(transactions)); }, [transactions]);
+
+      const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
+
+      const summary = useMemo(() => {
+        let totalValue = 0; let totalIncome = 0; let totalExpense = 0;
+        assets.forEach(a => { totalValue += parseFloat(a.currentValue || 0); });
+        transactions.forEach(t => {
+          if (t.assetId) {
+            if (t.type === 'income') totalIncome += parseFloat(t.amount || 0);
+            if (t.type === 'expense') totalExpense += parseFloat(t.amount || 0);
+          }
+        });
+        return { totalValue, netReturn: totalIncome - totalExpense };
+      }, [assets, transactions]);
+
+      const handleSaveAsset = (data) => {
+        if (data.id) {
+          setAssets(assets.map(a => a.id === data.id ? { ...a, ...data, currentValue: parseFloat(data.initialValue) } : a));
+          showToast('تم تعديل الأصل بنجاح ✏️');
+        } else {
+          setAssets([{ id: Date.now(), name: data.name, type: data.type, currentValue: parseFloat(data.initialValue), date: data.date }, ...assets]);
+          showToast('تم تسجيل الأصل بنجاح 🏢');
+        }
+        setAddModalOpen(false); setEditAssetData(null);
+      };
+
+      const handleAssetAction = (assetId, actionType, amount, wallet, date) => {
+        const asset = assets.find(a => a.id === assetId); if (!asset) return;
+        const txId = Date.now();
+        if (actionType === 'income' || actionType === 'expense') {
+          const newTx = { id: txId, type: actionType, amount: parseFloat(amount), wallet: wallet, assetId: asset.id, category: actionType === 'income' ? `إيراد أصل (${asset.name})` : `صيانة أصل (${asset.name})`, date: date };
+          setTransactions([newTx, ...transactions]);
+          showToast(actionType === 'income' ? 'تم إيداع العائد في الخزنة 💰' : 'تم خصم تكلفة الصيانة 🛠️');
+          setReceiptData({ title: actionType === 'income' ? 'سند إيراد أصل' : 'سند صيانة أصل', person: asset.name, amount: parseFloat(amount), date: date, ref: `AST-${txId.toString().slice(-5)}` });
+        } 
+        else if (actionType === 'revalue') {
+          setAssets(assets.map(a => a.id === assetId ? { ...a, currentValue: parseFloat(amount) } : a));
+          showToast('تم تحديث التقييم السوقي 📈');
+        }
+        setActionModal(null);
+      };
+
+      const handleSaveEditTx = (updatedTx) => {
+        setTransactions(transactions.map(t => t.id === updatedTx.id ? updatedTx : t));
+        setEditTxData(null);
+        showToast('تم تعديل الحركة والمزامنة بنجاح ✏️');
+      };
+
+      const handleDeleteAsset = (id) => {
+        triggerHaptic(); const asset = assets.find(a => a.id === id); if (!asset) return;
+        if (window.confirm(`لحذف الأصل (${asset.name}) والاحتفاظ بعوائده في الخزنة، اضغط موافق.`)) {
+          setAssets(assets.filter(a => a.id !== id)); showToast('تم الحذف.');
+        } else if (window.confirm(`تطهير شامل: هل تريد مسح الأصل وكل فواتيره تماماً؟`)) {
+          setAssets(assets.filter(a => a.id !== id)); setTransactions(transactions.filter(t => t.assetId !== id)); showToast('تم التطهير الكامل.');
+        }
+      };
+
+      const handleDeleteTx = (id) => {
+        triggerHaptic();
+        if(window.confirm('هل تود حذف هذه الحركة وإرجاع الرصيد للخزينة؟')) {
+           setTransactions(transactions.filter(t => t.id !== id)); showToast('تم الحذف بنجاح.');
+        }
+      };
+
+      const handleResetAssets = () => {
+        triggerHaptic();
+        if(window.confirm('⚠️ سيتم حذف جميع الأصول وحركاتها كلياً. هل أنت متأكد؟')) {
+          setAssets([]); setTransactions(transactions.filter(t => !t.assetId)); showToast('تم التصفير.');
+        }
+      };
+
+      if (!isAuthenticated) return <AuthScreen view={authView} setView={setAuthView} savedEmail={savedEmail} savedPwd={savedPwd} savedSecAnswer={savedSecAnswer} onRegister={(e, p, s) => { localStorage.setItem('smart_acc_email', e); localStorage.setItem('smart_acc_pwd', p); localStorage.setItem('smart_acc_sec', s); localStorage.setItem('smart_acc_session', 'active'); setSavedEmail(e); setSavedPwd(p); setSavedSecAnswer(s); setIsAuthenticated(true); }} onLogin={() => { localStorage.setItem('smart_acc_session', 'active'); setIsAuthenticated(true); }} onResetPwd={(np) => { localStorage.setItem('smart_acc_pwd', np); setSavedPwd(np); setAuthView('login'); }} />;
+
+      return (
+        <div className="pb-24">
+          {toast && <div className="fixed top-6 left-4 right-4 z-[100] bg-emerald-500 text-white px-4 py-3 rounded-xl flex items-center gap-3 shadow-xl animate-slide-down"><Icons.Check /><span className="text-sm font-bold">{toast}</span></div>}
+
+          <header className="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-10 flex justify-between items-center shadow-md">
+            <div className="flex items-center gap-3"><div className="bg-yellow-600 p-2.5 rounded-xl text-white"><Icons.Building /></div><div><h1 className="text-base font-bold text-white">نظام الأصول</h1><p className="text-[11px] text-yellow-400">المقتنيات والعقارات</p></div></div>
+            <a href="index.html" onClick={triggerHaptic} className="flex items-center gap-1 bg-slate-900/60 text-slate-300 text-xs hover:text-emerald-400 px-3 py-2 rounded-lg border border-slate-700 font-bold transition"><Icons.Back /> الخزينة 💰</a>
+          </header>
+
+          <main className="p-4 max-w-md mx-auto space-y-5">
+            {activeTab === 'assets' && <AssetsView assets={assets} txs={transactions} summary={summary} onAdd={() => {setEditAssetData(null); setAddModalOpen(true);}} onEdit={(a) => {setEditAssetData(a); setAddModalOpen(true);}} onDelete={handleDeleteAsset} onAction={(id, type) => { triggerHaptic(); setActionModal({ id, type }); }} />}
+            {activeTab === 'history' && <HistoryView txs={transactions.filter(t => t.assetId)} onEdit={(t) => {setEditTxData(t);}} onDelete={handleDeleteTx} />}
+            {activeTab === 'settings' && <ProfileView email={savedEmail} onReset={handleResetAssets} onLogout={() => {triggerHaptic(); localStorage.removeItem('smart_acc_session'); setIsAuthenticated(false); setAuthView('login');}} />}
+          </main>
+
+          <button onClick={() => {triggerHaptic(); setEditAssetData(null); setAddModalOpen(true);}} className="fixed bottom-24 left-6 w-14 h-14 bg-yellow-500 text-slate-900 rounded-full shadow-lg flex items-center justify-center z-20 text-2xl font-bold hover:scale-105 transition-transform">➕</button>
+
+          <nav className="fixed bottom-0 w-full bg-slate-800 border-t border-slate-700 py-3 z-10 px-4">
+            <div className="flex justify-around items-center max-w-sm mx-auto">
+              <NavItem icon={<Icons.Building />} label="الأصول" active={activeTab==='assets'} onClick={() => setActiveTab('assets')} />
+              <NavItem icon={<Icons.List />} label="سجل الحركات" active={activeTab==='history'} onClick={() => setActiveTab('history')} />
+              <NavItem icon={<Icons.Settings />} label="الضبط" active={activeTab==='settings'} onClick={() => setActiveTab('settings')} />
+            </div>
+          </nav>
+
+          {addModalOpen && <AddAssetModal editData={editAssetData} onClose={() => {setAddModalOpen(false); setEditAssetData(null);}} onSave={handleSaveAsset} />}
+          {actionModal && <AssetActionModal details={actionModal} asset={assets.find(a => a.id === actionModal.id)} onClose={() => setActionModal(null)} onSave={handleAssetAction} />}
+          {editTxData && <EditTxModal tx={editTxData} onClose={() => setEditTxData(null)} onSave={handleSaveEditTx} />}
+          {receiptData && <ReceiptModal data={receiptData} onClose={() => setReceiptData(null)} showToast={showToast} />}
+        </div>
+      );
+    }
+
+    function AssetsView({ assets, txs, summary, onAdd, onEdit, onDelete, onAction }) {
+      const [search, setSearch] = useState('');
+      const filtered = assets.filter(a => a.name.includes(search));
+
+      return (
+        <div className="animate-pop space-y-5">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-5 border border-slate-700 shadow-lg text-center relative">
+            <p className="text-slate-300 text-sm font-bold mb-2">إجمالي قيمة الأصول 🏢</p>
+            <h2 className="text-3xl font-black text-white mb-4">{summary.totalValue.toLocaleString()} <span className="text-sm text-slate-400">ج.س</span></h2>
+            <div className="bg-slate-900/60 p-3 rounded-xl border border-slate-700 inline-block px-6"><p className="text-[11px] text-slate-400 mb-1">صافي الأرباح (عائد - صيانة)</p><p className={`text-lg font-black ${summary.netReturn >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{summary.netReturn > 0 ? '+' : ''}{summary.netReturn.toLocaleString()}</p></div>
+          </div>
+          <div className="flex items-center gap-2 bg-slate-800 p-2.5 rounded-xl border border-slate-700 text-slate-400 px-3"><Icons.Search /><input type="text" placeholder="بحث في الأصول..." value={search} onChange={e=>setSearch(e.target.value)} className="bg-transparent border-none focus:outline-none text-sm text-white w-full" /></div>
+          {filtered.length === 0 ? <p className="text-center py-6 text-slate-500 text-sm">لا توجد أصول.</p> : filtered.map(asset => {
+            const assetIncomes = txs.filter(t => t.type === 'income' && t.assetId === asset.id).reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const assetExpenses = txs.filter(t => t.type === 'expense' && t.assetId === asset.id).reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const netAssetReturn = assetIncomes - assetExpenses;
+            return (
+              <div key={asset.id} className="bg-slate-800 rounded-2xl p-4 border border-slate-700 shadow-md relative group">
+                <div className="absolute top-4 left-4 flex gap-1.5"><button onClick={() => onEdit(asset)} className="p-2 bg-slate-900 text-blue-400 rounded-lg"><Icons.Edit /></button><button onClick={() => onDelete(asset.id)} className="p-2 bg-slate-900 text-red-400 rounded-lg"><Icons.Trash /></button></div>
+                <h4 className="font-bold text-white text-base truncate max-w-[65%] mb-1">{asset.name}</h4>
+                <p className="text-xs text-slate-400 mb-4">{asset.type === 'property' ? '🏢 عقار' : asset.type === 'gold' ? '🪙 ذهب ومعادن' : '📦 أخرى'}</p>
+                <div className="grid grid-cols-2 gap-3 text-center mb-4"><div className="bg-slate-900/80 p-3 rounded-xl border border-slate-700"><p className="text-[10px] text-slate-400">القيمة السوقية</p><p className="text-sm font-black text-yellow-400 mt-1">{parseFloat(asset.currentValue).toLocaleString()}</p></div><div className="bg-slate-900/80 p-3 rounded-xl border border-slate-700"><p className="text-[10px] text-slate-400">الصافي التشغيلي</p><p className={`text-sm font-black mt-1 ${netAssetReturn >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{netAssetReturn.toLocaleString()}</p></div></div>
+                <div className="grid grid-cols-3 gap-2"><button onClick={() => onAction(asset.id, 'income')} className="bg-emerald-500/10 text-emerald-400 py-2 rounded-xl text-xs font-bold transition">➕ إيراد</button><button onClick={() => onAction(asset.id, 'expense')} className="bg-red-500/10 text-red-400 py-2 rounded-xl text-xs font-bold transition">🛠️ صيانة</button><button onClick={() => onAction(asset.id, 'revalue')} className="bg-blue-500/10 text-blue-400 py-2 rounded-xl text-xs font-bold transition">📈 تقييم</button></div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    function HistoryView({ txs, onEdit, onDelete }) {
+      const [search, setSearch] = useState('');
+      const filtered = txs.filter(t => t.category.includes(search) || t.amount.toString().includes(search));
+
+      return (
+        <div className="animate-pop space-y-4">
+          <div className="flex items-center gap-2 bg-slate-800 p-2.5 rounded-xl border border-slate-700 text-slate-400 px-3"><Icons.Search /><input type="text" placeholder="بحث بالاسم أو المبلغ..." value={search} onChange={e=>setSearch(e.target.value)} className="bg-transparent border-none focus:outline-none text-sm text-white w-full" /></div>
+          <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden"><div className="divide-y divide-slate-700/60 max-h-[60vh] overflow-y-auto">
+              {filtered.length === 0 ? <p className="text-center py-6 text-xs text-slate-500">لا توجد حركات مسجلة.</p> : filtered.map(t => (
+                <div key={t.id} className="py-3 px-4 flex justify-between items-center text-sm">
+                  <div className="min-w-0 flex-1"><p className="text-white font-bold truncate">{t.category}</p><p className="text-[10px] text-slate-500 mt-1">{t.date} • {t.wallet === 'bank' ? 'البنك 📱' : 'الكاش 💵'}</p></div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`font-bold text-sm ml-2 ${t.type === 'income' ? 'text-emerald-400' : 'text-red-400'}`}>{t.type === 'income' ? '+' : '-'} {parseFloat(t.amount).toLocaleString()}</span>
+                    <button onClick={() => onEdit(t)} className="p-1.5 bg-slate-700 text-blue-400 rounded-lg"><Icons.Edit/></button>
+                    <button onClick={() => onDelete(t.id)} className="p-1.5 bg-slate-700 text-red-400 rounded-lg"><Icons.Trash/></button>
+                  </div>
+                </div>
+              ))}
+          </div></div>
+        </div>
+      );
+    }
+
+    function ProfileView({ email, onReset, onLogout }) {
+      return (
+        <div className="animate-pop space-y-5">
+          <div className="bg-slate-800 p-4 rounded-xl text-center border border-slate-700 shadow-sm"><p className="text-xs text-slate-400 mb-1">حسابك الفعال</p><p className="text-white font-bold text-base">{email}</p></div>
+          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-sm space-y-4"><h3 className="font-bold text-white text-sm">إدارة النظام</h3><button onClick={onLogout} className="w-full bg-slate-900 text-white py-3 rounded-xl border border-slate-600 font-bold text-sm">🚪 قفل النظام</button><button onClick={onReset} className="w-full bg-red-500/10 text-red-400 py-3 rounded-xl border border-red-500/20 font-bold text-sm">🗑️ تصفير ومسح الأصول</button></div>
+        </div>
+      );
+    }
+
+    function AddAssetModal({ editData, onClose, onSave }) {
+      const [formData, setFormData] = useState(editData || { name: '', type: 'property', initialValue: '', date: new Date().toISOString().split('T')[0] });
+      const submit = (e) => { e.preventDefault(); triggerHaptic(); if (formData.name && formData.initialValue) onSave(formData); };
+      return (
+        <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4 animate-pop">
+          <div className="bg-slate-900 w-full max-w-sm rounded-3xl p-6 border border-slate-700 shadow-2xl">
+            <h2 className="text-base font-bold text-white mb-5 text-center">{editData ? 'تعديل الأصل ✏️' : 'مقتنى جديد 🏢'}</h2>
+            <form onSubmit={submit} className="space-y-4">
+              <input type="text" required autoFocus value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-slate-800 text-white p-3.5 rounded-xl border border-slate-600 text-sm focus:outline-none" placeholder="اسم الأصل" />
+              <select required value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full bg-slate-800 text-white p-3.5 rounded-xl border border-slate-600 text-sm focus:outline-none"><option value="property">عقار (مبنى/أرض)</option><option value="gold">ذهب ومقتنيات</option><option value="other">أصول أخرى</option></select>
+              <input type="number" required value={formData.initialValue || formData.currentValue} onChange={e => setFormData({...formData, initialValue: e.target.value})} className="w-full bg-slate-800 text-yellow-400 font-bold p-3.5 rounded-xl border border-slate-600 text-center text-lg focus:outline-none" placeholder="المبلغ التقديري" />
+              <input type="date" required value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm text-center focus:outline-none" />
+              <div className="pt-2"><button type="submit" className="w-full bg-yellow-600 text-white py-3.5 rounded-xl font-bold text-sm">حفظ البيانات</button><button type="button" onClick={onClose} className="w-full mt-3 text-slate-400 py-2 text-sm font-bold">إلغاء</button></div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    function AssetActionModal({ details, asset, onClose, onSave }) {
+      const [amount, setAmount] = useState(''); const [wallet, setWallet] = useState('bank'); const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+      if (!asset) return null;
+      const isRevalue = details.type === 'revalue';
+      const title = details.type === 'income' ? `إيراد (${asset.name})` : details.type === 'expense' ? `صيانة (${asset.name})` : `تقييم (${asset.name})`;
+      const submit = (e) => { e.preventDefault(); triggerHaptic(); if(parseFloat(amount) > 0) onSave(asset.id, details.type, parseFloat(amount), wallet, date); };
+
+      return (
+        <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-end justify-center p-4 animate-pop">
+          <div className="bg-slate-900 w-full max-w-sm rounded-3xl p-6 border border-slate-700 mb-10 shadow-2xl">
+            <h2 className="text-base font-bold text-white mb-4 text-center">{title}</h2>
+            {!isRevalue && <div className="mb-5"><label className="block text-xs text-slate-400 mb-2 text-center">مكان الحفظ (يتزامن مع الخزينة)</label><div className="flex gap-2"><button type="button" onClick={() => setWallet('bank')} className={`flex-1 py-3 rounded-xl text-sm font-bold transition ${wallet==='bank'?'bg-blue-500 text-white':'bg-slate-800 text-slate-400'}`}>البنك 📱</button><button type="button" onClick={() => setWallet('cash')} className={`flex-1 py-3 rounded-xl text-sm font-bold transition ${wallet==='cash'?'bg-emerald-500 text-white':'bg-slate-800 text-slate-400'}`}>الكاش 💵</button></div></div>}
+            <form onSubmit={submit} className="space-y-4">
+              <input type="number" required autoFocus value={amount} onChange={e => setAmount(e.target.value)} className="w-full bg-slate-800 text-white text-center text-2xl font-black p-4 rounded-2xl border border-slate-600 focus:outline-none" placeholder="أدخل المبلغ..." />
+              <input type="date" required value={date} onChange={e => setDate(e.target.value)} className="w-full bg-slate-800 text-white text-center p-3 rounded-xl border border-slate-600 text-sm focus:outline-none" />
+              <div className="pt-2"><button type="submit" className="w-full bg-yellow-600 text-white py-3.5 rounded-2xl font-bold text-sm">تأكيد المزامنة</button><button type="button" onClick={onClose} className="w-full mt-3 text-slate-400 py-2 text-sm font-bold">إلغاء</button></div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    function EditTxModal({ tx, onClose, onSave }) {
+      const [amount, setAmount] = useState(tx.amount); const [date, setDate] = useState(tx.date); const [wallet, setWallet] = useState(tx.wallet);
+      const submit = (e) => { e.preventDefault(); triggerHaptic(); onSave({ ...tx, amount: parseFloat(amount), date, wallet }); };
+      return (
+        <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4 animate-pop">
+          <div className="bg-slate-900 w-full max-w-sm rounded-3xl p-6 border border-slate-700 shadow-2xl">
+            <h2 className="text-base font-bold text-white mb-4 text-center">تعديل الحركة ✏️</h2>
+            <form onSubmit={submit} className="space-y-4">
+              <div className="flex gap-2"><button type="button" onClick={() => setWallet('bank')} className={`flex-1 py-3 rounded-xl text-sm font-bold transition ${wallet==='bank'?'bg-blue-500 text-white':'bg-slate-800 text-slate-400'}`}>البنك 📱</button><button type="button" onClick={() => setWallet('cash')} className={`flex-1 py-3 rounded-xl text-sm font-bold transition ${wallet==='cash'?'bg-emerald-500 text-white':'bg-slate-800 text-slate-400'}`}>الكاش 💵</button></div>
+              <input type="number" required value={amount} onChange={e=>setAmount(e.target.value)} className="w-full bg-slate-800 text-white text-center text-2xl font-black p-4 rounded-2xl focus:outline-none" />
+              <input type="date" required value={date} onChange={e=>setDate(e.target.value)} className="w-full bg-slate-800 text-white text-center p-3 rounded-xl focus:outline-none" />
+              <div className="pt-2"><button type="submit" className="w-full bg-yellow-600 text-white py-3.5 rounded-xl font-bold">تحديث البيانات</button><button type="button" onClick={onClose} className="w-full mt-3 text-slate-400 py-2 font-bold">إلغاء</button></div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    function ReceiptModal({ data, onClose, showToast }) {
+      const receiptText = `سند محاسبي\nرقم: ${data.ref}\nالتاريخ: ${data.date}\nالنوع: ${data.title}\nالبيان: ${data.person}\nالمبلغ: ${data.amount.toLocaleString()} ج.س`;
+      return (
+        <div className="fixed inset-0 bg-slate-950/80 z-[70] flex items-center justify-center p-4 animate-pop">
+          <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-xl text-center">
+            <h2 className="text-xl font-bold text-white mb-2">{data.title}</h2>
+            <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700 mb-4 text-sm text-slate-300 space-y-2 text-right">
+              <p>رقم السند: <span className="text-white">{data.ref}</span></p>
+              <p>التاريخ: <span className="text-white">{data.date}</span></p>
+              <p>البيان: <span className="text-white">{data.person}</span></p>
+              <p className="text-xl font-bold text-yellow-400 mt-3 text-center border-t border-slate-700 pt-2">{data.amount.toLocaleString()} ج.س</p>
+            </div>
+            <div className="flex gap-2 mb-3">
+              <a href={`whatsapp://send?text=${encodeURIComponent(receiptText)}`} className="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold text-sm">واتساب 📱</a>
+              <button onClick={()=>{navigator.clipboard.writeText(receiptText); showToast('تم النسخ');}} className="flex-1 bg-slate-700 text-white py-3 rounded-xl font-bold text-sm">نسخ 📋</button>
+            </div>
+            <button onClick={onClose} className="w-full bg-slate-900 text-slate-400 py-3 rounded-xl font-bold text-sm">إغلاق</button>
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
