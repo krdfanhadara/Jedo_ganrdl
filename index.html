@@ -55,7 +55,6 @@
       } else if (v === 'login') {
         if (e.toLowerCase() === sE.toLowerCase() && p === sP) oL(); else alert('خطأ في البيانات!');
       } else {
-        // تم إصلاح مشكلة انهيار استعادة الرمز هنا
         if ((e || '').toLowerCase() === (sE || '').toLowerCase() && (s || '').trim() === (sS || '').trim()) {
           const np = prompt('الرمز الجديد:'); 
           if (np && np.length >= 4) oRp(np); else alert('مرفوض');
@@ -107,13 +106,12 @@
     const [rM, setRM] = useState(null);
     const [tst, setTst] = useState(null);
     
-    // تم استخدام jP لحماية التطبيق
     const [txs, setTxs] = useState(() => jP(K.t));
     const [dbs, setDbs] = useState(() => jP(K.d));
     const [pts, setPts] = useState(() => jP(K.p));
     const [pjs, setPjs] = useState(() => jP(K.pj));
     const [trs, setTrs] = useState(() => jP(K.tr));
-    const [ast, setAst] = useState(() => jP(K.a)); // تم إضافة setAst
+    const [ast, setAst] = useState(() => jP(K.a));
     const [lBkp, setLBkp] = useState(() => Number(localStorage.getItem('sa_bkp')) || 0);
 
     useEffect(() => { localStorage.setItem(K.t, JSON.stringify(txs)); }, [txs]);
@@ -122,7 +120,6 @@
     useEffect(() => { localStorage.setItem(K.pj, JSON.stringify(pjs)); }, [pjs]);
     useEffect(() => { localStorage.setItem(K.tr, JSON.stringify(trs)); }, [trs]);
     
-    // إضافة مستمع الأحداث للتزامن مع تطبيق الأصول
     useEffect(() => {
       const syncD = e => {
         if (e.key === K.a) setAst(jP(K.a));
@@ -201,7 +198,6 @@
         }
         return;
       }
-      // التعديل الخاص بتطهير المشاريع وحركاتها
       if (t === 'project') {
         const p = pjs.find(x => x.id === id); if (!p) return;
         if (window.confirm('حذف المشروع مع إبقاء أرباحه وحركاته السابقة في الخزينة؟ (للاحتفاظ بالسيولة)')) {
@@ -213,7 +209,18 @@
         return;
       }
       if (window.confirm('تأكيد الحذف من الخزينة؟')) {
-        if (t === 'tx') setTxs(txs.filter(x => x.id !== id));
+        if (t === 'tx') {
+          // --- بداية الإصلاح: إرجاع مال التطوير للمشروع عند حذف الحركة ---
+          const txToDel = txs.find(x => x.id === id);
+          if (txToDel && (txToDel.category || '').startsWith('مصروف تطوير (')) {
+            const pName = txToDel.category.match(/\((.*?)\)/)?.[1];
+            if (pName) {
+              setPjs(pjs.map(p => p.name === pName ? { ...p, devFund: (p.devFund || 0) + parseFloat(txToDel.amount) } : p));
+            }
+          }
+          // --- نهاية الإصلاح ---
+          setTxs(txs.filter(x => x.id !== id));
+        }
         if (t === 'debt') setDbs(dbs.filter(x => x.id !== id));
         if (t === 'trust') setTrs(trs.filter(x => x.id !== id));
         shT('تم الحذف');
@@ -714,7 +721,6 @@
       else if (t === 'trust') { oS('trust', { type: txT, person: fD.person, amount: parseFloat(fD.amount), paid: parseFloat(fD.paid || 0), date: fD.date }, dI); }
       else if (t === 'new_partnership') { 
         let c = parseFloat(fD.capital || 0); 
-        // تم إصلاح مشكلة الكسور العشرية هنا
         if (aM === 'manual') { 
           if (Math.abs(pL.reduce((s, p) => s + parseFloat(p.share || 0), 0) - 100) > 0.1) return alert('مجموع النسب لا يساوي 100%'); 
         } else { 
