@@ -25,6 +25,7 @@ const I={
  R:()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/></svg>
 };
 const vib=()=>{if(navigator.vibrate)navigator.vibrate(30)};
+const jP=(k)=>{try{return JSON.parse(localStorage.getItem(k))||[];}catch(e){return [];}};
 
 function AuthScreen({view,setView,savedEmail,savedPwd,savedSecAnswer,onRegister,onLogin,onResetPwd}){
  const [em,setEm]=useState('');const [pw,setPw]=useState('');const [sec,setSec]=useState('');
@@ -37,7 +38,7 @@ function AuthScreen({view,setView,savedEmail,savedPwd,savedSecAnswer,onRegister,
   }else if(view==='login'){
    if(em.toLowerCase()===savedEmail.toLowerCase()&&pw===savedPwd)onLogin();else alert('البيانات غير صحيحة!');
   }else if(view==='forgot'){
-   if(em.toLowerCase()===savedEmail.toLowerCase()&&sec.trim()===savedSecAnswer.trim()){
+   if((em||'').toLowerCase()===(savedEmail||'').toLowerCase()&&(sec||'').trim()===(savedSecAnswer||'').trim()){
     const np=prompt('الرمز الجديد:');if(np&&np.length>=4)onResetPwd(np);else alert('مرفوض');
    }else alert('إجابة خاطئة!');
   }
@@ -178,8 +179,8 @@ function App() {
  const [auth,setAuth]=useState(()=>localStorage.getItem('s_acc_sess')==='act');const [vw,setVw]=useState('login');
  const [em,setEm]=useState(()=>localStorage.getItem('s_acc_em')||'');const [pw,setPw]=useState(()=>localStorage.getItem('s_acc_pw')||'1234');const [sec,setSec]=useState(()=>localStorage.getItem('s_acc_sec')||'');
  const [tab,setTab]=useState('assets');const [srch,setSrch]=useState('');
- const [ast,setAst]=useState(()=>JSON.parse(localStorage.getItem('smart_accountant_assets'))||[]);
- const [txs,setTxs]=useState(()=>JSON.parse(localStorage.getItem('smart_accountant_tx'))||[]);
+ const [ast,setAst]=useState(()=>jP('smart_accountant_assets'));
+ const [txs,setTxs]=useState(()=>jP('smart_accountant_tx'));
  const [g24,setG24]=useState(()=>Number(localStorage.getItem('cfg_gold_24'))||75000);
  const [bkp,setBkp]=useState(()=>Number(localStorage.getItem('s_acc_bkp'))||0);
  const [mo,setMo]=useState(false);const [ed,setEd]=useState(null);const [rec,setRec]=useState(null);const [tst,setTst]=useState(null);
@@ -188,6 +189,17 @@ function App() {
  useEffect(()=>{localStorage.setItem('smart_accountant_assets',JSON.stringify(ast));},[ast]);
  useEffect(()=>{localStorage.setItem('smart_accountant_tx',JSON.stringify(txs));},[txs]);
  useEffect(()=>{localStorage.setItem('cfg_gold_24',g24);},[g24]);
+
+ // إضافة التزامن اللحظي مع تطبيق المحاسب
+ useEffect(()=>{
+  const syncD=e=>{
+   if(e.key==='smart_accountant_assets')setAst(jP('smart_accountant_assets'));
+   if(e.key==='smart_accountant_tx')setTxs(jP('smart_accountant_tx'));
+   if(e.key==='cfg_gold_24')setG24(Number(localStorage.getItem('cfg_gold_24'))||75000);
+  };
+  window.addEventListener('storage',syncD);
+  return ()=>window.removeEventListener('storage',syncD);
+ },[]);
 
  const shT=m=>{setTst(m);setTimeout(()=>setTst(null),2500);};
  const wlt=useMemo(()=>ast.reduce((s,a)=>s+parseFloat(a.currentValue||0),0),[ast]);
@@ -210,7 +222,15 @@ function App() {
   const l=document.createElement("a");l.setAttribute("href",encodeURI(c));l.setAttribute("download",`أصول.csv`);document.body.appendChild(l);l.click();document.body.removeChild(l);shT('تم التحميل');
  };
  const savA=(d,i)=>{vib();if(i)setAst(ast.map(a=>a.id===d.id?d:a));else setAst([{...d,id:Date.now()},...ast]);shT('تم الحفظ');setMo(false);setEd(null);};
- const delA=a=>{if(window.confirm(`حذف (${a.name})؟ موافق للإبقاء على الأرباح، إلغاء للتطهير.`)){setAst(ast.filter(x=>x.id!==a.id));shT('حُذف');}else if(window.confirm('تأكيد التطهير النهائي؟')){setAst(ast.filter(x=>x.id!==a.id));setTxs(txs.filter(t=>!(t.category||'').includes(`(${a.name})`)));shT('تم التطهير');}};
+ const delA=a=>{
+  if(window.confirm(`حذف (${a.name})؟ موافق للإبقاء على الأرباح، إلغاء للتطهير.`)){
+   setAst(ast.filter(x=>x.id!==a.id));shT('حُذف');
+  }else if(window.confirm('تأكيد التطهير النهائي وحذف الأرباح من المحاسب الذكي؟')){
+   setAst(ast.filter(x=>x.id!==a.id));
+   // تم التأكد من مسح الحركات المرتبطة بالأصل من المحاسب الذكي
+   setTxs(txs.filter(t=>!(t.category||'').includes(a.name)));shT('تم التطهير');
+  }
+ };
  const genInc=a=>{const am=parseFloat(a.type==='real_estate'?a.monthlyRent:a.periodicIncome)||0;if(am<=0)return alert('حدد الربح أولاً');const w=window.confirm(`تحصيل ${am.toLocaleString()} ج.س؟\nموافق للبنك، إلغاء للكاش`);const nt={id:Date.now(),type:'income',amount:am,wallet:w?'bank':'cash',category:`إيراد ربح (${a.name})`,date:new Date().toISOString().split('T')[0]};setTxs([nt,...txs]);setRec({title:'سند أرباح',person:a.name,amount:am,date:nt.date,ref:`INC-${nt.id.toString().slice(-4)}`});};
 
  if(!auth)return <AuthScreen view={vw} setView={setVw} savedEmail={em} savedPwd={pw} savedSecAnswer={sec} onRegister={(e,p,s)=>{localStorage.setItem('s_acc_em',e);localStorage.setItem('s_acc_pw',p);localStorage.setItem('s_acc_sec',s);localStorage.setItem('s_acc_sess','act');setEm(e);setPw(p);setSec(s);setAuth(true);}} onLogin={()=>{localStorage.setItem('s_acc_sess','act');setAuth(true);}} onResetPwd={n=>{localStorage.setItem('s_acc_pw',n);setPw(n);setVw('login');}} />;
@@ -220,7 +240,7 @@ function App() {
    {tst&&<div className="fixed top-4 left-4 right-4 z-50 bg-yellow-500 text-slate-950 p-3 rounded-xl text-center font-bold pop">{tst}</div>}
    <header className="bg-slate-900 border-b border-yellow-600/30 p-4 sticky top-0 z-10 flex justify-between items-center shadow-lg">
     <div className="flex items-center gap-2"><div className="text-yellow-400 font-bold"><I.B/></div><div><h1 className="text-sm font-black text-white">إدارة الأملاك والأصول</h1><p className="text-[10px] text-yellow-500">السودان</p></div></div>
-    <a href="index.html" className="bg-slate-800 text-white text-xs px-3 py-1.5 rounded-lg font-bold">الخزينة 💵</a>
+    <a href="index.html" className="bg-slate-800 text-white text-xs px-3 py-1.5 rounded-lg font-bold">المحاسب الذكي 💼</a>
    </header>
    <main className="p-4 max-w-md mx-auto space-y-4">
     {tab!=='profile'&&(
@@ -267,7 +287,7 @@ function App() {
       <button onClick={doExp} className="w-full bg-slate-900 text-blue-400 py-3 rounded-xl font-bold border border-slate-800">📄 تصدير سجل الممتلكات (Excel)</button>
       <div className="bg-slate-900 p-4 rounded-2xl border border-yellow-500/20 space-y-3"><h3 className="font-bold text-yellow-500">☁️ الأرشفة السحابية (جوجل كيب)</h3><p className="text-slate-400">المزامنة: {bkp?new Date(bkp).toLocaleString('ar-EG'):'لا يوجد'}</p><button onClick={doBkp} className="w-full bg-yellow-600 text-slate-950 py-2.5 rounded-xl font-bold shadow">ترحيل ونسخ لكافة الأنظمة</button><textarea id="rc" placeholder="كود الاستعادة..." className="w-full bg-slate-950 text-emerald-400 p-2 rounded-xl h-14 border border-slate-800 mt-2 outline-none" /><button onClick={()=>{const v=document.getElementById('rc').value;if(v.trim()&&window.confirm('تأكيد حقن البيانات؟')){doRes(v);document.getElementById('rc').value='';}}} className="w-full bg-slate-800 text-white py-2 rounded-xl font-bold">تأكيد استعادة وحقن</button></div>
       <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-2"><p className="text-slate-400">رمز المرور الأمني: <span className="text-white font-bold bg-slate-950 px-2 py-1 rounded">{pw}</span></p><div className="flex gap-2"><input id="npw" type="text" placeholder="تحديث الرمز..." className="flex-1 bg-slate-950 p-2 rounded-xl text-white outline-none border border-slate-800" /><button onClick={()=>{const v=document.getElementById('npw').value;if(v.trim()){localStorage.setItem('s_acc_pw',v.trim());setPw(v.trim());shT('تم الحفظ');document.getElementById('npw').value='';}}} className="bg-yellow-500 text-slate-950 px-4 rounded-xl font-bold">حفظ</button></div></div>
-      <button onClick={()=>{if(window.confirm('تنبيه: هل أنت متأكد من مسح وتصفير الأصول وتطهير إيراداتها من الخزينة نهائياً؟')){setAst([]);setTxs([]);shT('تم التصفير والتطهير 🧹');}}} className="w-full bg-red-500/10 text-red-400 py-3 rounded-xl border border-red-500/20 font-bold shadow">تصفير وتطهير الأصول والخزينة 🗑️</button>
+      <button onClick={()=>{if(window.confirm('تنبيه: هل أنت متأكد من مسح وتصفير الأصول وتطهير إيراداتها من سجل المحاسب الذكي نهائياً؟')){setAst([]);setTxs([]);shT('تم التصفير والتطهير 🧹');}}} className="w-full bg-red-500/10 text-red-400 py-3 rounded-xl border border-red-500/20 font-bold shadow">تصفير وتطهير الأصول والمحاسب الذكي 🗑️</button>
       <button onClick={()=>{localStorage.removeItem('s_acc_sess');setAuth(false);setVw('login');}} className="w-full bg-slate-800 text-slate-400 py-3 rounded-xl font-bold shadow">تسجيل الخروج 🚪</button>
      </div>
     )}
