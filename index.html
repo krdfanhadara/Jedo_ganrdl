@@ -1,958 +1,209 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>المحاسب الذكي - النسخة الشاملة</title>
-  
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <style>
-    body { font-family: system-ui, -apple-system, sans-serif; background-color: #0f172a; color: #f1f5f9; -webkit-tap-highlight-color: transparent; }
-    input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-    @keyframes slideDown { 0% { transform: translateY(-100%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
-    .animate-slide-down { animation: slideDown 0.3s ease-out forwards; }
-    @keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-    .animate-pop { animation: popIn 0.2s ease-out forwards; }
-    .hide-scrollbar::-webkit-scrollbar { display: none; }
-    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>المحاسب الذكي - الشامل</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>body{font-family:system-ui,sans-serif;background-color:#0f172a;color:#f1f5f9;-webkit-tap-highlight-color:transparent}input[type=number]::-webkit-inner-spin-button{display:none}.pop{animation:p .2s ease-out forwards}@keyframes p{0%{transform:scale(.95);opacity:0}100%{transform:scale(1);opacity:1}}</style>
 </head>
 <body>
-  <div id="root"></div>
-
-  <script type="text/babel">
-    const { useState, useEffect, useMemo } = React;
-    const INITIAL_STATE = { transactions: [], debts: [], partnerships: [], trusts: [], projects: [] };
-
-    const Icons = {
-      Wallet: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>,
-      Home: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
-      Briefcase: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>,
-      CreditCard: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>,
-      Shield: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
-      Settings: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 5.4 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1-2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
-      Receipt: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/></svg>,
-      Trash: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>,
-      Edit: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>,
-      Check: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>,
-      Share: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4Z"/></svg>,
-      Cloud: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>,
-      Download: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>,
-      FileExcel: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2M8 17h2M14 13h2M14 17h2"/></svg>,
-      ArrowLeftRight: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>,
-      Building: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4M8 6h2M14 6h2M8 10h2M14 10h2M8 14h2M14 14h2"/></svg>
-    };
-
-    const triggerHaptic = () => { if(navigator.vibrate) navigator.vibrate(30); };
-
-    function AuthScreen({ view, setView, savedEmail, savedPwd, savedSecAnswer, onRegister, onLogin, onResetPwd }) {
-      const [email, setEmail] = useState(''); const [pwd, setPwd] = useState(''); const [sec, setSec] = useState('');
-      useEffect(() => { if(savedEmail) setEmail(savedEmail); }, [savedEmail]);
-
-      const submit = e => {
-        e.preventDefault(); triggerHaptic();
-        if(view === 'register') { 
-          if(!email || pwd.length < 4 || !sec) return alert('الرجاء إكمال البيانات (الرمز 4 أحرف كحد أدنى)'); 
-          onRegister(email.toLowerCase(), pwd, sec.trim()); 
-        } else if (view === 'login') { 
-          if(email.toLowerCase() === savedEmail.toLowerCase() && pwd === savedPwd) onLogin(); 
-          else alert('البيانات غير صحيحة!'); 
-        } else if (view === 'forgot') {
-          if (email.toLowerCase() === savedEmail.toLowerCase() && sec.trim() === savedSecAnswer.trim()) {
-            const newPassword = prompt('اكتب الرمز الجديد الآن:');
-            if (newPassword && newPassword.length >= 4) onResetPwd(newPassword);
-            else alert('مرفوض: أقل من 4 رموز');
-          } else { alert('الإجابة غير صحيحة!'); }
-        }
-      };
-
-      return (
-        <div className="min-h-[80vh] flex items-center justify-center p-4">
-          <div className="bg-slate-800 p-8 rounded-2xl w-full max-w-sm border border-slate-700 animate-pop shadow-2xl">
-            <h1 className="text-xl font-bold text-white mb-6 text-center">🔐 المحاسب الذكي</h1>
-            <form onSubmit={submit} className="space-y-4">
-              <input type="email" required placeholder="البريد الإلكتروني" value={email} onChange={e=>setEmail(e.target.value)} className="w-full bg-slate-900 border border-slate-600 text-white p-3.5 rounded-xl text-left text-sm focus:outline-none focus:border-emerald-500 transition" />
-              {view !== 'forgot' && <input type="password" required placeholder="كلمة المرور" value={pwd} onChange={e=>setPwd(e.target.value)} className="w-full bg-slate-900 border border-slate-600 text-white p-3.5 rounded-xl text-left text-sm focus:outline-none focus:border-emerald-500 transition" />}
-              {(view === 'register' || view === 'forgot') && <input type="text" required placeholder="سؤال الأمان: مدينتك المفضلة؟" value={sec} onChange={e=>setSec(e.target.value)} className="w-full bg-slate-900 border border-slate-600 text-emerald-400 p-3.5 rounded-xl text-sm focus:outline-none focus:border-emerald-500 transition" />}
-              <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl text-sm shadow-md transition">
-                {view === 'login' ? 'دخول الحساب' : view === 'register' ? 'إنشاء وتأمين الملف' : 'استعادة الرمز'}
-              </button>
-            </form>
-            <div className="mt-6 flex flex-col gap-3 text-center text-sm">
-              {view === 'login' ? (
-                <><button type="button" onClick={() => setView('forgot')} className="text-slate-400 hover:text-white transition">نسيت كلمة المرور؟ 🔍</button><button type="button" onClick={() => setView('register')} className="text-emerald-400 font-bold transition">إنشاء ملف مالي جديد ➕</button></>
-              ) : (
-                <button type="button" onClick={() => setView('login')} className="text-slate-400 hover:text-white transition">العودة لتسجيل الدخول 🔑</button>
-              )}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    function App() {
-      const [isAuthenticated, setIsAuthenticated] = useState(() => localStorage.getItem('smart_acc_session') === 'active');
-      const [authView, setAuthView] = useState('login'); 
-      const [savedEmail, setSavedEmail] = useState(() => localStorage.getItem('smart_acc_email') || '');
-      const [savedPwd, setSavedPwd] = useState(() => localStorage.getItem('smart_acc_pwd') || '1234');
-      const [savedSecAnswer, setSavedSecAnswer] = useState(() => localStorage.getItem('smart_acc_sec') || '');
-      const [toast, setToast] = useState(null);
-      const [lastBackup, setLastBackup] = useState(() => Number(localStorage.getItem('smart_acc_last_backup')) || 0);
-
-      const showSuccessToast = (message) => { setToast(message); setTimeout(() => setToast(null), 3000); };
-      useEffect(() => { if (!localStorage.getItem('smart_acc_email')) setAuthView('register'); }, []);
-
-      const [activeTab, setActiveTab] = useState('dashboard');
-      const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
-      const [quickAddType, setQuickAddType] = useState('transaction');
-      const [editData, setEditData] = useState(null);
-      const [paymentModal, setPaymentModal] = useState(null);
-      const [trustPaymentModal, setTrustPaymentModal] = useState(null);
-      const [devFundModal, setDevFundModal] = useState(null);
-      const [receiptData, setReceiptData] = useState(null);
-
-      const [transactions, setTransactions] = useState(() => JSON.parse(localStorage.getItem('smart_accountant_tx')) || INITIAL_STATE.transactions);
-      const [debts, setDebts] = useState(() => JSON.parse(localStorage.getItem('smart_accountant_dbts')) || INITIAL_STATE.debts);
-      const [partnerships, setPartnerships] = useState(() => JSON.parse(localStorage.getItem('smart_accountant_ptnrs')) || INITIAL_STATE.partnerships);
-      const [projects, setProjects] = useState(() => JSON.parse(localStorage.getItem('smart_accountant_projects')) || INITIAL_STATE.projects);
-      const [trusts, setTrusts] = useState(() => JSON.parse(localStorage.getItem('smart_accountant_trusts')) || INITIAL_STATE.trusts);
-      const [assets, setAssets] = useState(() => JSON.parse(localStorage.getItem('smart_accountant_assets')) || []);
-
-      useEffect(() => { localStorage.setItem('smart_accountant_tx', JSON.stringify(transactions)); }, [transactions]);
-      useEffect(() => { localStorage.setItem('smart_accountant_dbts', JSON.stringify(debts)); }, [debts]);
-      useEffect(() => { localStorage.setItem('smart_accountant_ptnrs', JSON.stringify(partnerships)); }, [partnerships]);
-      useEffect(() => { localStorage.setItem('smart_accountant_projects', JSON.stringify(projects)); }, [projects]);
-      useEffect(() => { localStorage.setItem('smart_accountant_trusts', JSON.stringify(trusts)); }, [trusts]);
-
-      const calculations = useMemo(() => {
-        const sumIncomes = transactions.filter(t => t.type === 'income').reduce((acc, curr) => acc + curr.amount, 0);
-        const sumExpenses = transactions.filter(t => t.type === 'expense').reduce((acc, curr) => acc + curr.amount, 0);
-        const activeExternal = trusts.filter(t => t.type === 'external').reduce((acc, t) => acc + (t.amount - (t.paid || 0)), 0);
-        const activeWithMe = trusts.filter(t => t.type === 'with_me').reduce((acc, t) => acc + (t.amount - (t.paid || 0)), 0);
-        const pendingToMe = debts.filter(d => d.type === 'to_me').reduce((acc, d) => acc + (d.amount - (d.paid || 0)), 0);
-        const pendingOnMe = debts.filter(d => d.type === 'on_me').reduce((acc, d) => acc + (d.amount - (d.paid || 0)), 0);
-        const totalAssetsValue = assets.reduce((sum, asset) => sum + parseFloat(asset.currentValue || 0), 0);
-        const totalDevFunds = projects.reduce((acc, proj) => acc + (parseFloat(proj.devFund) || 0), 0);
-
-        const myPartnershipCapital = partnerships.reduce((total, p) => {
-          if (p.allocationMode === 'capital') {
-            const me = p.partners?.find(pt => pt.name === 'أنت');
-            return total + (me ? parseFloat(me.amount || 0) : 0);
-          }
-          return total;
-        }, 0);
-
-        let calcBankBalance = 0; let calcCashBalance = 0;
-        transactions.forEach(t => {
-          const amt = parseFloat(t.amount || 0);
-          if (t.wallet === 'bank') {
-            if (t.type === 'income' || t.type === 'trust_bank_in') calcBankBalance += amt;
-            if (t.type === 'expense' || t.type === 'trust_bank_out') calcBankBalance -= amt;
-          } else if (t.wallet === 'cash') {
-            if (t.type === 'income') calcCashBalance += amt;
-            if (t.type === 'expense') calcCashBalance -= amt;
-          }
-          if (t.type === 'transfer') {
-            if (t.direction === 'cash_to_bank') { calcBankBalance += amt; calcCashBalance -= amt; }
-            if (t.direction === 'bank_to_cash') { calcBankBalance -= amt; calcCashBalance += amt; }
-          }
-        });
-
-        partnerships.forEach(p => {
-          if (p.allocationMode === 'capital') {
-            const me = p.partners?.find(pt => pt.name === 'أنت');
-            if (me) {
-              const amt = parseFloat(me.amount || 0);
-              if (p.wallet === 'bank') calcBankBalance -= amt;
-              else calcCashBalance -= amt;
-            }
-          }
-        });
-
-        calcCashBalance += activeWithMe; 
-        const totalAvailableCash = calcBankBalance + calcCashBalance;
-        const actualOwnCash = totalAvailableCash - activeWithMe;
-        const netWealth = actualOwnCash + activeExternal + pendingToMe + myPartnershipCapital + totalAssetsValue - pendingOnMe;
-
-        return {
-          totalAvailableCash, actualOwnCash, activeWithMe, netWealth, myPartnershipCapital, totalAssetsValue,
-          pendingToMe, pendingOnMe, activeExternal, totalDevFunds,
-          bankBalance: calcBankBalance, cashBalance: calcCashBalance,
-          totalIn: sumIncomes, totalOut: sumExpenses
-        };
-      }, [transactions, debts, trusts, partnerships, projects, assets]);
-
-      const handleDelete = (type, id) => {
-        triggerHaptic();
-        if (type === 'ptnr') {
-          const proj = partnerships.find(p => p.id === id); if (!proj) return;
-          if (window.confirm(`⚠️ الحذف الذكي لشراكة (${proj.name}):\n\nاضغط موافق للحذف والاحتفاظ بالأرباح.`)) {
-            setPartnerships(partnerships.filter(p => p.id !== id)); showSuccessToast('تم الحذف والاحتفاظ بالأرباح.');
-          } else if (window.confirm(`🔄 التنظيف الكامل:\n\nهل تود مسح الشراكة وتطهير كل أرباحها من السجل؟`)) {
-            setPartnerships(partnerships.filter(p => p.id !== id));
-            setTransactions(transactions.filter(t => !(t.category || '').includes(`أرباح جرد (${proj.name})`)));
-            showSuccessToast('تم التطهير الكامل.');
-          }
-          return;
-        }
-
-        if (type === 'project') {
-          if(window.confirm('حذف المشروع التجاري؟ (سيتم الإبقاء على الأرباح المحصلة مسبقاً في الخزينة).')) {
-            setProjects(projects.filter(p => p.id !== id)); showSuccessToast('تم حذف المشروع من القائمة.');
-          }
-          return;
-        }
-
-        if(window.confirm('هل تود الحذف بالتأكيد؟')) {
-          if(type === 'tx') setTransactions(transactions.filter(t => t.id !== id));
-          if(type === 'debt') setDebts(debts.filter(d => d.id !== id));
-          if(type === 'trust') setTrusts(trusts.filter(t => t.id !== id));
-          showSuccessToast('تم الحذف بنجاح');
-        }
-      };
-
-      const handleResetData = () => {
-        triggerHaptic();
-        if(window.confirm('سيتم تصفير كل السجلات المالية تماماً. هل أنت متأكد؟')) {
-          setTransactions([]); setDebts([]); setPartnerships([]); setProjects([]); setTrusts([]);
-          localStorage.removeItem('smart_accountant_tx'); localStorage.removeItem('smart_accountant_dbts');
-          localStorage.removeItem('smart_accountant_ptnrs'); localStorage.removeItem('smart_accountant_projects'); 
-          localStorage.removeItem('smart_accountant_trusts');
-          showSuccessToast('تم تصفير الحسابات بنجاح.');
-        }
-      };
-
-      const handleSaveItem = (type, data, id = null) => {
-        triggerHaptic(); 
-        const docId = id || Date.now();
-        
-        if (type === 'transaction') {
-          if(id) setTransactions(transactions.map(t => t.id === id ? { ...t, ...data } : t));
-          else setTransactions([{ id: docId, ...data }, ...transactions]);
-          showSuccessToast('تم الحفظ وتحديث السيولة');
-        } 
-        else if (type === 'debt') {
-          if(id) setDebts(debts.map(d => d.id === id ? { ...d, ...data } : d));
-          else setDebts([{ id: docId, paid: 0, ...data }, ...debts]);
-          showSuccessToast('تم حفظ سجل الدين');
-        } 
-        else if (type === 'trust') {
-          if(id) setTrusts(trusts.map(t => t.id === id ? { ...t, ...data } : t));
-          else setTrusts([{ id: docId, paid: 0, ...data }, ...trusts]);
-          showSuccessToast('تم حفظ سجل الأمانة');
-        }
-        else if (type === 'new_partnership') {
-          if(id) setPartnerships(partnerships.map(p => p.id === id ? { ...p, ...data } : p));
-          else setPartnerships([{ id: docId, evaluations: [], ...data }, ...partnerships]);
-          showSuccessToast('تم حفظ الشراكة بنجاح');
-        } 
-        else if (type === 'new_project') {
-          if(id) setProjects(projects.map(p => p.id === id ? { ...p, ...data } : p));
-          else setProjects([{ id: docId, devFund: 0, ...data }, ...projects]);
-          showSuccessToast('تم حفظ المشروع التشغيلي بنجاح 💼');
-        }
-        else if (type === 'evaluation') {
-          let myProfit = 0; let projName = '';
-          setPartnerships(partnerships.map(p => {
-            if (p.id === Number(data.projectId)) {
-              projName = p.name;
-              const currentTotalCash = parseFloat(data.totalCash || 0); const fixedCapital = parseFloat(p.capital || 0);
-              const totalProfitFringe = currentTotalCash - fixedCapital;
-              if (totalProfitFringe > 0) {
-                const totalCapPool = p.allocationMode === 'capital' ? p.partners.reduce((sum, part) => sum + parseFloat(part.amount || 0), 0) || 1 : fixedCapital;
-                let computedShareRatio = 0; const meObj = p.partners.find(pt => pt.name === 'أنت');
-                if (meObj) {
-                  if (p.allocationMode === 'capital') computedShareRatio = parseFloat(meObj.amount || 0) / totalCapPool;
-                  else computedShareRatio = parseFloat(meObj.share || 0) / 100;
-                }
-                myProfit = totalProfitFringe * computedShareRatio;
-              }
-              return { ...p, evaluations: [...(p.evaluations || []), { id: Date.now(), ...data }] };
-            }
-            return p;
-          }));
-
-          if (myProfit > 0) {
-            setTransactions(prev => [{ id: Date.now() + 5, type: 'income', amount: parseFloat(myProfit.toFixed(2)), wallet: data.wallet, category: `أرباح جرد (${projName})`, date: data.date }, ...prev]);
-            showSuccessToast(`تم الجرد بنجاح (+${myProfit.toLocaleString()})`);
-          } else {
-            showSuccessToast('تم تسجيل الجرد بنجاح');
-          }
-        }
-        setIsQuickAddOpen(false); setEditData(null);
-      };
-
-      const handleAllocateDevFund = (projectId, amount) => {
-        triggerHaptic();
-        setProjects(projects.map(p => {
-           if(p.id === projectId) return { ...p, devFund: (p.devFund || 0) + parseFloat(amount) };
-           return p;
-        }));
-        setDevFundModal(null);
-        showSuccessToast('تم تخصيص واحتجاز مال التطوير بنجاح ⚙️');
-      };
-
-      const handlePayDebt = (debtId, amount, wallet) => {
-        triggerHaptic(); let currentDebt = null;
-        setDebts(debts.map(d => { if (d.id === debtId) { currentDebt = d; return { ...d, paid: (d.paid || 0) + amount }; } return d; }));
-        setPaymentModal(null);
-        if (currentDebt) {
-          const isToMe = currentDebt.type === 'to_me';
-          setTransactions(prev => [{ id: Date.now(), type: isToMe ? 'income' : 'expense', amount: amount, wallet: wallet, category: isToMe ? `استرداد دين من (${currentDebt.person})` : `سداد دين إلى (${currentDebt.person})`, date: new Date().toISOString().split('T')[0] }, ...prev]);
-          showSuccessToast(`تم السداد وتحديث الرصيد`);
-        }
-      };
-
-      const handlePayTrust = (trustId, amount, wallet) => {
-        triggerHaptic(); let currentTrust = null;
-        setTrusts(trusts.map(t => { if (t.id === trustId) { currentTrust = t; return { ...t, paid: (t.paid || 0) + amount }; } return t; }));
-        setTrustPaymentModal(null);
-        if (currentTrust) {
-          if (wallet === 'bank') {
-             const isExternal = currentTrust.type === 'external';
-             setTransactions(prev => [{ id: Date.now(), type: isExternal ? 'trust_bank_in' : 'trust_bank_out', amount: amount, wallet: 'bank', category: isExternal ? `استرداد أمانة من (${currentTrust.person})` : `تسليم أمانة إلى (${currentTrust.person})`, date: new Date().toISOString().split('T')[0] }, ...prev]);
-          }
-          showSuccessToast(`تمت حركة الأمانة بنجاح`);
-        }
-      };
-
-      const handleBackupData = async () => {
-        triggerHaptic();
-        const fullData = { tx: transactions, db: debts, pt: partnerships, prj: projects, tr: trusts };
-        const base64Data = btoa(unescape(encodeURIComponent(JSON.stringify(fullData))));
-        const shareText = `[نسخة احتياطية - المحاسب الذكي]\nتاريخ الأرشفة: ${new Date().toLocaleDateString('ar-EG')}\n\n--- انسخ الكود بالأسفل فقط ---\n${base64Data}`;
-        const now = Date.now(); setLastBackup(now); localStorage.setItem('smart_acc_last_backup', now);
-        try {
-          if (navigator.share) await navigator.share({ title: 'أرشيف المحاسب الذكي', text: shareText });
-          else { await navigator.clipboard.writeText(shareText); showSuccessToast('تم نسخ الكود! الصقه في Google Keep.'); }
-        } catch (e) { showSuccessToast('تمت معالجة أحدث نسخة احتياطية'); }
-      };
-
-      const handleRestoreData = (backupStr) => {
-        triggerHaptic();
-        try {
-          const extractBase64 = backupStr.match(/[A-Za-z0-9+/=]{50,}/)?.[0] || backupStr.trim();
-          const data = JSON.parse(decodeURIComponent(escape(atob(extractBase64))));
-          if(data.tx && data.db) {
-            setTransactions(data.tx); setDebts(data.db); setPartnerships(data.pt || []); setProjects(data.prj || []); setTrusts(data.tr || []);
-            const now = Date.now(); setLastBackup(now); localStorage.setItem('smart_acc_last_backup', now);
-            showSuccessToast('🎉 تمت الاستعادة والحقن بنجاح!');
-          } else alert('الكود تالف.');
-        } catch (e) { alert('فشل الاستعادة! تأكد من الكود.'); }
-      };
-
-      const handleExportCSV = () => {
-        triggerHaptic();
-        if (transactions.length === 0) return alert('لا توجد حركات!');
-        let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
-        csvContent += "التاريخ,الخزنة,النوع,البيان والتصنيف,المبلغ\r\n";
-        transactions.forEach(t => {
-          let typeStr = t.type === 'income' ? 'إيداع وارد' : (t.type === 'expense' ? 'منصرف' : 'حركة داخلية');
-          const walletStr = t.wallet === 'bank' ? 'بنكك/حساب' : 'كاش نقدي';
-          const cleanCategory = (t.category || '').replace(/,/g, ' - ');
-          csvContent += `${t.date},${walletStr},${typeStr},${cleanCategory},${t.amount}\r\n`;
-        });
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", `كشف_حساب_المحاسب_الذكي.csv`);
-        document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        showSuccessToast('تم تحميل الكشف (Excel) 📄');
-      };
-
-      const handleLogout = () => { triggerHaptic(); localStorage.removeItem('smart_acc_session'); setIsAuthenticated(false); setAuthView('login'); };
-
-      if (!isAuthenticated) {
-        return <AuthScreen view={authView} setView={setAuthView} savedEmail={savedEmail} savedPwd={savedPwd} savedSecAnswer={savedSecAnswer} onRegister={(e,p,s) => { localStorage.setItem('smart_acc_email', e); localStorage.setItem('smart_acc_pwd', p); localStorage.setItem('smart_acc_sec', s); localStorage.setItem('smart_acc_session', 'active'); setSavedEmail(e); setSavedPwd(p); setSavedSecAnswer(s); setIsAuthenticated(true); }} onLogin={() => { localStorage.setItem('smart_acc_session', 'active'); setIsAuthenticated(true); }} onResetPwd={(np) => { localStorage.setItem('smart_acc_pwd', np); setSavedPwd(np); setAuthView('login'); }} />;
-      }
-
-      return (
-        <div className="pb-28">
-          {toast && <div className="fixed top-6 left-4 right-4 z-[100] bg-emerald-500 text-white px-4 py-3 rounded-xl flex items-center gap-3 shadow-xl border border-emerald-400/20 animate-slide-down max-w-sm mx-auto"><Icons.Check /> <span className="text-sm font-bold">{toast}</span></div>}
-
-          <header className="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-10 flex justify-between items-center shadow-md">
-            <div className="flex items-center gap-3">
-              <div className="bg-emerald-500 p-2.5 rounded-xl text-white"><Icons.Wallet /></div>
-              <div><h1 className="text-base font-bold text-white">المحاسب الذكي</h1><p className="text-[11px] text-emerald-400">إدارة الخزن المزدوجة</p></div>
-            </div>
-            <div className="flex items-center gap-2">
-              <a href="assets.html" onClick={triggerHaptic} className="flex items-center gap-1 bg-yellow-600 hover:bg-yellow-500 text-white text-xs px-3 py-2 rounded-lg font-bold shadow-md transition"><Icons.Building /> الأصول</a>
-              <button onClick={handleLogout} className="bg-slate-900/60 text-slate-300 text-xs hover:text-red-400 px-3 py-2 rounded-lg border border-slate-700 font-bold transition">🚪 قفل</button>
-            </div>
-          </header>
-
-          <main className="p-4 max-w-md mx-auto">
-            {activeTab === 'dashboard' && <DashboardView calc={calculations} txs={transactions} lastBackup={lastBackup} onDelete={id => handleDelete('tx', id)} onEdit={t => {setQuickAddType('transaction'); setEditData(t); setIsQuickAddOpen(true);}} onReceipt={r => setReceiptData(r)} />}
-            {activeTab === 'business' && <BusinessView ptnrs={partnerships} projects={projects} onAddPtnr={() => {setQuickAddType('new_partnership'); setEditData(null); setIsQuickAddOpen(true);}} onEditPtnr={p => {setQuickAddType('new_partnership'); setEditData(p); setIsQuickAddOpen(true);}} onDeletePtnr={id => handleDelete('ptnr', id)} onAddProj={() => {setQuickAddType('new_project'); setEditData(null); setIsQuickAddOpen(true);}} onEditProj={p => {setQuickAddType('new_project'); setEditData(p); setIsQuickAddOpen(true);}} onDeleteProj={id => handleDelete('project', id)} onAllocateDev={p => {triggerHaptic(); setDevFundModal(p);}} onCollectIncome={(p) => { setQuickAddType('transaction'); setEditData({category: `أرباح مشروع (${p.name})`, amount: '', wallet: 'cash', type: 'income', date: new Date().toISOString().split('T')[0]}); setIsQuickAddOpen(true); }} />}
-            {activeTab === 'debts' && <DebtsView debts={debts} onDelete={id => handleDelete('debt', id)} onPay={d => {triggerHaptic(); setPaymentModal(d);}} onEdit={d => {setQuickAddType('debt'); setEditData(d); setIsQuickAddOpen(true);}} onReceipt={r => setReceiptData(r)} />}
-            {activeTab === 'trusts' && <TrustsView trusts={trusts} onDelete={id => handleDelete('trust', id)} onPay={t => {triggerHaptic(); setTrustPaymentModal(t);}} onEdit={t => {setQuickAddType('trust'); setEditData(t); setIsQuickAddOpen(true);}} onReceipt={r => setReceiptData(r)} />}
-            {activeTab === 'profile' && <ProfileView email={savedEmail} onReset={handleResetData} onChangePwd={pwd => { localStorage.setItem('smart_acc_pwd', pwd); setSavedPwd(pwd); showSuccessToast('تم التحديث بنجاح'); }} currentPwd={savedPwd} onBackup={handleBackupData} onRestore={handleRestoreData} lastBackup={lastBackup} onExportExcel={handleExportCSV} />}
-          </main>
-
-          <button onClick={() => {triggerHaptic(); setQuickAddType('transaction'); setEditData(null); setIsQuickAddOpen(true);}} className="fixed bottom-24 left-6 w-14 h-14 bg-emerald-500 text-white rounded-full shadow-lg flex items-center justify-center z-20 text-2xl hover:scale-105 transition-transform">➕</button>
-
-          <nav className="fixed bottom-0 w-full bg-slate-800 border-t border-slate-700 py-3 z-10 px-2">
-            <div className="flex justify-between items-center max-w-md mx-auto">
-              <NavItem icon={<Icons.Home />} label="الرئيسية" active={activeTab==='dashboard'} onClick={() => setActiveTab('dashboard')} />
-              <NavItem icon={<Icons.Briefcase />} label="الأعمال" active={activeTab==='business'} onClick={() => setActiveTab('business')} />
-              <NavItem icon={<Icons.CreditCard />} label="الديون" active={activeTab==='debts'} onClick={() => setActiveTab('debts')} />
-              <NavItem icon={<Icons.Shield />} label="الأمانات" active={activeTab==='trusts'} onClick={() => setActiveTab('trusts')} />
-              <NavItem icon={<Icons.Settings />} label="الضبط" active={activeTab==='profile'} onClick={() => setActiveTab('profile')} />
-            </div>
-          </nav>
-
-          {isQuickAddOpen && <QuickAddModal type={quickAddType} editData={editData} ptnrs={partnerships} onClose={() => {setIsQuickAddOpen(false); setEditData(null);}} onSave={handleSaveItem} />}
-          {paymentModal && <PaymentModal item={paymentModal} onClose={() => setPaymentModal(null)} onSave={handlePayDebt} title="تسجيل حركة (دخول/خروج)" subtitle="المتبقي:" />}
-          {trustPaymentModal && <PaymentModal item={trustPaymentModal} onClose={() => setTrustPaymentModal(null)} onSave={handlePayTrust} title="تسجيل استرداد/تسليم أمانة" subtitle="المتبقي من الرصيد / الأمانة:" />}
-          {devFundModal && <DevFundModal proj={devFundModal} onClose={() => setDevFundModal(null)} onSave={handleAllocateDevFund} />}
-          {receiptData && <ReceiptModal data={receiptData} onClose={() => setReceiptData(null)} showToast={showSuccessToast} />}
-        </div>
-      );
-    }
-
-    // --- واجهة لوحة القيادة مع الصافي الحر ---
-    function DashboardView({ calc, txs, lastBackup, onDelete, onEdit, onReceipt }) {
-      const [search, setSearch] = useState('');
-      const filteredTxs = txs.filter(t => (t.category||'').includes(search) || t.amount.toString().includes(search));
-      const needsBackup = (calc.totalIn > 0 || calc.totalOut > 0) && (lastBackup === 0 || (Date.now() - lastBackup > 3 * 24 * 60 * 60 * 1000));
-
-      return (
-        <div className="space-y-4 animate-pop">
-          {needsBackup && (
-            <div className="bg-red-500/10 border border-red-500/50 p-3 rounded-xl flex items-center justify-between animate-pop shadow-md">
-               <div className="flex items-center gap-3"><span className="text-2xl">⚠️</span><div><p className="text-red-400 font-bold text-sm">تنبيه أمان!</p><p className="text-slate-300 text-xs mt-0.5">مرت فترة دون أخذ نسخة احتياطية.</p></div></div>
-            </div>
-          )}
-          
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-5 border border-slate-700 shadow-sm text-center relative overflow-hidden">
-            <p className="text-slate-300 text-sm font-bold mb-2">إجمالي السيولة النقدية 🏦</p>
-            <h2 className="text-4xl font-black text-white mb-5">{calc.totalAvailableCash.toLocaleString()} <span className="text-sm text-slate-400 font-normal">ج.س</span></h2>
-            <div className="grid grid-cols-2 gap-3 mt-3">
-                <div className="bg-blue-900/40 p-3 rounded-lg border border-blue-500/30 text-center"><p className="text-xs text-blue-200 mb-1">رصيد البنك 📱</p><h3 className="text-lg font-black text-blue-400">{calc.bankBalance.toLocaleString()}</h3></div>
-                <div className="bg-emerald-900/40 p-3 rounded-lg border border-emerald-500/30 text-center"><p className="text-xs text-emerald-200 mb-1">كاش باليد 💵</p><h3 className="text-lg font-black text-emerald-400">{calc.cashBalance.toLocaleString()}</h3></div>
-            </div>
-          </div>
-
-          <div className="bg-slate-800 rounded-xl p-4 border border-slate-700 shadow-sm">
-             <div className="flex justify-between items-center text-yellow-500 font-bold mb-3 text-sm">
-               <span>صناديق تطوير المشاريع المجمعة ⚙️:</span>
-               <span>{calc.totalDevFunds.toLocaleString()} ج.س</span>
-             </div>
-             <div className="flex justify-between items-center text-emerald-400 font-black border-t border-slate-700/60 pt-3 text-base">
-               <span>الصافي الحر (متاح للصرف) 💸:</span>
-               <span>{(calc.totalAvailableCash - calc.totalDevFunds).toLocaleString()} ج.س</span>
-             </div>
-          </div>
-
-          <div className="bg-slate-800 p-5 rounded-xl border border-slate-700 text-center shadow-sm relative">
-             <p className="text-slate-300 text-sm font-bold">صافي الثروة والأملاك (وزنك المالي) 💎</p>
-             <h3 className="text-3xl font-black text-blue-400 mt-2">{calc.netWealth.toLocaleString()} <span className="text-xs text-slate-500 font-normal">ج.س</span></h3>
-             <div className="flex flex-col gap-1.5 text-xs bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 text-right mt-4">
-                <div className="flex justify-between text-emerald-400"><span>الفعلي الحر (غير الأمانات):</span> <span>{calc.actualOwnCash.toLocaleString()} +</span></div>
-                <div className="flex justify-between text-blue-400"><span>أرصدة بالخارج:</span> <span>{calc.activeExternal.toLocaleString()} +</span></div>
-                {calc.myPartnershipCapital > 0 && <div className="flex justify-between text-blue-400"><span>رأس مال الشراكات:</span> <span>{calc.myPartnershipCapital.toLocaleString()} +</span></div>}
-                {calc.totalAssetsValue > 0 && <div className="flex justify-between text-yellow-400 font-bold border-t border-slate-700/50 pt-1 mt-1"><span>الأصول والمقتنيات 🏢:</span> <span>{calc.totalAssetsValue.toLocaleString()} +</span></div>}
-                <div className="flex justify-between text-emerald-400"><span>ديون لك:</span> <span>{calc.pendingToMe.toLocaleString()} +</span></div>
-                <div className="flex justify-between text-red-400"><span>ديون عليك:</span> <span>{calc.pendingOnMe.toLocaleString()} -</span></div>
-             </div>
-          </div>
-
-          <div className="bg-slate-800 rounded-xl p-4 border border-slate-700 mt-5">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-sm text-white">سجل الحركات</h3>
-              <input type="text" placeholder="بحث..." value={search} onChange={e=>setSearch(e.target.value)} className="w-5/12 bg-slate-900 border border-slate-700 text-white rounded-lg py-1.5 px-3 text-xs focus:border-emerald-500 focus:outline-none" />
-            </div>
-            
-            <div className="divide-y divide-slate-700/60 max-h-72 overflow-y-auto pr-1">
-              {filteredTxs.map(t => {
-                const isBank = t.wallet === 'bank'; const isIncome = t.type === 'income' || t.type === 'trust_bank_in'; const isTransfer = t.type === 'transfer';
-                return (
-                  <div key={t.id} className="py-3 flex justify-between items-center text-sm">
-                    <div className="min-w-0 flex-1 pl-3">
-                      <p className="text-white font-bold truncate flex items-center gap-1.5">{isTransfer ? <Icons.ArrowLeftRight /> : (isBank ? '📱' : '💵')} {t.category}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">{t.date}</p>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className={`font-bold text-sm ml-2 ${isTransfer ? 'text-blue-400' : (isIncome ? 'text-emerald-400' : 'text-red-400')}`}>
-                        {!isTransfer && (isIncome ? '+' : '-')} {parseFloat(t.amount||0).toLocaleString()}
-                      </span>
-                      {!isTransfer && (
-                        <button onClick={()=>onReceipt({title: isIncome ? 'سند قبض / إيداع' : 'سند صرف', person: t.category, amount: t.amount, date: t.date, ref: `TRX-${t.id.toString().slice(-5)}`})} className="p-1.5 bg-slate-700 hover:bg-slate-600 text-blue-400 rounded-lg transition">
-                          <Icons.Receipt/>
-                        </button>
-                      )}
-                      <button onClick={()=>onEdit(t)} className="p-1.5 bg-slate-700 hover:bg-slate-600 text-emerald-400 rounded-lg transition"><Icons.Edit/></button>
-                      <button onClick={()=>onDelete(t.id)} className="p-1.5 bg-slate-700 hover:bg-slate-600 text-red-400 rounded-lg transition"><Icons.Trash/></button>
-                    </div>
-                  </div>
-                );
-              })}
-              {filteredTxs.length === 0 && <p className="text-center py-6 text-xs text-slate-500">لا توجد حركات.</p>}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // --- واجهة الأعمال (المشاريع والشراكات) المدمجة والمنفصلة ---
-    function BusinessView({ ptnrs, projects, onAddPtnr, onEditPtnr, onDeletePtnr, onAddProj, onEditProj, onDeleteProj, onAllocateDev, onCollectIncome }) {
-      const [view, setView] = useState('projects');
-
-      const sendPartnerWhatsApp = (pName, pShareAmount, projName, date) => {
-        triggerHaptic();
-        const text = `📊 *إشعار جرد وتوزيع أرباح*\n-----------------------\n👤 *الشريك:* ${pName}\n💼 *المشروع:* ${projName}\n📅 *التاريخ:* ${date}\n-----------------------\n💰 *صافي الأرباح:* ${pShareAmount.toLocaleString()} ج.س`;
-        window.location.href = `whatsapp://send?text=${encodeURIComponent(text)}`;
-      };
-
-      return (
-        <div className="space-y-4 animate-pop">
-          <div className="flex bg-slate-800 p-1.5 rounded-xl border border-slate-700 shadow-sm">
-            <button onClick={()=>{triggerHaptic(); setView('projects');}} className={`flex-1 py-2 text-xs font-bold rounded-lg transition ${view==='projects'?'bg-emerald-500 text-white shadow':'text-slate-400 hover:text-white'}`}>المشاريع التشغيلية (الخاصة)</button>
-            <button onClick={()=>{triggerHaptic(); setView('ptnrs');}} className={`flex-1 py-2 text-xs font-bold rounded-lg transition ${view==='ptnrs'?'bg-emerald-500 text-white shadow':'text-slate-400 hover:text-white'}`}>الشراكات الكبرى (جرد)</button>
-          </div>
-
-          {view === 'projects' ? (
-             <div className="space-y-4 animate-pop">
-               <div className="flex justify-between items-center px-1">
-                 <h2 className="text-sm font-bold text-white">المشاريع التجارية النشطة</h2>
-                 <button onClick={onAddProj} className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">➕ مشروع جديد</button>
-               </div>
-               {projects.map(proj => (
-                 <div key={proj.id} className="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-md relative space-y-3">
-                    <div className="absolute top-4 left-4 flex gap-1.5">
-                      <button onClick={()=>onEditProj(proj)} className="p-1.5 bg-slate-700 hover:bg-slate-600 text-emerald-400 rounded-lg transition"><Icons.Edit/></button>
-                      <button onClick={()=>onDeleteProj(proj.id)} className="p-1.5 bg-slate-700 hover:bg-slate-600 text-red-400 rounded-lg transition"><Icons.Trash/></button>
-                    </div>
-                    <h3 className="font-bold text-white text-base pr-16 truncate">{proj.name}</h3>
-                    <p className="text-xs text-slate-400 border-b border-slate-700/60 pb-3">رأس المال المشغل: {parseFloat(proj.capital||0).toLocaleString()} ج.س</p>
-
-                    <div className="bg-slate-900/50 p-3.5 rounded-xl border border-slate-700/50 flex justify-between items-center">
-                       <div>
-                         <p className="text-[11px] text-slate-400 mb-1">مال التطوير المحتجز للمشروع ⚙️</p>
-                         <p className="text-sm font-black text-yellow-500">{(proj.devFund||0).toLocaleString()} ج.س</p>
-                       </div>
-                       <button onClick={()=>onAllocateDev(proj)} className="bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 border border-yellow-500/30 px-3 py-2 rounded-lg text-xs font-bold transition">تخصيص</button>
-                    </div>
-                    
-                    <button onClick={()=>onCollectIncome(proj)} className="w-full bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 py-3 rounded-xl text-xs font-bold border border-emerald-500/30 transition shadow-sm mt-1">تسجيل وتحصيل أرباح 💸</button>
-                 </div>
-               ))}
-               {projects.length === 0 && <p className="text-center py-6 text-xs text-slate-500 border border-dashed border-slate-700 rounded-2xl mt-4">لا توجد مشاريع تشغيلية مسجلة.</p>}
-             </div>
-          ) : (
-             <div className="space-y-4 animate-pop">
-               <div className="flex justify-between items-center px-1">
-                 <h2 className="text-sm font-bold text-white">إدارة الشراكات (الأطراف)</h2>
-                 <button onClick={onAddPtnr} className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">➕ شراكة جديدة</button>
-               </div>
-               {ptnrs.map(proj => {
-                 const evals = proj.evaluations || []; const lastEval = evals[evals.length - 1];
-                 const totalCash = lastEval ? parseFloat(lastEval.totalCash || 0) : 0; const fixedCapital = parseFloat(proj.capital || 0);
-                 const profit = totalCash > fixedCapital ? totalCash - fixedCapital : 0;
-                 const totalProjectCapital = proj.allocationMode === 'capital' ? proj.partners.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0) || 1 : fixedCapital;
-
-                 return (
-                   <div key={proj.id} className="bg-slate-800 rounded-xl p-4 border border-slate-700 text-sm relative shadow-md">
-                     <div className="absolute top-4 left-4 flex gap-1.5">
-                       <button onClick={()=>onEditPtnr(proj)} className="p-1.5 bg-slate-700 hover:bg-slate-600 text-emerald-400 rounded-lg transition"><Icons.Edit/></button>
-                       <button onClick={()=>onDeletePtnr(proj.id)} className="p-1.5 bg-slate-700 hover:bg-slate-600 text-red-400 rounded-lg transition"><Icons.Trash/></button>
-                     </div>
-                     <h3 className="font-bold text-white text-base mb-1 truncate max-w-[70%]">{proj.name}</h3>
-                     <p className="text-xs text-slate-400 mb-3">إجمالي رأس المال: {fixedCapital.toLocaleString()} ج.س</p>
-                     <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 space-y-2">
-                       <p className="text-xs text-slate-400 font-bold border-b border-slate-700 pb-1.5">📋 توزيع الأرباح (آخر جرد):</p>
-                       {lastEval && profit > 0 ? proj.partners.map((p, i) => {
-                         let computedShare = proj.allocationMode === 'capital' ? (parseFloat(p.amount || 0) / totalProjectCapital) * 100 : parseFloat(p.share || 0);
-                         const pShareAmount = profit * (computedShare / 100);
-                         return (
-                           <div key={i} className="flex justify-between items-center text-xs text-slate-300 py-1 bg-slate-800/60 px-2.5 rounded-lg mb-1">
-                             <span className="truncate max-w-[45%] font-medium">{p.name} <span className="text-[11px] text-slate-400">({computedShare.toFixed(1)}%)</span></span>
-                             <div className="flex items-center gap-2">
-                               <span className="text-emerald-400 font-bold">+{pShareAmount.toLocaleString()}</span>
-                               {p.name !== 'أنت' && (<button onClick={() => sendPartnerWhatsApp(p.name, pShareAmount, proj.name, lastEval.date)} className="p-1 bg-emerald-600/30 text-emerald-400 rounded hover:bg-emerald-600/50 transition"><Icons.Share /></button>)}
-                             </div>
-                           </div>
-                         );
-                       }) : <p className="text-center text-xs text-slate-500 py-2">لا يوجد أرباح مجرودة بعد</p>}
-                     </div>
-                   </div>
-                 );
-               })}
-             </div>
-          )}
-        </div>
-      );
-    }
-
-    // --- الديون ---
-    function DebtsView({ debts, onDelete, onPay, onEdit, onReceipt }) {
-      const renderList = (type, mode) => debts.filter(d => d.type === type).map(d => {
-        const rem = d.amount - (d.paid || 0); const isPaid = rem <= 0; const pct = ((d.paid || 0) / d.amount) * 100;
-        let barColor = pct >= 50 ? "bg-emerald-500" : "bg-red-500"; if (mode === 'on_me') barColor = pct >= 50 ? "bg-red-500" : "bg-emerald-500";
-
-        return (
-          <div key={d.id} className={`bg-slate-800 p-4 rounded-xl border border-slate-700/70 space-y-3 shadow-sm ${isPaid?'opacity-50':''}`}>
-            <div className="flex justify-between items-center text-sm">
-              <div className="min-w-0 flex-1"><h4 className="font-bold text-white text-base truncate">{d.person}</h4><p className="text-xs text-slate-400 mt-1">الكلي: {d.amount.toLocaleString()}</p></div>
-              <div className="flex gap-2 items-center shrink-0">
-                {!isPaid ? (<button onClick={()=>onPay(d)} className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg font-bold text-xs transition">سداد</button>) : (<span className="text-emerald-400 text-xs font-bold bg-emerald-500/10 px-2 py-1 rounded-lg">✓ مصفى</span>)}
-                
-                <button onClick={()=>onReceipt({title: mode === 'to_me' ? 'كشف حساب دين (مستحق لي)' : 'كشف حساب دين (التزام علي)', person: d.person, amount: d.amount, paid: d.paid || 0, rem: rem, date: d.date || new Date().toISOString().split('T')[0], ref: `DBT-${d.id.toString().slice(-5)}`, isDetailed: true})} className="text-blue-400 p-1.5 hover:bg-slate-700 rounded-lg transition"><Icons.Receipt/></button>
-                <button onClick={()=>onEdit(d)} className="text-emerald-400 p-1.5 hover:bg-slate-700 rounded-lg transition"><Icons.Edit/></button>
-                <button onClick={()=>onDelete(d.id)} className="text-red-400 p-1.5 hover:bg-slate-700 rounded-lg transition"><Icons.Trash/></button>
-              </div>
-            </div>
-            {!isPaid && (
-              <div className="space-y-1.5">
-                <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden"><div style={{width: `${pct}%`}} className={`h-full rounded-full transition-all duration-300 ${barColor}`}></div></div>
-                <div className="flex justify-between text-[11px] text-slate-400 font-medium"><span>مُسدد: {(d.paid || 0).toLocaleString()}</span><span>متبقي: {rem.toLocaleString()}</span></div>
-              </div>
-            )}
-          </div>
-        );
-      });
-
-      return (
-        <div className="space-y-5 animate-pop">
-          <h3 className="text-sm font-bold text-emerald-400 px-1">سجل ديون لك 📈</h3><div className="space-y-3">{renderList('to_me', 'to_me')}</div>
-          <h3 className="text-sm font-bold text-red-400 border-t border-slate-700/60 pt-4 px-1 mt-2">سجل ديون عليك 📉</h3><div className="space-y-3">{renderList('on_me', 'on_me')}</div>
-        </div>
-      );
-    }
-
-    // --- الأمانات ---
-    function TrustsView({ trusts, onDelete, onPay, onEdit, onReceipt }) {
-      const renderList = (type, titleColor) => trusts.filter(t => t.type === type).map(t => {
-        const rem = t.amount - (t.paid || 0); const isResolved = rem <= 0; const pct = ((t.paid || 0) / t.amount) * 100;
-        const barColor = type === 'external' ? 'bg-blue-500' : 'bg-orange-500';
-
-        return (
-          <div key={t.id} className={`bg-slate-800 p-4 rounded-xl border border-slate-700/70 relative shadow-sm ${isResolved ? 'opacity-50' : ''}`}>
-             <div className="absolute top-3 left-3 flex gap-1.5">
-                <button onClick={()=>onReceipt({title: type === 'external' ? 'كشف حساب أمانة (بالخارج)' : 'كشف حساب أمانة (لغيري)', person: t.person, amount: t.amount, paid: t.paid || 0, rem: rem, date: t.date || new Date().toISOString().split('T')[0], ref: `TRU-${t.id.toString().slice(-5)}`, isDetailed: true})} className="p-1.5 text-blue-400 hover:bg-slate-700 rounded-lg transition"><Icons.Receipt/></button>
-                <button onClick={()=>onEdit(t)} className="p-1.5 text-emerald-400 hover:bg-slate-700 rounded-lg transition"><Icons.Edit/></button>
-                <button onClick={()=>onDelete(t.id)} className="p-1.5 text-red-400 hover:bg-slate-700 rounded-lg transition"><Icons.Trash/></button>
-             </div>
-             <h4 className="font-bold text-white text-base truncate max-w-[55%] mb-1">{t.person}</h4>
-             <div className="mt-3 space-y-1.5 text-xs"><div className="flex justify-between"><span className="text-slate-400">الأساسي:</span><span className={`font-bold text-${titleColor}-400 text-sm`}>{t.amount.toLocaleString()} ج.س</span></div></div>
-             
-             {!isResolved ? (
-               <div className="mt-4 space-y-3">
-                  <div className="space-y-1.5">
-                    <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden"><div style={{width: `${pct}%`}} className={`h-full rounded-full transition-all duration-300 ${barColor}`}></div></div>
-                    <div className="flex justify-between text-[11px] text-slate-400 font-medium"><span>حركة: {(t.paid || 0).toLocaleString()}</span><span>المتبقي: {rem.toLocaleString()}</span></div>
-                  </div>
-                  <button onClick={()=>onPay(t)} className="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-xl text-xs font-bold transition shadow-sm">تسجيل (استرداد/تسليم) 💸</button>
-               </div>
-             ) : (<div className="w-full mt-4 bg-emerald-500/10 text-emerald-400 py-2 rounded-xl text-xs font-bold text-center border border-emerald-500/20">✅ الرصيد مصفى</div>)}
-          </div>
-        );
-      });
-
-      return (
-        <div className="space-y-5 animate-pop">
-          <h3 className="text-sm font-bold text-blue-400 px-1">أرصدة بالخارج 📤</h3><div className="space-y-3">{renderList('external', 'blue')}</div>
-          <h3 className="text-sm font-bold text-orange-400 border-t border-slate-700/60 pt-4 mt-2 px-1">أمانات للغير 📥</h3><div className="space-y-3">{renderList('with_me', 'orange')}</div>
-        </div>
-      );
-    }
-
-    // --- الضبط ---
-    function ProfileView({ email, onReset, onChangePwd, currentPwd, onBackup, onRestore, lastBackup, onExportExcel }) {
-      const [pwd, setPwd] = useState(''); const [restoreCode, setRestoreCode] = useState('');
-      const formatLastBackup = () => { if (!lastBackup) return 'لم يتم أخذ نسخة ⚠️'; return new Date(lastBackup).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }); };
-
-      return (
-        <div className="space-y-5 animate-pop text-sm pb-6">
-          <div className="bg-slate-800 p-4 rounded-xl text-center border border-slate-700 shadow-sm"><p className="text-xs text-slate-400 mb-1">الحساب الفعال</p><p className="text-white font-bold text-base">{email}</p></div>
-          <div className="bg-slate-800 p-4 rounded-xl border border-blue-500/30 relative shadow-sm">
-             <div className="absolute top-0 right-0 w-1.5 bg-blue-500 h-full"></div>
-             <h3 className="font-bold text-blue-400 mb-1.5 flex items-center gap-2 text-base"><Icons.FileExcel /> التقارير</h3><p className="text-xs text-slate-400 mb-4">تحميل السجلات كملف إكسل.</p>
-             <button onClick={onExportExcel} className="w-full bg-slate-700 hover:bg-slate-600 text-blue-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition"><Icons.Download /> تصدير (Excel)</button>
-          </div>
-          <div className="bg-slate-800 p-4 rounded-xl border border-emerald-500/30 relative shadow-sm">
-             <div className="absolute top-0 right-0 w-1.5 bg-emerald-500 h-full"></div>
-             <h3 className="font-bold text-emerald-400 mb-1.5 flex items-center gap-2 text-base"><Icons.Shield /> السحابة</h3>
-             <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 mb-4 mt-3"><p className="text-xs text-slate-300 flex justify-between items-center"><span>آخر نسخة:</span><span className={!lastBackup || (Date.now() - lastBackup > 259200000) ? 'text-red-400 font-bold bg-red-500/10 px-2 py-1 rounded' : 'text-emerald-400 font-bold bg-emerald-500/10 px-2 py-1 rounded'}>{formatLastBackup()}</span></p></div>
-             <button onClick={onBackup} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold shadow-md mb-5 flex items-center justify-center gap-2 transition"><Icons.Cloud /> أخذ نسخة لجوجل كيب</button>
-             <div className="border-t border-slate-700/60 pt-4"><p className="text-xs font-bold text-slate-300 mb-3">استعادة الحسابات:</p><textarea value={restoreCode} onChange={e=>setRestoreCode(e.target.value)} placeholder="ألصق كود النسخة هنا..." className="w-full bg-slate-900 text-emerald-400 p-3 rounded-xl border border-slate-600 text-xs h-20 font-mono mb-3 focus:outline-none focus:border-emerald-500 transition" /><button onClick={()=>{if(restoreCode.trim() && window.confirm('متأكد من الاستعادة؟')) { onRestore(restoreCode); setRestoreCode(''); } }} className="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition"><Icons.Download /> تأكيد الاستعادة</button></div>
-          </div>
-          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3 mt-5 shadow-sm"><p className="text-xs text-slate-400">تعديل الرمز الحالي: <span className="text-white bg-slate-900 px-2.5 py-1 rounded-lg font-bold mx-1">{currentPwd}</span></p><div className="flex gap-2.5"><input type="text" value={pwd} onChange={e=>setPwd(e.target.value)} placeholder="رمز جديد..." className="flex-1 bg-slate-900 p-3 rounded-xl text-white border border-slate-700 text-sm focus:outline-none focus:border-emerald-500" /><button onClick={()=>{if(pwd.trim()){onChangePwd(pwd.trim()); setPwd('');}}} className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 rounded-xl font-bold transition">حفظ</button></div></div>
-          <button onClick={onReset} className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 py-3 rounded-xl font-bold mt-3 transition">تصفير السجلات المالية بالكامل</button>
-        </div>
-      );
-    }
-
-    function NavItem({ icon, label, active, onClick }) {
-      return (
-        <button onClick={() => { triggerHaptic(); onClick(); }} className={`flex flex-col items-center p-2 rounded-xl transition-all ${active ? 'text-emerald-400 bg-slate-700/50' : 'text-slate-500 hover:text-slate-300'}`}>
-          <div>{icon}</div><span className="text-[10px] sm:text-[11px] font-bold mt-1 whitespace-nowrap">{label}</span>
-        </button>
-      );
-    }
-
-    // --- مودال الإضافة السريع والشامل ---
-    function QuickAddModal({ type: initialType, editData, onClose, onSave, ptnrs }) {
-      const isEdit = !!editData; 
-      const [type, setType] = useState(initialType);
-      const [txType, setTxType] = useState(isEdit && editData.type ? editData.type : (type === 'trust' ? 'external' : 'income'));
-      const [wallet, setWallet] = useState(isEdit && editData.wallet ? editData.wallet : 'bank');
-      const [direction, setDirection] = useState('bank_to_cash'); 
-      const [allocationMode, setAllocationMode] = useState(isEdit && editData.allocationMode ? editData.allocationMode : 'capital');
-      const [partnersList, setPartnersList] = useState(isEdit && editData.partners ? editData.partners : [{name: 'أنت', amount: '', share: ''}, {name: 'شريك', amount: '', share: ''}]);
-      const [formData, setFormData] = useState(isEdit ? {...editData} : { date: new Date().toISOString().split('T')[0], category: initialType === 'transaction' ? 'مصروف الأسرة' : '' });
-
-      const handleSubmit = e => {
-        e.preventDefault(); const dId = isEdit ? formData.id : null;
-        if(type === 'transaction') {
-          const finalCategory = txType === 'income' ? (formData.category || 'إيداع وارد') : formData.category;
-          onSave('transaction', { type: txType, amount: parseFloat(formData.amount), wallet, category: finalCategory, date: formData.date }, dId);
-        }
-        else if(type === 'transfer') {
-          const catName = direction === 'bank_to_cash' ? 'سحب كاش من البنك' : 'إيداع كاش للبنك';
-          onSave('transaction', { type: 'transfer', direction, amount: parseFloat(formData.amount), category: catName, date: formData.date }, dId);
-        }
-        else if(type === 'debt') {
-          onSave('debt', { type: txType, person: formData.person, amount: parseFloat(formData.amount), paid: parseFloat(formData.paid || 0), date: formData.date }, dId);
-        }
-        else if(type === 'trust') {
-          onSave('trust', { type: txType, person: formData.person, amount: parseFloat(formData.amount), bankRef: formData.bankRef, paid: parseFloat(formData.paid || 0), date: formData.date }, dId);
-        }
-        else if(type === 'new_partnership') {
-          let calculatedTotalCapital = parseFloat(formData.capital || 0);
-          if (allocationMode === 'manual') {
-            const sum = partnersList.reduce((s, p) => s + parseFloat(p.share || 0), 0);
-            if(sum !== 100) return alert('النسب يجب أن تساوى 100%');
-          } else {
-            calculatedTotalCapital = partnersList.reduce((s, p) => s + parseFloat(p.amount || 0), 0);
-            if(calculatedTotalCapital <= 0) return alert('أدخل مبالغ المساهمة بشكل صحيح');
-          }
-          onSave('new_partnership', { name: (formData.projectName || formData.name), capital: calculatedTotalCapital, allocationMode, wallet, partners: partnersList.map(pt=>({name: pt.name, amount: parseFloat(pt.amount || 0), share: parseFloat(pt.share || 0)})) }, dId);
-        }
-        else if(type === 'new_project') {
-          onSave('new_project', { name: (formData.projectName || formData.name), capital: parseFloat(formData.capital || 0), date: formData.date }, dId);
-        }
-        else if(type === 'evaluation') {
-          if(!formData.projectId) return alert('الرجاء اختيار المشروع');
-          onSave('evaluation', { projectId: Number(formData.projectId), totalCash: parseFloat(formData.totalCash), wallet, date: formData.date });
-        }
-      };
-
-      return (
-        <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 w-full max-w-sm rounded-2xl p-5 border border-slate-700 max-h-[85vh] overflow-y-auto animate-pop shadow-2xl">
-            <div className="flex justify-between items-center mb-4"><h2 className="font-bold text-base text-white">{isEdit?'تعديل سجل':'إدخال مالي جديد'}</h2><button onClick={onClose} className="bg-slate-800 hover:bg-slate-700 p-1.5 rounded-lg text-lg transition">❌</button></div>
-            {!isEdit && ['transaction', 'transfer', 'debt', 'trust', 'evaluation'].includes(type) && (
-              <div className="flex flex-wrap gap-1.5 bg-slate-800 p-1.5 rounded-xl mb-4">
-                <button onClick={()=>setType('transaction')} className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition ${type==='transaction'?'bg-emerald-500 text-white':'text-slate-400'}`}>تدفق</button>
-                <button onClick={()=>setType('transfer')} className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition ${type==='transfer'?'bg-emerald-500 text-white':'text-slate-400'}`}>تحويل 🔄</button>
-                <button onClick={()=>setType('debt')} className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition ${type==='debt'?'bg-emerald-500 text-white':'text-slate-400'}`}>دين</button>
-                <button onClick={()=>{setType('trust'); setTxType('external');}} className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition ${type==='trust'?'bg-blue-500 text-white':'text-slate-400'}`}>أمانة</button>
-                <button onClick={()=>setType('evaluation')} className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition ${type==='evaluation'?'bg-emerald-500 text-white':'text-slate-400'}`}>جرد</button>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {type === 'transaction' && (
-                 <>
-                  <div className="flex gap-2"><button type="button" onClick={()=>setTxType('income')} className={`flex-1 py-2.5 rounded-xl border-2 font-bold text-xs transition ${txType==='income'?'border-emerald-500 text-emerald-400 bg-emerald-500/10':'border-slate-700 text-slate-400'}`}>وارد (+)</button><button type="button" onClick={()=>setTxType('expense')} className={`flex-1 py-2.5 rounded-xl border-2 font-bold text-xs transition ${txType==='expense'?'border-red-500 text-red-400 bg-red-500/10':'border-slate-700 text-slate-400'}`}>منصرف (-)</button></div>
-                  <div className="flex gap-2"><button type="button" onClick={()=>setWallet('bank')} className={`flex-1 py-2.5 rounded-xl border-2 font-bold text-xs transition ${wallet==='bank'?'bg-blue-500 border-blue-500 text-white shadow-sm':'bg-slate-800 text-slate-400 border-slate-600'}`}>البنك 📱</button><button type="button" onClick={()=>setWallet('cash')} className={`flex-1 py-2.5 rounded-xl border-2 font-bold text-xs transition ${wallet==='cash'?'bg-emerald-500 border-emerald-500 text-white shadow-sm':'bg-slate-800 text-slate-400 border-slate-600'}`}>الكاش 💵</button></div>
-                  <input type="number" required placeholder="المبلغ المالي (ج.س)" value={formData.amount||''} onChange={e=>setFormData({...formData, amount: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-center font-bold mt-1 text-base focus:outline-none focus:border-emerald-500" />
-                  
-                  {txType === 'expense' ? (
-                    <div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">تصنيف المنصرف:</label>
-                      <select value={formData.category||'مصروف الأسرة'} onChange={e=>setFormData({...formData, category: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none">
-                        <option value="مصروف الأسرة">مصروف الأسرة</option><option value="مصروف مدرسي">مصروف مدرسي</option><option value="تسوق">تسوق</option><option value="أخرى">أخرى</option>
-                      </select>
-                    </div>
-                  ) : (
-                    <div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">مصدر أو بيان الإيراد (اختياري):</label>
-                      <input type="text" placeholder="مثال: أرباح مشروع..." value={formData.category||''} onChange={e=>setFormData({...formData, category: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none focus:border-emerald-500" />
-                    </div>
-                  )}
-                 </>
-              )}
-
-              {type === 'transfer' && (
-                 <>
-                  <div className="flex gap-2"><button type="button" onClick={()=>setDirection('bank_to_cash')} className={`flex-1 py-3 rounded-xl border-2 font-bold text-xs transition ${direction==='bank_to_cash'?'bg-blue-500 border-blue-500 text-white shadow-sm':'bg-slate-800 text-slate-400 border-slate-600'}`}>سحب لليد 💵</button><button type="button" onClick={()=>setDirection('cash_to_bank')} className={`flex-1 py-3 rounded-xl border-2 font-bold text-xs transition ${direction==='cash_to_bank'?'bg-emerald-500 border-emerald-500 text-white shadow-sm':'bg-slate-800 text-slate-400 border-slate-600'}`}>إيداع للبنك 📱</button></div>
-                  <input type="number" required placeholder="المبلغ المحول" value={formData.amount||''} onChange={e=>setFormData({...formData, amount: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-center font-bold mt-2 text-base focus:outline-none" />
-                 </>
-              )}
-              
-              {type === 'trust' && (
-                 <>
-                  <div className="flex gap-2"><button type="button" onClick={()=>setTxType('external')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold transition ${txType==='external'?'border-blue-500 text-blue-400 bg-blue-500/10':'border-slate-700 text-slate-400'}`}>رصيد بالخارج</button><button type="button" onClick={()=>setTxType('with_me')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold transition ${txType==='with_me'?'border-orange-500 text-orange-400 bg-orange-500/10':'border-slate-700 text-slate-400'}`}>أمانة بطرفي</button></div>
-                  <input type="text" required placeholder="الاسم" value={formData.person||''} onChange={e=>setFormData({...formData, person: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none" />
-                  <input type="number" required placeholder="المبلغ الكلي للأمانة" value={formData.amount||''} onChange={e=>setFormData({...formData, amount: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none" />
-                  {isEdit && (
-                    <div className="bg-slate-800 p-3 rounded-xl border border-slate-700 space-y-2">
-                       <label className="text-xs text-slate-400 font-bold">المبلغ الذي تم سداده/استرداده حتى الآن (لتصحيح الأخطاء):</label>
-                       <input type="number" value={formData.paid || ''} onChange={e=>setFormData({...formData, paid: e.target.value})} className="w-full bg-slate-900 text-emerald-400 p-3 rounded-lg border border-slate-600 text-sm focus:outline-none" placeholder="0" />
-                    </div>
-                  )}
-                 </>
-              )}
-
-              {type === 'debt' && (
-                 <>
-                  <div className="flex gap-2"><button type="button" onClick={()=>setTxType('to_me')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold transition ${txType==='to_me'?'border-emerald-500 text-emerald-400 bg-emerald-500/10':'border-slate-700 text-slate-400'}`}>مستحق لي</button><button type="button" onClick={()=>setTxType('on_me')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold transition ${txType==='on_me'?'border-red-500 text-red-400 bg-red-500/10':'border-slate-700 text-slate-400'}`}>التزام علي</button></div>
-                  <input type="text" required placeholder="اسم الشخص" value={formData.person||''} onChange={e=>setFormData({...formData, person: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none" />
-                  <input type="number" required placeholder="المبلغ الكلي للدين" value={formData.amount||''} onChange={e=>setFormData({...formData, amount: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none" />
-                  {isEdit && (
-                    <div className="bg-slate-800 p-3 rounded-xl border border-slate-700 space-y-2">
-                       <label className="text-xs text-slate-400 font-bold">المبلغ الذي تم سداده/استرداده حتى الآن (لتصحيح الأخطاء):</label>
-                       <input type="number" value={formData.paid || ''} onChange={e=>setFormData({...formData, paid: e.target.value})} className="w-full bg-slate-900 text-emerald-400 p-3 rounded-lg border border-slate-600 text-sm focus:outline-none" placeholder="0" />
-                    </div>
-                  )}
-                 </>
-              )}
-
-              {type === 'new_project' && (
-                 <>
-                   <input type="text" required placeholder="اسم المشروع (مثال: التسالي المنزلي)" value={formData.projectName||formData.name||''} onChange={e=>setFormData({...formData, projectName: e.target.value})} className="w-full bg-slate-800 text-white p-3.5 rounded-xl border border-slate-600 text-sm focus:outline-none focus:border-emerald-500" />
-                   <input type="number" required placeholder="رأس المال المشغل (ج.س)" value={formData.capital||''} onChange={e=>setFormData({...formData, capital: e.target.value})} className="w-full bg-slate-800 text-white p-3.5 rounded-xl border border-slate-600 text-center font-bold mt-1 focus:outline-none focus:border-emerald-500" />
-                 </>
-              )}
-
-              {type === 'new_partnership' && (
-                <>
-                  <input type="text" required placeholder="اسم الشراكة الكبرى" value={formData.projectName||formData.name||''} onChange={e=>setFormData({...formData, projectName: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none" />
-                  <div className="space-y-2"><label className="text-xs text-slate-400 font-medium">طريقة تقسيم النسب:</label>
-                    <div className="flex gap-2 bg-slate-800 p-1.5 rounded-xl border border-slate-700"><button type="button" onClick={()=>setAllocationMode('capital')} className={`flex-1 py-2 rounded-lg text-xs font-bold ${allocationMode==='capital'?'bg-emerald-500 text-white':'text-slate-400'}`}>تلقائي (حسب المال)</button><button type="button" onClick={()=>setAllocationMode('manual')} className={`flex-1 py-2 rounded-lg text-xs font-bold ${allocationMode==='manual'?'bg-emerald-500 text-white':'text-slate-400'}`}>يدوي (حسب المجهود)</button></div>
-                  </div>
-                  {allocationMode === 'capital' && (
-                    <div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">تمويل حصتك بالمال (أنت):</label>
-                      <div className="flex gap-2 bg-slate-800 p-1.5 rounded-xl border border-slate-700"><button type="button" onClick={()=>setWallet('bank')} className={`flex-1 py-2 rounded-lg text-xs font-bold ${wallet==='bank'?'bg-blue-500 text-white':'text-slate-400'}`}>البنك 📱</button><button type="button" onClick={()=>setWallet('cash')} className={`flex-1 py-2 rounded-lg text-xs font-bold ${wallet==='cash'?'bg-emerald-500 text-white':'text-slate-400'}`}>الكاش 💵</button></div>
-                    </div>
-                  )}
-                  {allocationMode === 'manual' && (<input type="number" required placeholder="رأس المال الكلي المتفق عليه" value={formData.capital||''} onChange={e=>setFormData({...formData, capital: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none" />)}
-                  <div className="pt-4 border-t border-slate-700 mt-2"><p className="text-xs font-bold text-emerald-400 mb-3">الشركاء والأطراف:</p>
-                    {partnersList.map((p, i) => (
-                      <div key={i} className="flex gap-2 mb-3 items-center">
-                        <input type="text" required value={p.name} onChange={e=>{let l=[...partnersList]; l[i].name=e.target.value; setPartnersList(l);}} className="w-2/5 bg-slate-800 text-white p-2.5 rounded-xl border border-slate-600 text-sm focus:outline-none" placeholder="الاسم" />
-                        {allocationMode === 'capital' ? (<input type="number" required value={p.amount} onChange={e=>{let l=[...partnersList]; l[i].amount=e.target.value; setPartnersList(l);}} className="w-3/5 bg-slate-800 text-white p-2.5 rounded-xl border border-slate-600 text-center text-sm focus:outline-none" placeholder="كم أودع؟" />) : (<input type="number" required value={p.share} onChange={e=>{let l=[...partnersList]; l[i].share=e.target.value; setPartnersList(l);}} className="w-3/5 bg-slate-800 text-white p-2.5 rounded-xl border border-slate-600 text-center text-sm focus:outline-none" placeholder="نسبته %" />)}
-                        {i > 1 && (<button type="button" onClick={()=>setPartnersList(partnersList.filter((_, idx)=>idx!==i))} className="text-red-400 font-bold px-2 text-lg">❌</button>)}
-                      </div>
-                    ))}
-                    <button type="button" onClick={()=>setPartnersList([...partnersList, {name:'', amount:'', share:''} || {}])} className="w-full text-emerald-400 bg-emerald-500/10 py-2.5 rounded-xl text-xs font-bold transition">➕ إضافة شريك</button>
-                  </div>
-                </>
-              )}
-
-              {type === 'evaluation' && (
-                <>
-                  <div className="flex gap-2 mb-3"><button type="button" onClick={()=>setWallet('bank')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold transition ${wallet==='bank'?'bg-blue-500 border-blue-500 text-white':'bg-slate-800 text-slate-400 border-slate-600'}`}>أرباح للبنك 📱</button><button type="button" onClick={()=>setWallet('cash')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold transition ${wallet==='cash'?'bg-emerald-500 border-emerald-500 text-white':'bg-slate-800 text-slate-400 border-slate-600'}`}>أرباح كاش 💵</button></div>
-                  <select required value={formData.projectId||''} onChange={e=>setFormData({...formData, projectId: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 mb-3 text-sm focus:outline-none">
-                    <option value="">اختر مشروع الشراكة لجرد المال...</option>{ptnrs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                  </select>
-                  <input type="number" required placeholder="إجمالي المال الفعلي بعد الجرد" value={formData.totalCash||''} onChange={e=>setFormData({...formData, totalCash: e.target.value})} className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none" />
-                </>
-              )}
-
-              <input type="date" required value={formData.date} onChange={e=>setFormData({...formData, date: e.target.value})} className="w-full bg-slate-800 text-white p-3.5 rounded-xl border border-slate-600 text-center text-sm font-bold mt-2 focus:outline-none" />
-              <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-lg mt-2 text-sm transition">حفظ السجل</button>
-            </form>
-          </div>
-        </div>
-      );
-    }
-
-    // --- مودال تخصيص مال التطوير (جديد) ---
-    function DevFundModal({ proj, onClose, onSave }) {
-       const [amount, setAmount] = useState('');
-       const submit = e => { e.preventDefault(); if(amount>0) onSave(proj.id, amount); else alert('الرجاء إدخال مبلغ صحيح'); };
-       return (
-         <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-end justify-center p-4">
-           <div className="bg-slate-900 w-full max-w-sm rounded-3xl p-6 border border-slate-700 mb-10 shadow-2xl animate-pop">
-             <h2 className="text-base font-bold text-white mb-2 flex items-center gap-2"><Icons.Settings /> صندوق التطوير للمشروع</h2>
-             <p className="text-xs text-slate-400 mb-5 leading-relaxed">اقتطاع وتجميد مبلغ من السيولة المتوفرة بالخزينة لغرض تطوير وإسناد مشروع ({proj.name}). هذا المال لن يمس رصيد الخزينة الفعلي بل سيتم عزله لحمايته.</p>
-             <form onSubmit={submit}>
-               <input type="number" value={amount} onChange={e=>setAmount(e.target.value)} required className="w-full bg-slate-800 text-white text-center text-2xl font-black p-4 rounded-2xl border border-slate-600 mb-5 focus:outline-none focus:border-yellow-500" placeholder="أدخل القيمة المراد احتجازها" autoFocus />
-               <button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600 text-slate-900 py-3.5 rounded-2xl text-sm font-black shadow-lg transition">تأكيد التخصيص والاحتجاز ⚙️</button>
-             </form>
-             <button onClick={onClose} className="w-full mt-3 bg-transparent hover:bg-slate-800 text-slate-400 py-3 rounded-2xl text-sm font-bold transition">إلغاء</button>
-           </div>
-         </div>
-       )
-    }
-
-    function PaymentModal({ item, onClose, onSave, title, subtitle }) {
-      const [amount, setAmount] = useState(''); const [wallet, setWallet] = useState('bank');
-      const rem = item.amount - (item.paid || 0);
-
-      const submit = e => { 
-        e.preventDefault(); 
-        const v = parseFloat(amount); 
-        if(v > 0 && v <= rem) onSave(item.id, v, wallet); 
-        else alert('المبلغ غير صحيح!');
-      };
-
-      return (
-        <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-end justify-center p-4">
-          <div className="bg-slate-900 w-full max-w-sm rounded-3xl p-5 border border-slate-700 mb-10 animate-pop shadow-2xl">
-            <h2 className="text-sm font-bold text-white mb-2">{title}</h2><p className="text-xs text-slate-400 mb-4">{subtitle} {rem.toLocaleString()} ج.س</p>
-            <div className="flex gap-2.5 mb-4"><button type="button" onClick={()=>setWallet('bank')} className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition ${wallet==='bank'?'bg-blue-500 text-white shadow-md':'bg-slate-800 text-slate-400 border border-slate-600'}`}>حساب بنكي 📱</button><button type="button" onClick={()=>setWallet('cash')} className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition ${wallet==='cash'?'bg-emerald-500 text-white shadow-md':'bg-slate-800 text-slate-400 border border-slate-600'}`}>كاش نقدي 💵</button></div>
-            <form onSubmit={submit}><input type="number" value={amount} onChange={e=>setAmount(e.target.value)} required max={rem} className="w-full bg-slate-800 text-white text-center text-xl font-black p-3.5 rounded-2xl border border-slate-600 mb-4 focus:outline-none focus:border-emerald-500" placeholder="أدخل القيمة" autoFocus /><button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-2xl text-sm font-bold shadow-lg transition">تأكيد ومزامنة</button></form>
-            <button onClick={onClose} className="w-full mt-3 bg-transparent text-slate-400 py-3 rounded-2xl text-sm font-bold transition">إلغاء</button>
-          </div>
-        </div>
-      );
-    }
-
-    // --- الفواتير ---
-    function ReceiptModal({ data, onClose, showToast }) {
-      if (!data) return null;
-
-      const safeAmount = data.amount ? parseFloat(data.amount) : 0;
-      const safeRef = data.ref || 'غير محدد';
-      const safeDate = data.date || new Date().toISOString().split('T')[0];
-      const safeTitle = data.title || 'سند مالي';
-      const safePerson = data.person || 'عام';
-
-      const receiptText = data.isDetailed 
-        ? `🧾 *${safeTitle}*\n-----------------------\n▪️ *الجهة:* ${safePerson}\n▪️ *التاريخ:* ${safeDate}\n-----------------------\n💰 *المبلغ الكلي:* ${safeAmount.toLocaleString()} ج.س\n✅ *المُسدد حتى الآن:* ${(data.paid || 0).toLocaleString()} ج.س\n⚠️ *الرصيد المتبقي:* ${(data.rem || 0).toLocaleString()} ج.س`
-        : `🧾 *${safeTitle}*\n-----------------------\n▪️ *رقم السند:* ${safeRef}\n▪️ *التاريخ:* ${safeDate}\n▪️ *الجهة والبيان:* ${safePerson}\n-----------------------\n💰 *المبلغ:* ${safeAmount.toLocaleString()} ج.س`;
-
-      const copyText = () => { triggerHaptic(); navigator.clipboard.writeText(receiptText); showToast('تم نسخ السند بنجاح!'); };
-
-      return (
-        <div className="fixed inset-0 bg-slate-950/80 z-[70] flex items-center justify-center p-5 animate-pop">
-          <div className="bg-white text-slate-900 w-full max-w-sm rounded-2xl p-5 shadow-2xl" style={{fontFamily: 'monospace'}}>
-            <div className="border-b border-dashed border-slate-300 pb-3 mb-4 text-center">
-              <h2 className="font-bold text-base">{safeTitle}</h2>
-            </div>
-            
-            {data.isDetailed ? (
-               <>
-                  <div className="space-y-2.5 text-xs mb-4 font-medium">
-                    <div className="flex justify-between"><span>المرجع:</span><span>{safeRef}</span></div>
-                    <div className="flex justify-between"><span>التاريخ:</span><span>{safeDate}</span></div>
-                    <div className="flex justify-between"><span>الجهة:</span><span className="truncate max-w-[60%]">{safePerson}</span></div>
-                  </div>
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2 text-sm font-bold">
-                     <div className="flex justify-between text-slate-600"><span>المبلغ الكلي:</span><span>{safeAmount.toLocaleString()}</span></div>
-                     <div className="flex justify-between text-emerald-600"><span>المُسدد:</span><span>{(data.paid || 0).toLocaleString()}</span></div>
-                     <div className="flex justify-between text-red-600 border-t border-slate-200 pt-2 mt-2"><span>المتبقي:</span><span className="text-lg">{(data.rem || 0).toLocaleString()}</span></div>
-                  </div>
-               </>
-            ) : (
-               <>
-                  <div className="space-y-2.5 text-xs mb-5 font-medium">
-                    <div className="flex justify-between"><span>رقم السند:</span><span>{safeRef}</span></div>
-                    <div className="flex justify-between"><span>التاريخ:</span><span>{safeDate}</span></div>
-                    <div className="flex justify-between"><span>الجهة/البيان:</span><span className="truncate max-w-[60%]">{safePerson}</span></div>
-                  </div>
-                  <div className="border-t border-dashed border-slate-300 pt-3 text-center">
-                    <h3 className="text-xl font-black text-slate-900">{safeAmount.toLocaleString()} ج.س</h3>
-                  </div>
-               </>
-            )}
-
-            <div className="mt-6 space-y-2.5">
-              <button type="button" onClick={()=>{triggerHaptic(); window.location.href=`whatsapp://send?text=${encodeURIComponent(receiptText)}`;}} className="w-full bg-emerald-600 text-white py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-md transition">📱 إرسال للواتساب</button>
-              <button type="button" onClick={copyText} className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 py-2.5 rounded-xl font-bold text-xs transition">📋 نسخ كنص</button>
-              <button type="button" onClick={onClose} className="w-full bg-slate-900 text-white py-2.5 rounded-xl font-bold text-xs
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useMemo}=React;
+const cx={i:"w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-600 text-sm focus:outline-none focus:border-emerald-500",b:"w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-md transition text-sm",c:"bg-slate-800 rounded-xl p-4 border border-slate-700 shadow-sm relative",m:"fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4",mc:"bg-slate-900 w-full max-w-sm rounded-2xl p-5 border border-slate-700 max-h-[85vh] overflow-y-auto pop shadow-2xl",ib:"p-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg transition",f:"flex justify-between items-center"};
+const Ic={
+ W:()=><svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4M3 5v14a2 2 0 0 0 2 2h16v-5M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>,
+ H:()=><svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+ B:()=><svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>,
+ C:()=><svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>,
+ S:()=><svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+ St:()=><svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 5.4 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1-2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+ R:()=><svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/></svg>,
+ T:()=><svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>,
+ E:()=><svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>,
+ Ck:()=><svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>,
+ Sh:()=><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4Z"/></svg>,
+ Cl:()=><svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>,
+ D:()=><svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>,
+ Ex:()=><svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2M8 17h2M14 13h2M14 17h2"/></svg>,
+ Ar:()=><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 3 4 7l4 4M4 7h16m-4 14 4-4-4-4M20 17H4"/></svg>,
+ Bld:()=><svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4M8 6h2M14 6h2M8 10h2M14 10h2M8 14h2M14 14h2"/></svg>
+};
+const vib=()=>{if(navigator.vibrate)navigator.vibrate(30)};
+const gL=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d;}catch(e){return d;}};
+const sL=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const K={t:'smart_accountant_tx',d:'smart_accountant_dbts',p:'smart_accountant_ptnrs',pj:'smart_accountant_projects',tr:'smart_accountant_trusts',a:'smart_accountant_assets'};
+
+function Auth({v,sV,sE,sP,sS,oR,oL,oRp}){
+ const [e,sE_]=useState('');const [p,sP_]=useState('');const [s,sS_]=useState('');
+ useEffect(()=>{if(sE)sE_(sE);},[sE]);
+ const sub=ev=>{
+  ev.preventDefault();vib();
+  if(v==='register'){if(!e||p.length<4||!s)return alert('بيانات غير مكتملة');oR(e.toLowerCase(),p,s.trim());}
+  else if(v==='login'){if(e.toLowerCase()===sE.toLowerCase()&&p===sP)oL();else alert('خطأ!');}
+  else{if(e.toLowerCase()===sE.toLowerCase()&&s.trim()===sS.trim()){const np=prompt('الرمز الجديد:');if(np&&np.length>=4)oRp(np);else alert('مرفوض');}else alert('خطأ!');}
+ };
+ return(
+  <div className={cx.m}><div className={cx.mc}><h1 className="text-xl font-bold text-white text-center mb-6">🔐 المحاسب الذكي</h1><form onSubmit={sub} className="space-y-4"><input type="email" required placeholder="البريد الإلكتروني" value={e} onChange={x=>sE_(x.target.value)} className={cx.i} />{v!=='forgot'&&<input type="password" required placeholder="كلمة المرور" value={p} onChange={x=>sP_(x.target.value)} className={cx.i} />}{(v==='register'||v==='forgot')&&<input type="text" required placeholder="سؤال الأمان: مدينتك المفضلة؟" value={s} onChange={x=>sS_(x.target.value)} className={cx.i+" text-emerald-400"} />}<button type="submit" className={cx.b}>{v==='login'?'دخول':v==='register'?'إنشاء ملف':'استعادة'}</button></form><div className="mt-5 flex flex-col gap-3 text-center text-sm">{v==='login'?(<><button type="button" onClick={()=>sV('forgot')} className="text-slate-400">نسيت الرمز؟</button><button type="button" onClick={()=>sV('register')} className="text-emerald-400 font-bold">ملف جديد ➕</button></>):(<button type="button" onClick={()=>sV('login')} className="text-slate-400">عودة للدخول 🔑</button>)}</div></div></div>
+ );
+}
+
+function App(){
+ const [auth,setAuth]=useState(()=>localStorage.getItem('sa_ses')==='1');const [vw,setVw]=useState('login');
+ const [sE,setSE]=useState(()=>localStorage.getItem('sa_em')||'');const [sP,setSP]=useState(()=>localStorage.getItem('sa_pw')||'1234');const [sS,setSS]=useState(()=>localStorage.getItem('sa_sec')||'');
+ const [tab,setTab]=useState('dash');const [qA,setQA]=useState(false);const [qT,setQT]=useState('transaction');
+ const [eD,setED]=useState(null);const [pM,setPM]=useState(null);const [tM,setTM]=useState(null);const [dM,setDM]=useState(null);const [rM,setRM]=useState(null);const [tst,setTst]=useState(null);
+ const [txs,setTxs]=useState(()=>gL(K.t,[]));const [dbs,setDbs]=useState(()=>gL(K.d,[]));const [pts,setPts]=useState(()=>gL(K.p,[]));const [pjs,setPjs]=useState(()=>gL(K.pj,[]));const [trs,setTrs]=useState(()=>gL(K.tr,[]));const [ast]=useState(()=>gL(K.a,[]));
+ const [lBkp,setLBkp]=useState(()=>Number(localStorage.getItem('sa_bkp'))||0);
+
+ useEffect(()=>{sL(K.t,txs);},[txs]);useEffect(()=>{sL(K.d,dbs);},[dbs]);useEffect(()=>{sL(K.p,pts);},[pts]);useEffect(()=>{sL(K.pj,pjs);},[pjs]);useEffect(()=>{sL(K.tr,trs);},[trs]);
+ const shT=m=>{setTst(m);setTimeout(()=>setTst(null),3000);};
+ useEffect(()=>{if(!localStorage.getItem('sa_em'))setVw('register');},[]);
+
+ const clc=useMemo(()=>{
+  const sIn=txs.filter(t=>t.type==='income').reduce((a,c)=>a+c.amount,0);const sOut=txs.filter(t=>t.type==='expense').reduce((a,c)=>a+c.amount,0);
+  const aEx=trs.filter(t=>t.type==='external').reduce((a,t)=>a+(t.amount-(t.paid||0)),0);const aWm=trs.filter(t=>t.type==='with_me').reduce((a,t)=>a+(t.amount-(t.paid||0)),0);
+  const pTm=dbs.filter(d=>d.type==='to_me').reduce((a,d)=>a+(d.amount-(d.paid||0)),0);const pOm=dbs.filter(d=>d.type==='on_me').reduce((a,d)=>a+(d.amount-(d.paid||0)),0);
+  const tA=ast.reduce((s,a)=>s+parseFloat(a.currentValue||0),0);const tDf=pjs.reduce((a,p)=>a+(parseFloat(p.devFund)||0),0);
+  const mPc=pts.reduce((t,p)=>{if(p.allocationMode==='capital'){const m=p.partners?.find(x=>x.name==='أنت');return t+(m?parseFloat(m.amount||0):0);}return t;},0);
+  let bB=0;let cB=0;
+  txs.forEach(t=>{const a=parseFloat(t.amount||0);if(t.wallet==='bank'){if(['income','trust_bank_in'].includes(t.type))bB+=a;if(['expense','trust_bank_out'].includes(t.type))bB-=a;}else if(t.wallet==='cash'){if(t.type==='income')cB+=a;if(t.type==='expense')cB-=a;}if(t.type==='transfer'){if(t.direction==='cash_to_bank'){bB+=a;cB-=a;}if(t.direction==='bank_to_cash'){bB-=a;cB+=a;}}});
+  pts.forEach(p=>{if(p.allocationMode==='capital'){const m=p.partners?.find(x=>x.name==='أنت');if(m){const a=parseFloat(m.amount||0);if(p.wallet==='bank')bB-=a;else cB-=a;}}});
+  cB+=aWm;const tAc=bB+cB;const aOc=tAc-aWm;const nW=aOc+aEx+pTm+mPc+tA-pOm;
+  return{tAc,aOc,aWm,nW,mPc,tA,pTm,pOm,aEx,tDf,bB,cB,tIn:sIn,tOut:sOut};
+ },[txs,dbs,trs,pts,pjs,ast]);
+
+ const delI=(t,id)=>{vib();if(t==='ptnr'){const p=pts.find(x=>x.id===id);if(!p)return;if(window.confirm('حذف مع إبقاء الأرباح؟')){setPts(pts.filter(x=>x.id!==id));shT('حُذف');}else if(window.confirm('تطهير الأرباح كاملة؟')){setPts(pts.filter(x=>x.id!==id));setTxs(txs.filter(x=>!(x.category||'').includes(p.name)));shT('طُهّر');}return;}if(t==='project'){if(window.confirm('حذف المشروع التجاري؟')){setPjs(pjs.filter(p=>p.id!==id));shT('حُذف');}return;}if(window.confirm('تأكيد الحذف؟')){if(t==='tx')setTxs(txs.filter(x=>x.id!==id));if(t==='debt')setDbs(dbs.filter(x=>x.id!==id));if(t==='trust')setTrs(trs.filter(x=>x.id!==id));shT('تم الحذف');}};
+ const rst=()=>{vib();if(window.confirm('تصفير كلي للحسابات؟')){setTxs([]);setDbs([]);setPts([]);setPjs([]);setTrs([]);localStorage.removeItem(K.t);localStorage.removeItem(K.d);localStorage.removeItem(K.p);localStorage.removeItem(K.pj);localStorage.removeItem(K.tr);shT('صُفّر');}};
+ const savI=(t,d,id=null)=>{vib();const di=id||Date.now();if(t==='transaction'){if(id)setTxs(txs.map(x=>x.id===id?{...x,...d}:x));else setTxs([{id:di,...d},...txs]);shT('حُفظ');}else if(t==='debt'){if(id)setDbs(dbs.map(x=>x.id===id?{...x,...d}:x));else setDbs([{id:di,paid:0,...d},...dbs]);shT('حُفظ');}else if(t==='trust'){if(id)setTrs(trs.map(x=>x.id===id?{...x,...d}:x));else setTrs([{id:di,paid:0,...d},...trs]);shT('حُفظ');}else if(t==='new_partnership'){if(id)setPts(pts.map(x=>x.id===id?{...x,...d}:x));else setPts([{id:di,evaluations:[],...d},...pts]);shT('حُفظ');}else if(t==='new_project'){if(id)setPjs(pjs.map(x=>x.id===id?{...x,...d}:x));else setPjs([{id:di,devFund:0,...d},...pjs]);shT('حُفظ');}else if(t==='evaluation'){let mp=0;let pn='';setPts(pts.map(p=>{if(p.id===Number(d.projectId)){pn=p.name;const tc=parseFloat(d.totalCash||0);const fc=parseFloat(p.capital||0);const pr=tc-fc;if(pr>0){const tcp=p.allocationMode==='capital'?p.partners.reduce((s,x)=>s+parseFloat(x.amount||0),0)||1:fc;let sr=0;const me=p.partners.find(x=>x.name==='أنت');if(me){if(p.allocationMode==='capital')sr=parseFloat(me.amount||0)/tcp;else sr=parseFloat(me.share||0)/100;}mp=pr*sr;}return{...p,evaluations:[...(p.evaluations||[]),{id:Date.now(),...d}]};}return p;}));if(mp>0){setTxs(p=>[{id:Date.now()+5,type:'income',amount:parseFloat(mp.toFixed(2)),wallet:d.wallet,category:`أرباح جرد (${pn})`,date:d.date},...p]);shT(`تم הגرد (+${mp.toLocaleString()})`);}else shT('تم الجرد');}setQA(false);setED(null);};
+ const svDf=(id,a)=>{vib();setPjs(pjs.map(p=>p.id===id?{...p,devFund:(p.devFund||0)+parseFloat(a)}:p));setDM(null);shT('تم التخصيص ⚙️');};
+ const dDf=(id)=>{vib();setPjs(pjs.map(p=>p.id===id?{...p,devFund:0}:p));shT('صُفّر التطوير 🗑️');};
+ const pDb=(id,a,w)=>{vib();let cd=null;setDbs(dbs.map(d=>{if(d.id===id){cd=d;return{...d,paid:(d.paid||0)+a};}return d;}));setPM(null);if(cd){const tm=cd.type==='to_me';setTxs(p=>[{id:Date.now(),type:tm?'income':'expense',amount:a,wallet:w,category:tm?`استرداد من (${cd.person})`:`سداد لـ (${cd.person})`,date:new Date().toISOString().split('T')[0]},...p]);shT('تم السداد');}};
+ const pTr=(id,a,w)=>{vib();let ct=null;setTrs(trs.map(t=>{if(t.id===id){ct=t;return{...t,paid:(t.paid||0)+a};}return t;}));setTM(null);if(ct){if(w==='bank'){const ex=ct.type==='external';setTxs(p=>[{id:Date.now(),type:ex?'trust_bank_in':'trust_bank_out',amount:a,wallet:'bank',category:ex?`استرداد أمانة (${ct.person})`:`تسليم أمانة (${ct.person})`,date:new Date().toISOString().split('T')[0]},...p]);}shT('تم');}};
+ const bkpD=async()=>{vib();const f={tx:txs,db:dbs,pt:pts,prj:pjs,tr:trs};const b=btoa(unescape(encodeURIComponent(JSON.stringify(f))));const t=`[أرشيف]\n${new Date().toLocaleDateString('ar-EG')}\n\n${b}`;const n=Date.now();setLBkp(n);localStorage.setItem('sa_bkp',n);try{if(navigator.share)await navigator.share({title:'أرشيف',text:t});else{await navigator.clipboard.writeText(t);shT('نُسخ الكود');}}catch(e){shT('تحديث النسخة');}};
+ const resD=s=>{vib();try{const e=s.match(/[A-Za-z0-9+/=]{50,}/)?.[0]||s.trim();const d=JSON.parse(decodeURIComponent(escape(atob(e))));if(d.tx&&d.db){setTxs(d.tx);setDbs(d.db);setPts(d.pt||[]);setPjs(d.prj||[]);setTrs(d.tr||[]);const n=Date.now();setLBkp(n);localStorage.setItem('sa_bkp',n);shT('تمت الاستعادة');}else alert('تالف');}catch(e){alert('فشل');}};
+ const expC=()=>{vib();if(txs.length===0)return alert('لا حركات');let c="data:text/csv;charset=utf-8,\uFEFFالتاريخ,الخزنة,النوع,البيان,المبلغ\r\n";txs.forEach(t=>{const ts=t.type==='income'?'إيداع':(t.type==='expense'?'منصرف':'تحويل');const ws=t.wallet==='bank'?'بنك':'كاش';const cc=(t.category||'').replace(/,/g,'-');c+=`${t.date},${ws},${ts},${cc},${t.amount}\r\n`;});const l=document.createElement("a");l.setAttribute("href",encodeURI(c));l.setAttribute("download",`حركات.csv`);document.body.appendChild(l);l.click();document.body.removeChild(l);shT('حُمّل');};
+
+ if(!auth)return <Auth v={vw} sV={setVw} sE={sE} sP={sP} sS={sS} oR={(e,p,s)=>{localStorage.setItem('sa_em',e);localStorage.setItem('sa_pw',p);localStorage.setItem('sa_sec',s);localStorage.setItem('sa_ses','1');setSE(e);setSP(p);setSS(s);setAuth(true);}} oL={()=>{localStorage.setItem('sa_ses','1');setAuth(true);}} oRp={np=>{localStorage.setItem('sa_pw',np);setSP(np);setVw('login');}} />;
+
+ return (
+  <div className="pb-28">
+   {tst&&<div className="fixed top-6 left-4 right-4 z-[100] bg-emerald-500 text-white px-4 py-3 rounded-xl flex items-center gap-3 shadow-xl border border-emerald-400/20 pop max-w-sm mx-auto"><Ic.Ck/><span className="text-sm font-bold">{tst}</span></div>}
+   <header className={cx.c+" rounded-none sticky top-0 z-10 "+cx.f}><div className="flex items-center gap-3"><div className="bg-emerald-500 p-2.5 rounded-xl text-white"><Ic.W/></div><div><h1 className="font-bold text-white">المحاسب الذكي</h1><p className="text-[11px] text-emerald-400">إدارة الخزن المزدوجة</p></div></div><div className="flex items-center gap-2"><a href="assets.html" onClick={vib} className="flex items-center gap-1 bg-yellow-600 text-white text-xs px-3 py-2 rounded-lg font-bold"><Ic.Bld/> الأصول</a><button onClick={()=>{vib();localStorage.removeItem('sa_ses');setAuth(false);setVw('login');}} className="text-slate-300 text-xs px-3 py-2 border border-slate-700 rounded-lg">🚪</button></div></header>
+   <main className="p-4 max-w-md mx-auto">
+    {tab==='dash'&&<Dash c={clc} txs={txs} lb={lBkp} oD={id=>delI('tx',id)} oE={t=>{setQT('transaction');setED(t);setQA(true);}} oR={r=>setRM(r)} />}
+    {tab==='bus'&&<Bus pts={pts} pjs={pjs} aPt={()=>{setQT('new_partnership');setED(null);setQA(true);}} ePt={p=>{setQT('new_partnership');setED(p);setQA(true);}} dPt={id=>delI('ptnr',id)} aPj={()=>{setQT('new_project');setED(null);setQA(true);}} ePj={p=>{setQT('new_project');setED(p);setQA(true);}} dPj={id=>delI('project',id)} oDf={p=>{vib();setDM(p);}} dDf={dDf} cI={p=>{setQT('transaction');setED({category:`أرباح مشروع (${p.name})`,amount:'',wallet:'cash',type:'income',date:new Date().toISOString().split('T')[0]});setQA(true);}} oR={r=>setRM(r)} />}
+    {tab==='dbs'&&<Dbs dbs={dbs} oD={id=>delI('debt',id)} oP={d=>{vib();setPM(d);}} oE={d=>{setQT('debt');setED(d);setQA(true);}} oR={r=>setRM(r)} />}
+    {tab==='trs'&&<Trs trs={trs} oD={id=>delI('trust',id)} oP={t=>{vib();setTM(t);}} oE={t=>{setQT('trust');setED(t);setQA(true);}} oR={r=>setRM(r)} />}
+    {tab==='prf'&&<Prf e={sE} oRs={rst} oP={p=>{localStorage.setItem('sa_pw',p);setSP(p);shT('حُفظ');}} cP={sP} oB={bkpD} oR={resD} lb={lBkp} oE={expC} />}
+   </main>
+   <button onClick={()=>{vib();setQT('transaction');setED(null);setQA(true);}} className="fixed bottom-24 left-6 w-14 h-14 bg-emerald-500 text-white rounded-full shadow-lg flex items-center justify-center z-20 text-2xl">➕</button>
+   <nav className="fixed bottom-0 w-full bg-slate-800 border-t border-slate-700 py-3 z-10 px-2"><div className={"max-w-md mx-auto "+cx.f}>
+    <NavI i={<Ic.H/>} l="الرئيسية" a={tab==='dash'} oC={()=>setTab('dash')} />
+    <NavI i={<Ic.B/>} l="الأعمال" a={tab==='bus'} oC={()=>setTab('bus')} />
+    <NavI i={<Ic.C/>} l="الديون" a={tab==='dbs'} oC={()=>setTab('dbs')} />
+    <NavI i={<Ic.S/>} l="الأمانات" a={tab==='trs'} oC={()=>setTab('trs')} />
+    <NavI i={<Ic.St/>} l="الضبط" a={tab==='prf'} oC={()=>setTab('prf')} />
+   </div></nav>
+   {qA&&<QAdd t={qT} eD={eD} pts={pts} oC={()=>{setQA(false);setED(null);}} oS={savI} />}
+   {pM&&<PMod i={pM} oC={()=>setPM(null)} oS={pDb} ti="دخول/خروج" s="المتبقي:" />}
+   {tM&&<PMod i={tM} oC={()=>setTM(null)} oS={pTr} ti="أمانات" s="المتبقي:" />}
+   {dM&&<DMod p={dM} oC={()=>setDM(null)} oS={svDf} />}
+   {rM&&<RMod d={rM} oC={()=>setRM(null)} sT={shT} />}
+  </div>
+ );
+}
+
+function Dash({c,txs,lb,oD,oE,oR}){
+ const [s,sS]=useState('');const fTxs=txs.filter(t=>(t.category||'').includes(s)||t.amount.toString().includes(s));
+ const nb=(c.tIn>0||c.tOut>0)&&(!lb||(Date.now()-lb>259200000));
+ return(
+  <div className="space-y-4 pop">
+   {nb&&<div className="bg-red-500/10 border border-red-500/50 p-3 rounded-xl pop shadow-md flex gap-3 items-center"><span className="text-2xl">⚠️</span><div><p className="text-red-400 font-bold text-sm">تنبيه أمان!</p><p className="text-slate-300 text-xs">احفظ نسخة احتياطية.</p></div></div>}
+   <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-5 border border-slate-700 text-center"><p className="text-slate-300 text-sm font-bold mb-2">إجمالي السيولة النقدية 🏦</p><h2 className="text-4xl font-black text-white mb-5">{c.tAc.toLocaleString()} <span className="text-sm text-slate-400">ج.س</span></h2><div className="grid grid-cols-2 gap-3"><div className="bg-blue-900/40 p-3 rounded-lg"><p className="text-xs text-blue-200">البنك 📱</p><h3 className="text-lg font-black text-blue-400">{c.bB.toLocaleString()}</h3></div><div className="bg-emerald-900/40 p-3 rounded-lg"><p className="text-xs text-emerald-200">الكاش 💵</p><h3 className="text-lg font-black text-emerald-400">{c.cB.toLocaleString()}</h3></div></div></div>
+   <div className={cx.c}><div className="flex justify-between text-yellow-500 font-bold mb-3 text-sm"><span>صناديق التطوير ⚙️:</span><span>{c.tDf.toLocaleString()} ج</span></div><div className="flex justify-between text-emerald-400 font-black border-t border-slate-700/60 pt-3 text-base"><span>الصافي الحر 💸:</span><span>{(c.tAc-c.tDf).toLocaleString()} ج</span></div></div>
+   <div className={cx.c+" text-center"}><p className="text-slate-300 text-sm font-bold">صافي الثروة (وزنك المالي) 💎</p><h3 className="text-3xl font-black text-blue-400 mt-2">{c.nW.toLocaleString()} <span className="text-xs text-slate-500">ج</span></h3><div className="flex flex-col gap-1.5 text-xs bg-slate-900/50 p-3 rounded-xl text-right mt-4"><div className="flex justify-between text-emerald-400"><span>الفعلي الحر:</span><span>{c.aOc.toLocaleString()} +</span></div><div className="flex justify-between text-blue-400"><span>بالخارج:</span><span>{c.aEx.toLocaleString()} +</span></div>{c.mPc>0&&<div className="flex justify-between text-blue-400"><span>رأس مال الشراكات:</span><span>{c.mPc.toLocaleString()} +</span></div>}{c.tA>0&&<div className="flex justify-between text-yellow-400 font-bold border-t border-slate-700/50 pt-1 mt-1"><span>الأصول 🏢:</span><span>{c.tA.toLocaleString()} +</span></div>}<div className="flex justify-between text-emerald-400"><span>ديون لك:</span><span>{c.pTm.toLocaleString()} +</span></div><div className="flex justify-between text-red-400"><span>ديون عليك:</span><span>{c.pOm.toLocaleString()} -</span></div></div></div>
+   <div className={cx.c}><div className="flex justify-between items-center mb-4"><h3 className="font-bold text-sm text-white">السجل</h3><input type="text" placeholder="بحث..." value={s} onChange={x=>sS(x.target.value)} className="w-1/2 bg-slate-900 border border-slate-700 text-white rounded-lg py-1.5 px-3 text-xs outline-none focus:border-emerald-500" /></div><div className="divide-y divide-slate-700/60 max-h-72 overflow-y-auto pr-1">{fTxs.map(t=>{const iB=t.wallet==='bank';const iI=['income','trust_bank_in'].includes(t.type);const iT=t.type==='transfer';return(<div key={t.id} className="py-3 flex justify-between items-center text-sm"><div className="min-w-0 flex-1 pl-3"><p className="text-white font-bold truncate flex gap-1.5">{iT?'🔄':(iB?'📱':'💵')} {t.category}</p><p className="text-xs text-slate-500 mt-0.5">{t.date}</p></div><div className="flex gap-2 shrink-0 items-center"><span className={`font-bold ml-2 ${iT?'text-blue-400':(iI?'text-emerald-400':'text-red-400')}`}>{!iT&&(iI?'+':'-')} {parseFloat(t.amount||0).toLocaleString()}</span>{!iT&&<button onClick={()=>oR({title:iI?'سند قبض / إيداع':'سند صرف',person:t.category,amount:t.amount,date:t.date,ref:`T-${t.id.toString().slice(-4)}`})} className={cx.ib+" text-blue-400"}><Ic.R/></button>}<button onClick={()=>oE(t)} className={cx.ib+" text-emerald-400"}><Ic.E/></button><button onClick={()=>oD(t.id)} className={cx.ib+" text-red-400"}><Ic.T/></button></div></div>);})}{fTxs.length===0&&<p className="text-center py-6 text-xs text-slate-500">لا حركات</p>}</div></div>
+  </div>
+ );
+}
+
+function Bus({pts,pjs,aPt,ePt,dPt,aPj,ePj,dPj,oDf,dDf,cI,oR}){
+ const [v,sV]=useState('projects');
+ return(
+  <div className="space-y-4 pop">
+   <div className="flex bg-slate-800 p-1.5 rounded-xl"><button onClick={()=>{vib();sV('projects');}} className={`flex-1 py-2 text-xs font-bold rounded-lg ${v==='projects'?'bg-emerald-500 text-white':'text-slate-400'}`}>المشاريع (الخاصة)</button><button onClick={()=>{vib();sV('ptnrs');}} className={`flex-1 py-2 text-xs font-bold rounded-lg ${v==='ptnrs'?'bg-emerald-500 text-white':'text-slate-400'}`}>الشراكات (الكبرى)</button></div>
+   {v==='projects'?(
+    <div className="space-y-4 pop"><div className="flex justify-between px-1"><h2 className="text-sm font-bold text-white">المشاريع التشغيلية</h2><button onClick={aPj} className="bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">➕ جديد</button></div>{pjs.map(p=>(<div key={p.id} className={cx.c+" space-y-3"}><div className="absolute top-4 left-4 flex gap-1.5"><button onClick={()=>ePj(p)} className={cx.ib+" text-emerald-400"}><Ic.E/></button><button onClick={()=>dPj(p.id)} className={cx.ib+" text-red-400"}><Ic.T/></button></div><h3 className="font-bold text-white text-base pr-16 truncate">{p.name}</h3><p className="text-xs text-slate-400 border-b border-slate-700/60 pb-3">رأس المال المشغل: {parseFloat(p.capital||0).toLocaleString()} ج</p><div className="bg-slate-900/50 p-3.5 rounded-xl space-y-2"><div className={cx.f}><div><p className="text-[11px] text-slate-400 mb-1">مال التطوير المحتجز ⚙️</p><p className="text-sm font-black text-yellow-500">{(p.devFund||0).toLocaleString()} ج</p></div><div className="flex gap-1.5"><button onClick={()=>oR({title:'رصيد تطوير محتجز',person:p.name,amount:p.devFund||0,date:new Date().toISOString().split('T')[0],ref:`DV-${p.id.toString().slice(-4)}`})} className={cx.ib+" text-blue-400"}><Ic.R/></button><button onClick={()=>{if(window.confirm('تصفير مال التطوير؟'))dDf(p.id);}} className={cx.ib+" text-red-400"}><Ic.T/></button></div></div><button onClick={()=>oDf(p)} className="w-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 px-3 py-2 rounded-lg text-xs font-bold">تخصيص رصيد إضافي</button></div><button onClick={()=>cI(p)} className="w-full bg-emerald-600/20 text-emerald-400 py-3 rounded-xl text-xs font-bold border border-emerald-500/30">تحصيل وتسجيل أرباح 💸</button></div>))}{pjs.length===0&&<p className="text-center py-6 text-xs text-slate-500 border border-dashed border-slate-700 rounded-2xl">لا مشاريع مسجلة</p>}</div>
+   ):(
+    <div className="space-y-4 pop"><div className="flex justify-between px-1"><h2 className="text-sm font-bold text-white">الشراكات</h2><button onClick={aPt} className="bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">➕ جديدة</button></div>{pts.map(p=>{const le=p.evaluations?.[p.evaluations.length-1];const fc=parseFloat(p.capital||0);const pr=le?(parseFloat(le.totalCash||0)-fc):0;const tp=p.allocationMode==='capital'?p.partners.reduce((s,x)=>s+parseFloat(x.amount||0),0)||1:fc;return(<div key={p.id} className={cx.c}><div className="absolute top-4 left-4 flex gap-1.5"><button onClick={()=>ePt(p)} className={cx.ib+" text-emerald-400"}><Ic.E/></button><button onClick={()=>dPt(p.id)} className={cx.ib+" text-red-400"}><Ic.T/></button></div><h3 className="font-bold text-white text-base mb-1 max-w-[70%] truncate">{p.name}</h3><p className="text-xs text-slate-400 mb-3">رأس المال: {fc.toLocaleString()} ج</p><div className="bg-slate-900/50 p-3 rounded-xl space-y-2"><p className="text-xs text-slate-400 font-bold border-b border-slate-700 pb-1.5">الأرباح (آخر جرد):</p>{le&&pr>0?p.partners.map((pt,i)=>{const cs=p.allocationMode==='capital'?(parseFloat(pt.amount||0)/tp)*100:parseFloat(pt.share||0);const sa=pr*(cs/100);return(<div key={i} className="flex justify-between items-center text-xs text-slate-300 py-1 bg-slate-800/60 px-2.5 rounded-lg mb-1"><span className="truncate max-w-[45%]">{pt.name} ({cs.toFixed(1)}%)</span><div className="flex gap-2 items-center"><span className="text-emerald-400 font-bold">+{sa.toLocaleString()}</span>{pt.name!=='أنت'&&<button onClick={()=>{vib();window.location.href=`whatsapp://send?text=${encodeURIComponent(`📊 أرباح\nالاسم: ${pt.name}\nالمشروع: ${p.name}\nالمبلغ: ${sa.toLocaleString()} ج`)}`;}} className="p-1 bg-emerald-600/30 text-emerald-400 rounded"><Ic.Sh/></button>}</div></div>);}):<p className="text-center text-xs text-slate-500 py-2">لا يوجد أرباح مجرودة</p>}</div></div>);})}</div>
+   )}
+  </div>
+ );
+}
+
+function Dbs({dbs,oD,oP,oE,oR}){
+ const rL=(t,m)=>dbs.filter(d=>d.type===t).map(d=>{const r=d.amount-(d.paid||0);const iP=r<=0;const bc=((d.paid||0)/d.amount)*100>=50?(m==='on_me'?'bg-red-500':'bg-emerald-500'):(m==='on_me'?'bg-emerald-500':'bg-red-500');return(<div key={d.id} className={`${cx.c} space-y-3 ${iP?'opacity-50':''}`}><div className="flex justify-between items-center text-sm"><div className="min-w-0 flex-1"><h4 className="font-bold text-white text-base truncate">{d.person}</h4><p className="text-xs text-slate-400 mt-1">الكلي: {d.amount.toLocaleString()}</p></div><div className="flex gap-1.5 items-center shrink-0">{!iP?<button onClick={()=>oP(d)} className="bg-slate-700 text-white px-3 py-1.5 rounded-lg font-bold text-xs">سداد</button>:<span className="text-emerald-400 text-xs font-bold bg-emerald-500/10 px-2 py-1 rounded-lg">مصفى</span>}<button onClick={()=>oR({title:m==='to_me'?'كشف (مستحق لي)':'كشف (التزام علي)',person:d.person,amount:d.amount,paid:d.paid||0,rem:r,date:d.date||new Date().toISOString().split('T')[0],ref:`D-${d.id.toString().slice(-4)}`,isDetailed:true})} className={cx.ib+" text-blue-400"}><Ic.R/></button><button onClick={()=>oE(d)} className={cx.ib+" text-emerald-400"}><Ic.E/></button><button onClick={()=>oD(d.id)} className={cx.ib+" text-red-400"}><Ic.T/></button></div></div>{!iP&&<div className="space-y-1.5"><div className="h-2 w-full bg-slate-900 rounded-full"><div style={{width:`${((d.paid||0)/d.amount)*100}%`}} className={`h-full rounded-full ${bc}`}></div></div><div className="flex justify-between text-[11px] text-slate-400"><span>مُسدد: {(d.paid||0).toLocaleString()}</span><span>متبقي: {r.toLocaleString()}</span></div></div>}</div>);});
+ return <div className="space-y-5 pop"><h3 className="text-sm font-bold text-emerald-400 px-1">ديون لك 📈</h3><div className="space-y-3">{rL('to_me','to_me')}</div><h3 className="text-sm font-bold text-red-400 border-t border-slate-700 pt-4 px-1">ديون عليك 📉</h3><div className="space-y-3">{rL('on_me','on_me')}</div></div>;
+}
+
+function Trs({trs,oD,oP,oE,oR}){
+ const rL=(t,c)=>trs.filter(x=>x.type===t).map(x=>{const r=x.amount-(x.paid||0);const iP=r<=0;const bc=t==='external'?'bg-blue-500':'bg-orange-500';return(<div key={x.id} className={`${cx.c} ${iP?'opacity-50':''}`}><div className="absolute top-3 left-3 flex gap-1.5"><button onClick={()=>oR({title:t==='external'?'أمانة (بالخارج)':'أمانة (لغيري)',person:x.person,amount:x.amount,paid:x.paid||0,rem:r,date:x.date||new Date().toISOString().split('T')[0],ref:`T-${x.id.toString().slice(-4)}`,isDetailed:true})} className={cx.ib+" text-blue-400"}><Ic.R/></button><button onClick={()=>oE(x)} className={cx.ib+" text-emerald-400"}><Ic.E/></button><button onClick={()=>oD(x.id)} className={cx.ib+" text-red-400"}><Ic.T/></button></div><h4 className="font-bold text-white text-base truncate max-w-[55%] mb-1">{x.person}</h4><div className="mt-3 text-xs"><div className="flex justify-between"><span className="text-slate-400">الأساسي:</span><span className={`font-bold text-${c}-400 text-sm`}>{x.amount.toLocaleString()} ج</span></div></div>{!iP?(<div className="mt-4 space-y-3"><div className="space-y-1.5"><div className="h-2 w-full bg-slate-900 rounded-full"><div style={{width:`${((x.paid||0)/x.amount)*100}%`}} className={`h-full rounded-full ${bc}`}></div></div><div className="flex justify-between text-[11px] text-slate-400"><span>حركة: {(x.paid||0).toLocaleString()}</span><span>متبقي: {r.toLocaleString()}</span></div></div><button onClick={()=>oP(x)} className="w-full bg-slate-700 text-white py-2 rounded-xl text-xs font-bold">تسجيل حركة 💸</button></div>):(<div className="w-full mt-4 bg-emerald-500/10 text-emerald-400 py-2 rounded-xl text-xs font-bold text-center">✅ مصفى</div>)}</div>);});
+ return <div className="space-y-5 pop"><h3 className="text-sm font-bold text-blue-400 px-1">أرصدة بالخارج 📤</h3><div className="space-y-3">{rL('external','blue')}</div><h3 className="text-sm font-bold text-orange-400 border-t border-slate-700 pt-4 px-1">أمانات للغير 📥</h3><div className="space-y-3">{rL('with_me','orange')}</div></div>;
+}
+
+function Prf({e,oRs,oP,cP,oB,oR,lb,oE}){
+ const [p,sP]=useState('');const [r,sR]=useState('');
+ return(
+  <div className="space-y-5 pop text-sm pb-6">
+   <div className="bg-slate-800 p-4 rounded-xl text-center shadow-sm"><p className="text-xs text-slate-400">الحساب الفعال</p><p className="text-white font-bold">{e}</p></div>
+   <div className="bg-slate-800 p-4 rounded-xl border border-blue-500/30 relative"><div className="absolute top-0 right-0 w-1.5 bg-blue-500 h-full"></div><h3 className="font-bold text-blue-400 mb-1.5 flex gap-2"><Ic.Ex/> التقارير</h3><button onClick={oE} className="w-full bg-slate-700 text-blue-400 py-3 rounded-xl font-bold flex justify-center gap-2"><Ic.D/> تصدير (Excel)</button></div>
+   <div className="bg-slate-800 p-4 rounded-xl border border-emerald-500/30 relative"><div className="absolute top-0 right-0 w-1.5 bg-emerald-500 h-full"></div><h3 className="font-bold text-emerald-400 mb-1.5 flex gap-2"><Ic.S/> السحابة</h3><div className="bg-slate-900/50 p-3 rounded-xl mb-4 mt-3"><p className="text-xs text-slate-300 flex justify-between"><span>آخر نسخة:</span><span className={!lb||(Date.now()-lb>259200000)?'text-red-400':'text-emerald-400'}>{lb?new Date(lb).toLocaleDateString('ar-EG'):'لا يوجد'}</span></p></div><button onClick={oB} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold mb-5 flex justify-center gap-2"><Ic.Cl/> نسخة لجوجل كيب</button><div className="border-t border-slate-700/60 pt-4"><textarea value={r} onChange={x=>sR(x.target.value)} placeholder="كود النسخة..." className={cx.i+" h-20 font-mono mb-3"} /><button onClick={()=>{if(r.trim()&&window.confirm('تأكيد؟')){oR(r);sR('');}}} className="w-full bg-slate-700 text-white py-3 rounded-xl font-bold flex justify-center gap-2"><Ic.D/> استعادة</button></div></div>
+   <div className={cx.c+" space-y-3 mt-5"}><p className="text-xs text-slate-400">الرمز الحالي: <span className="text-white bg-slate-900 px-2 py-1 rounded-lg">{cP}</span></p><div className="flex gap-2"><input type="text" value={p} onChange={x=>sP(x.target.value)} placeholder="رمز جديد..." className={cx.i} /><button onClick={()=>{if(p.trim()){oP(p.trim());sP('');}}} className="bg-emerald-500 text-white px-5 rounded-xl font-bold">حفظ</button></div></div>
+   <button onClick={oRs} className="w-full bg-red-500/10 text-red-400 py-3 rounded-xl font-bold mt-3 border border-red-500/20">تصفير السجلات كلياً</button>
+  </div>
+ );
+}
+
+function NavI({i,l,a,oC}){return(<button onClick={()=>{vib();oC();}} className={`flex flex-col items-center p-2 rounded-xl transition-all ${a?'text-emerald-400 bg-slate-700/50':'text-slate-500'}`}><div>{i}</div><span className="text-[10px] sm:text-[11px] font-bold mt-1 whitespace-nowrap">{l}</span></button>);}
+
+function QAdd({t:iT,eD,oC,oS,pts}){
+ const iE=!!eD;const [t,sT]=useState(iT);const [txT,sTxT]=useState(iE&&eD.type?eD.type:(t==='trust'?'external':'income'));const [w,sW]=useState(iE&&eD.wallet?eD.wallet:'bank');const [dr,sDr]=useState('bank_to_cash');const [aM,sAm]=useState(iE&&eD.allocationMode?eD.allocationMode:'capital');const [pL,sPl]=useState(iE&&eD.partners?eD.partners:[{name:'أنت',amount:'',share:''},{name:'شريك',amount:'',share:''}]);const [fD,sFd]=useState(iE?{...eD}:{date:new Date().toISOString().split('T')[0],category:iT==='transaction'?'مصروف الأسرة':''});
+ const sub=e=>{e.preventDefault();const dI=iE?fD.id:null;if(t==='transaction'){oS('transaction',{type:txT,amount:parseFloat(fD.amount),wallet:w,category:txT==='income'?(fD.category||'إيداع وارد'):fD.category,date:fD.date},dI);}else if(t==='transfer'){oS('transaction',{type:'transfer',direction:dr,amount:parseFloat(fD.amount),category:dr==='bank_to_cash'?'سحب كاش':'إيداع للبنك',date:fD.date},dI);}else if(t==='debt'){oS('debt',{type:txT,person:fD.person,amount:parseFloat(fD.amount),paid:parseFloat(fD.paid||0),date:fD.date},dI);}else if(t==='trust'){oS('trust',{type:txT,person:fD.person,amount:parseFloat(fD.amount),paid:parseFloat(fD.paid||0),date:fD.date},dI);}else if(t==='new_partnership'){let c=parseFloat(fD.capital||0);if(aM==='manual'){if(pL.reduce((s,p)=>s+parseFloat(p.share||0),0)!==100)return alert('النسب!=100');}else{c=pL.reduce((s,p)=>s+parseFloat(p.amount||0),0);if(c<=0)return alert('مبالغ خاطئة');}oS('new_partnership',{name:(fD.projectName||fD.name),capital:c,allocationMode:aM,wallet:w,partners:pL.map(x=>({name:x.name,amount:parseFloat(x.amount||0),share:parseFloat(x.share||0)}))},dI);}else if(t==='new_project'){oS('new_project',{name:(fD.projectName||fD.name),capital:parseFloat(fD.capital||0),date:fD.date,...(iE&&{devFund:parseFloat(fD.devFund||0)})},dI);}else if(t==='evaluation'){if(!fD.projectId)return alert('اختر مشروع');oS('evaluation',{projectId:Number(fD.projectId),totalCash:parseFloat(fD.totalCash),wallet:w,date:fD.date});}};
+ return(
+  <div className={cx.m}><div className={cx.mc}><div className={cx.f+" mb-4"}><h2 className="font-bold text-white">{iE?'تعديل':'إدخال جديد'}</h2><button onClick={oC} className="bg-slate-800 p-1.5 rounded-lg">❌</button></div>{!iE&&['transaction','transfer','debt','trust','evaluation'].includes(t)&&<div className="flex flex-wrap gap-1 bg-slate-800 p-1 mb-4"><button onClick={()=>sT('transaction')} className={`${t==='transaction'?'bg-emerald-500 text-white':'text-slate-400'} flex-1 py-1 rounded font-bold text-xs`}>تدفق</button><button onClick={()=>sT('transfer')} className={`${t==='transfer'?'bg-emerald-500 text-white':'text-slate-400'} flex-1 py-1 rounded font-bold text-xs`}>تحويل</button><button onClick={()=>sT('debt')} className={`${t==='debt'?'bg-emerald-500 text-white':'text-slate-400'} flex-1 py-1 rounded font-bold text-xs`}>دين</button><button onClick={()=>{sT('trust');sTxT('external');}} className={`${t==='trust'?'bg-blue-500 text-white':'text-slate-400'} flex-1 py-1 rounded font-bold text-xs`}>أمانة</button><button onClick={()=>sT('evaluation')} className={`${t==='evaluation'?'bg-emerald-500 text-white':'text-slate-400'} flex-1 py-1 rounded font-bold text-xs`}>جرد</button></div>}
+   <form onSubmit={sub} className="space-y-4">
+    {t==='transaction'&&(<><div className="flex gap-2"><button type="button" onClick={()=>sTxT('income')} className={`flex-1 py-2 rounded-xl border-2 text-xs font-bold ${txT==='income'?'border-emerald-500 text-emerald-400 bg-emerald-500/10':'border-slate-700 text-slate-400'}`}>وارد (+)</button><button type="button" onClick={()=>sTxT('expense')} className={`flex-1 py-2 rounded-xl border-2 text-xs font-bold ${txT==='expense'?'border-red-500 text-red-400 bg-red-500/10':'border-slate-700 text-slate-400'}`}>منصرف (-)</button></div><div className="flex gap-2"><button type="button" onClick={()=>sW('bank')} className={`flex-1 py-2 rounded-xl border-2 text-xs font-bold ${w==='bank'?'bg-blue-500 text-white border-blue-500':'bg-slate-800 text-slate-400 border-slate-600'}`}>البنك 📱</button><button type="button" onClick={()=>sW('cash')} className={`flex-1 py-2 rounded-xl border-2 text-xs font-bold ${w==='cash'?'bg-emerald-500 text-white border-emerald-500':'bg-slate-800 text-slate-400 border-slate-600'}`}>الكاش 💵</button></div><input type="number" required placeholder="المبلغ (ج.س)" value={fD.amount||''} onChange={x=>sFd({...fD,amount:x.target.value})} className={cx.i+" text-center font-bold text-lg"} />{txT==='expense'?<div className="space-y-1"><label className="text-xs text-slate-400">تصنيف:</label><select value={fD.category||'مصروف الأسرة'} onChange={x=>sFd({...fD,category:x.target.value})} className={cx.i}><option>مصروف الأسرة</option><option>مصروف مدرسي</option><option>تسوق</option><option>أخرى</option></select></div>:<div className="space-y-1"><label className="text-xs text-slate-400">البيان (اختياري):</label><input type="text" placeholder="مثال: أرباح مشروع..." value={fD.category||''} onChange={x=>sFd({...fD,category:x.target.value})} className={cx.i} /></div>}</>)}
+    {t==='transfer'&&(<><div className="flex gap-2"><button type="button" onClick={()=>sDr('bank_to_cash')} className={`flex-1 py-2 rounded-xl text-xs font-bold ${dr==='bank_to_cash'?'bg-blue-500 text-white':'bg-slate-800 text-slate-400'}`}>سحب لليد 💵</button><button type="button" onClick={()=>sDr('cash_to_bank')} className={`flex-1 py-2 rounded-xl text-xs font-bold ${dr==='cash_to_bank'?'bg-emerald-500 text-white':'bg-slate-800 text-slate-400'}`}>إيداع للبنك 📱</button></div><input type="number" required placeholder="المبلغ" value={fD.amount||''} onChange={x=>sFd({...fD,amount:x.target.value})} className={cx.i+" text-center text-lg font-bold"} /></>)}
+    {t==='trust'&&(<><div className="flex gap-2"><button type="button" onClick={()=>sTxT('external')} className={`flex-1 py-2 rounded-xl border-2 text-xs font-bold ${txT==='external'?'border-blue-500 text-blue-400 bg-blue-500/10':'border-slate-700 text-slate-400'}`}>بالخارج</button><button type="button" onClick={()=>sTxT('with_me')} className={`flex-1 py-2 rounded-xl border-2 text-xs font-bold ${txT==='with_me'?'border-orange-500 text-orange-400 bg-orange-500/10':'border-slate-700 text-slate-400'}`}>بطرفي</button></div><input type="text" required placeholder="الاسم" value={fD.person||''} onChange={x=>sFd({...fD,person:x.target.value})} className={cx.i} /><input type="number" required placeholder="المبلغ الكلي" value={fD.amount||''} onChange={x=>sFd({...fD,amount:x.target.value})} className={cx.i} />{iE&&<div className="bg-slate-800 p-2 rounded"><label className="text-xs text-slate-400">مُسدد (لتصحيح):</label><input type="number" value={fD.paid||''} onChange={x=>sFd({...fD,paid:x.target.value})} className={cx.i} /></div>}</>)}
+    {t==='debt'&&(<><div className="flex gap-2"><button type="button" onClick={()=>sTxT('to_me')} className={`flex-1 py-2 rounded-xl border-2 text-xs font-bold ${txT==='to_me'?'border-emerald-500 text-emerald-400 bg-emerald-500/10':'border-slate-700 text-slate-400'}`}>مستحق لي</button><button type="button" onClick={()=>sTxT('on_me')} className={`flex-1 py-2 rounded-xl border-2 text-xs font-bold ${txT==='on_me'?'border-red-500 text-red-400 bg-red-500/10':'border-slate-700 text-slate-400'}`}>التزام علي</button></div><input type="text" required placeholder="الاسم" value={fD.person||''} onChange={x=>sFd({...fD,person:x.target.value})} className={cx.i} /><input type="number" required placeholder="المبلغ الكلي" value={fD.amount||''} onChange={x=>sFd({...fD,amount:x.target.value})} className={cx.i} />{iE&&<div className="bg-slate-800 p-2 rounded"><label className="text-xs text-slate-400">مُسدد:</label><input type="number" value={fD.paid||''} onChange={x=>sFd({...fD,paid:x.target.value})} className={cx.i} /></div>}</>)}
+    {t==='new_project'&&(<><input type="text" required placeholder="اسم المشروع (التسالي)" value={fD.projectName||fD.name||''} onChange={x=>sFd({...fD,projectName:x.target.value})} className={cx.i} /><input type="number" required placeholder="رأس المال المشغل" value={fD.capital||''} onChange={x=>sFd({...fD,capital:x.target.value})} className={cx.i+" text-center font-bold"} />{iE&&<div className="bg-slate-800 p-2 rounded border border-slate-700"><label className="text-xs text-slate-400">مال التطوير المحتجز (لتصحيح الرقم):</label><input type="number" value={fD.devFund!==undefined?fD.devFund:''} onChange={x=>sFd({...fD,devFund:x.target.value})} className={cx.i+" mt-1 text-yellow-400 font-bold"} /></div>}</>)}
+    {t==='new_partnership'&&(<><input type="text" required placeholder="اسم الشراكة" value={fD.projectName||fD.name||''} onChange={x=>sFd({...fD,projectName:x.target.value})} className={cx.i} /><div className="flex gap-2 bg-slate-800 p-1 mb-2 rounded-lg"><button type="button" onClick={()=>sAm('capital')} className={`flex-1 py-1.5 rounded text-xs font-bold ${aM==='capital'?'bg-emerald-500 text-white':'text-slate-400'}`}>تلقائي (حسب المال)</button><button type="button" onClick={()=>sAm('manual')} className={`flex-1 py-1.5 rounded text-xs font-bold ${aM==='manual'?'bg-emerald-500 text-white':'text-slate-400'}`}>يدوي (نسب مئوية)</button></div>{aM==='capital'&&<div className="flex gap-2 bg-slate-800 p-1"><button type="button" onClick={()=>sW('bank')} className={`flex-1 py-1 rounded text-xs ${w==='bank'?'bg-blue-500 text-white':'text-slate-400'}`}>بنك</button><button type="button" onClick={()=>sW('cash')} className={`flex-1 py-1 rounded text-xs ${w==='cash'?'bg-emerald-500 text-white':'text-slate-400'}`}>كاش</button></div>}{aM==='manual'&&<input type="number" required placeholder="المال الكلي" value={fD.capital||''} onChange={x=>sFd({...fD,capital:x.target.value})} className={cx.i} />}<div className="pt-2"><p className="text-xs text-emerald-400 mb-2">الشركاء:</p>{pL.map((p,i)=><div key={i} className="flex gap-1 mb-2"><input type="text" required value={p.name} onChange={x=>{let l=[...pL];l[i].name=x.target.value;sPl(l);}} className={cx.i+" w-2/5"} placeholder="الاسم" />{aM==='capital'?<input type="number" required value={p.amount} onChange={x=>{let l=[...pL];l[i].amount=x.target.value;sPl(l);}} className={cx.i+" w-3/5 text-center"} placeholder="أودع كم؟" />:<input type="number" required value={p.share} onChange={x=>{let l=[...pL];l[i].share=x.target.value;sPl(l);}} className={cx.i+" w-3/5 text-center"} placeholder="النسبة %" />}{i>1&&<button type="button" onClick={()=>sPl(pL.filter((_,id)=>id!==i))} className="text-red-400 px-1">❌</button>}</div>)}<button type="button" onClick={()=>sPl([...pL,{name:'',amount:'',share:''}])} className="w-full text-emerald-400 py-2 text-xs bg-slate-800 rounded">➕ شريك</button></div></>)}
+    {t==='evaluation'&&(<><div className="flex gap-2"><button type="button" onClick={()=>sW('bank')} className={`flex-1 py-2 rounded border-2 text-xs ${w==='bank'?'bg-blue-500 text-white border-blue-500':'text-slate-400 border-slate-700'}`}>أرباح للبنك</button><button type="button" onClick={()=>sW('cash')} className={`flex-1 py-2 rounded border-2 text-xs ${w==='cash'?'bg-emerald-500 text-white border-emerald-500':'text-slate-400 border-slate-700'}`}>أرباح كاش</button></div><select required value={fD.projectId||''} onChange={x=>sFd({...fD,projectId:x.target.value})} className={cx.i}><option value="">اختر مشروع...</option>{pts.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select><input type="number" required placeholder="إجمالي المال الفعلي الحالي" value={fD.totalCash||''} onChange={x=>sFd({...fD,totalCash:x.target.value})} className={cx.i} /></>)}
+    <input type="date" required value={fD.date} onChange={x=>sFd({...fD,date:x.target.value})} className={cx.i+" text-center"} /><button type="submit" className={cx.b}>حفظ</button>
+   </form></div></div>
+ );
+}
+
+function DMod({p,oC,oS}){
+ const [a,sA]=useState('');const sub=e=>{e.preventDefault();if(a>0)oS(p.id,a);};
+ return(<div className={cx.m}><div className={cx.mc+" mb-10"}><h2 className="font-bold text-white mb-2">تخصيص مال تطوير</h2><p className="text-xs text-slate-400 mb-4">احتجاز مبلغ لتطوير ({p.name})</p><form onSubmit={sub}><input type="number" value={a} onChange={x=>sA(x.target.value)} required className={cx.i+" text-center text-2xl font-black mb-4 focus:border-yellow-500"} placeholder="أدخل القيمة" autoFocus /><button type="submit" className="w-full bg-yellow-500 text-slate-900 font-bold py-3.5 rounded-xl text-sm">تأكيد الاحتجاز ⚙️</button></form><button onClick={oC} className="w-full mt-3 text-slate-400 text-sm">إلغاء</button></div></div>)
+}
+
+function PMod({i,oC,oS,ti,s}){
+ const [a,sA]=useState('');const [w,sW]=useState('bank');const r=i.amount-(i.paid||0);
+ const sub=e=>{e.preventDefault();const v=parseFloat(a);if(v>0&&v<=r)oS(i.id,v,w);else alert('خطأ');};
+ return(<div className={cx.m}><div className={cx.mc+" mb-10"}><h2 className="font-bold text-white mb-2">{ti}</h2><p className="text-xs text-slate-400 mb-4">{s} {r.toLocaleString()}</p><div className="flex gap-2 mb-4"><button type="button" onClick={()=>sW('bank')} className={`flex-1 py-2 rounded-xl text-xs font-bold ${w==='bank'?'bg-blue-500 text-white':'bg-slate-800 text-slate-400'}`}>بنك 📱</button><button type="button" onClick={()=>sW('cash')} className={`flex-1 py-2 rounded-xl text-xs font-bold ${w==='cash'?'bg-emerald-500 text-white':'bg-slate-800 text-slate-400'}`}>كاش 💵</button></div><form onSubmit={sub}><input type="number" value={a} onChange={x=>sA(x.target.value)} required max={r} className={cx.i+" text-center text-xl font-black mb-4"} placeholder="القيمة" autoFocus /><button type="submit" className={cx.b}>تأكيد</button></form><button onClick={oC} className="w-full mt-3 text-slate-400 text-sm">إلغاء</button></div></div>);
+}
+
+function RMod({d,oC,sT}){
+ if(!d)return null;const a=d.amount?parseFloat(d.amount):0;const rf=d.ref||'-';const dt=d.date||'-';const ti=d.title||'سند';const pr=d.person||'عام';
+ const t=d.isDetailed?`🧾 *${ti}*\n▪️ الجهة: ${pr}\n▪️ التاريخ: ${dt}\n💰 الإجمالي: ${a.toLocaleString()} ج\n✅ مُسدد: ${(d.paid||0).toLocaleString()} ج\n⚠️ متبقي: ${(d.rem||0).toLocaleString()} ج`:`🧾 *${ti}*\n▪️ رقم: ${rf}\n▪️ التاريخ: ${dt}\n▪️ البيان: ${pr}\n💰 المبلغ: ${a.toLocaleString()} ج`;
+ const cp=()=>{vib();navigator.clipboard.writeText(t);sT('تم النسخ');};
+ return(<div className={cx.m+" z-[70]"}><div className="bg-white text-slate-900 w-full max-w-sm rounded-2xl p-5 shadow-2xl font-mono"><h2 className="font-bold text-center border-b border-dashed border-slate-300 pb-3 mb-4">{ti}</h2>{d.isDetailed?(<><div className="space-y-2 text-xs mb-4 font-medium"><div className={cx.f}><span>المرجع:</span><span>{rf}</span></div><div className={cx.f}><span>التاريخ:</span><span>{dt}</span></div><div className={cx.f}><span>الجهة:</span><span className="truncate max-w-[60%]">{pr}</span></div></div><div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2 text-sm font-bold"><div className={cx.f+" text-slate-600"}><span>الإجمالي:</span><span>{a.toLocaleString()}</span></div><div className={cx.f+" text-emerald-600"}><span>مُسدد:</span><span>{(d.paid||0).toLocaleString()}</span></div><div className={cx.f+" text-red-600 border-t border-slate-200 pt-2 mt-2"}><span>متبقي:</span><span className="text-lg">{(d.rem||0).toLocaleString()}</span></div></div></>):(<><div className="space-y-2 text-xs mb-5 font-medium"><div className={cx.f}><span>رقم السند:</span><span>{rf}</span></div><div className={cx.f}><span>التاريخ:</span><span>{dt}</span></div><div className={cx.f}><span>الجهة:</span><span className="truncate max-w-[60%]">{pr}</span></div></div><div className="border-t border-dashed border-slate-300 pt-3 text-center"><h3 className="text-xl font-black">{a.toLocaleString()} ج</h3></div></>)}<div className="mt-5 space-y-2"><button type="button" onClick={()=>{vib();window.location.href=`whatsapp://send?text=${encodeURIComponent(t)}`;}} className="w-full bg-emerald-600 text-white py-2.5 rounded-xl font-bold text-xs shadow">📱 إرسال للواتساب</button><button type="button" onClick={cp} className="w-full bg-slate-100 text-slate-800 py-2.5 rounded-xl font-bold text-xs">📋 نسخ كنص</button><button type="button" onClick={oC} className="w-full bg-slate-900 text-white py-2.5 rounded-xl font-bold text-xs">إغلاق ❌</button></div></div></div>);
+}
+const root=ReactDOM.createRoot(document.getElementById('root'));root.render(<App/>);
+</script></body></html>
