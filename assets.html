@@ -1,472 +1,302 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>منصة الأصول - الهندسة المالية</title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { font-family: system-ui, -apple-system, sans-serif; background-color: #020617; color: #f8fafc; -webkit-tap-highlight-color: transparent; }
-    input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-    .hide-scrollbar::-webkit-scrollbar { display: none; }
-    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    @keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-    .animate-pop { animation: popIn 0.2s ease-out forwards; }
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>منصة الأصول - الهندسة المالية</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>body{font-family:system-ui,sans-serif;background:#020617;color:#f8fafc;-webkit-tap-highlight-color:transparent}input[type=number]::-webkit-inner-spin-button{display:none}.pop{animation:p .2s ease-out forwards}@keyframes p{0%{transform:scale(.95);opacity:0}100%{transform:scale(1);opacity:1}}</style>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="text/babel">
-    const { useState, useEffect, useMemo } = React;
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useMemo}=React;
+const I={
+ B:()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-6h6v6M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg>,
+ G:()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 3"/></svg>,
+ C:()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
+ A:()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 6h6M9 10h6M9 14h6M9 18h6"/></svg>,
+ W:()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4M4 6v12c0 1.1.9 2 2 2h14v-4M18 12a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h4v-6Z"/></svg>,
+ S:()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 5.4 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1-2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+ T:()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></svg>,
+ E:()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+ R:()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/></svg>
+};
+const vib=()=>{if(navigator.vibrate)navigator.vibrate(30)};
 
-    const Icons = {
-      Building: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4M8 6h2M14 6h2M8 10h2M14 10h2M8 14h2M14 14h2"/></svg>,
-      Gold: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2.5"/></svg>,
-      Chart: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 3v18h18M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>,
-      Calculator: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect width="14" height="18" x="5" y="3" rx="2"/><path d="M9 7h6M9 11h2M13 11h2M9 15h2M13 15h2"/></svg>,
-      Wallet: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>,
-      Settings: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 5.4 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1-2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
-      Trash: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>,
-      Edit: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>,
-      Receipt: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/></svg>,
-      Check: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>,
-      Cloud: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>,
-      Download: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>,
-      FileExcel: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2M8 17h2M14 13h2M14 17h2"/></svg>
-    };
+function AuthScreen({view,setView,savedEmail,savedPwd,savedSecAnswer,onRegister,onLogin,onResetPwd}){
+ const [em,setEm]=useState('');const [pw,setPw]=useState('');const [sec,setSec]=useState('');
+ useEffect(()=>{if(savedEmail)setEm(savedEmail);},[savedEmail]);
+ const sub=e=>{
+  e.preventDefault();vib();
+  if(view==='register'){
+   if(!em||pw.length<4||!sec)return alert('أكمل الحقول (الرمز 4 أرقام على الأقل)');
+   onRegister(em.toLowerCase(),pw,sec.trim());
+  }else if(view==='login'){
+   if(em.toLowerCase()===savedEmail.toLowerCase()&&pw===savedPwd)onLogin();else alert('البيانات غير صحيحة!');
+  }else if(view==='forgot'){
+   if(em.toLowerCase()===savedEmail.toLowerCase()&&sec.trim()===savedSecAnswer.trim()){
+    const np=prompt('الرمز الجديد:');if(np&&np.length>=4)onResetPwd(np);else alert('مرفوض');
+   }else alert('إجابة خاطئة!');
+  }
+ };
+ return(
+  <div className="min-h-[80vh] flex items-center justify-center p-4">
+   <div className="bg-slate-900 p-8 rounded-3xl w-full max-w-sm border border-slate-800 text-center space-y-4 shadow-xl">
+    <h1 className="text-xl font-bold text-yellow-500">🔐 منصة الأصول والمقتنيات</h1>
+    <form onSubmit={sub} className="space-y-3">
+     <input type="email" required placeholder="البريد الإلكتروني" value={em} onChange={e=>setEm(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-white p-3.5 rounded-xl text-left text-sm outline-none" />
+     {view!=='forgot'&&<input type="password" required placeholder="رمز الدخول" value={pw} onChange={e=>setPw(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-white p-3.5 rounded-xl text-left text-sm outline-none" />}
+     {(view==='register'||view==='forgot')&&<input type="text" required placeholder="سؤال الأمان: مدينتك المفضلة؟" value={sec} onChange={e=>setSec(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-yellow-500 p-3.5 rounded-xl text-sm outline-none" />}
+     <button type="submit" className="w-full bg-yellow-500 text-slate-950 font-bold py-3.5 rounded-xl text-sm">{view==='login'?'دخول المنصة':view==='register'?'إنشاء حساب':'استعادة الصلاحية'}</button>
+    </form>
+    <div className="mt-6 flex flex-col gap-3 text-center text-sm">
+     {view==='login'?(<><button onClick={()=>setView('forgot')} className="text-slate-400">نسيت الرمز؟</button><button onClick={()=>setView('register')} className="text-yellow-500 font-bold">ملف جديد ➕</button></>):(<button onClick={()=>setView('login')} className="text-slate-400">تسجيل دخول 🔑</button>)}
+    </div>
+   </div>
+  </div>
+ );
+}
 
-    const triggerHaptic = () => { if(navigator.vibrate) navigator.vibrate(30); };
+function Feas() {
+ const [n,setN]=useState('');const [d,setD]=useState(()=>new Date().toISOString().split('T')[0]);
+ const [c,setC]=useState('');const [rv,setRv]=useState('');const [rf,setRf]=useState('monthly');
+ const [ex,setEx]=useState('');const [ef,setEf]=useState('monthly');const [rm,setRm]=useState('15');
+ const [cr,setCr]=useState('');const [dm,setDm]=useState('5');const [cm,setCm]=useState('');
+ const [res,setRes]=useState(null);
 
-    // --- شاشة تسجيل الدخول الموحدة ---
-    function AuthScreen({ view, setView, savedEmail, savedPwd, savedSecAnswer, onRegister, onLogin, onResetPwd }) {
-      const [email, setEmail] = useState(''); const [pwd, setPwd] = useState(''); const [sec, setSec] = useState('');
-      useEffect(() => { if(savedEmail) setEmail(savedEmail); }, [savedEmail]);
+ const calc=()=>{
+  vib();const cap=parseFloat(c)||0;const r=parseFloat(rv)||0;const e=parseFloat(ex)||0;
+  const rate=((rm==='custom'?parseFloat(cr):parseFloat(rm))||0)/100;
+  const yrs=dm==='custom'?(parseFloat(cm||0)/12):parseInt(dm);
+  if(cap<=0||r<=0||yrs<=0)return alert('الرجاء إدخال بيانات صحيحة لكافة بنود المشروع والمدة زمانياً.');
+  const m={'daily':360,'weekly':52,'monthly':12,'yearly':1};const aF=(r*m[rf])-(e*m[ef]);
+  if(aF<=0)return setRes({err:'تنبيه مالي: تكاليف التشغيل تفوق الأرباح المتوقعة! المشروع خاسر.'});
+  const tP=aF*yrs;let npv=0;
+  if(yrs>=1){for(let t=1;t<=Math.floor(yrs);t++)npv+=aF/Math.pow(1+rate,t);const rem=yrs-Math.floor(yrs);if(rem>0)npv+=(aF*rem)/Math.pow(1+rate,Math.ceil(yrs));}
+  else{npv=tP/Math.pow(1+rate,yrs);}
+  npv-=cap;const tD=Math.round((cap/aF)*30);
+  setRes({id:`FEAS-${Date.now().toString().slice(-5)}`,tP,npv,roi:(tP/cap)*100,mo:Math.floor(tD/30),dy:tD%30,ok:npv>0,yrs});
+ };
 
-      const submit = e => {
-        e.preventDefault(); triggerHaptic();
-        if(view === 'register') { 
-          if(!email || pwd.length < 4 || !sec) return alert('الرجاء إكمال البيانات (الرمز 4 أحرف كحد أدنى)'); 
-          onRegister(email.toLowerCase(), pwd, sec.trim()); 
-        } else if (view === 'login') { 
-          if(email.toLowerCase() === savedEmail.toLowerCase() && pwd === savedPwd) onLogin(); 
-          else alert('البيانات غير صحيحة!'); 
-        } else if (view === 'forgot') {
-          if (email.toLowerCase() === savedEmail.toLowerCase() && sec.trim() === savedSecAnswer.trim()) {
-            const newPassword = prompt('اكتب الرمز الجديد الآن:');
-            if (newPassword && newPassword.length >= 4) onResetPwd(newPassword); else alert('مرفوض: أقل من 4 رموز');
-          } else alert('الإجابة غير صحيحة!');
-        }
-      };
+ const share=()=>{
+  const txt=`📊 *تقرير دراسة جدوى موثق*\n🔢 الرقم التسلسلي: ${res.id}\n💼 اسم المشروع: ${n||'عام'}\n📅 تاريخ الدراسة: ${d}\n💰 رأس المال: ${parseFloat(c).toLocaleString()} ج.س\n📈 الأرباح الصافية (${dm==='custom'?cm+' شهر':'سنوية'}): ${Math.round(res.tP).toLocaleString()} ج.س\n⚖️ أرباح (NPV): ${Math.round(res.npv).toLocaleString()} ج.س\n⚡ العائد (ROI): ${res.roi.toFixed(1)}%\n⏱️ الاسترداد: ${res.mo} شهر و ${res.dy} يوم\n-----------------------\n🔮 القرار: ${res.ok?'✅ مشروع ناجح':'❌ التضخم يبتلع الأرباح'}`;
+  navigator.clipboard.writeText(txt);alert('تم نسخ التقرير المالي!');
+ };
 
-      return (
-        <div className="min-h-[80vh] flex items-center justify-center p-4">
-          <div className="bg-slate-900 p-8 rounded-3xl w-full max-w-sm border border-slate-800 animate-pop shadow-2xl">
-            <h1 className="text-xl font-bold text-yellow-500 mb-2 text-center">🔐 منصة الأصول والمقتنيات</h1>
-            <p className="text-xs text-slate-400 text-center mb-6">مربوطة بنظام المحاسب الذكي المركزي</p>
-            <form onSubmit={submit} className="space-y-4">
-              <input type="email" required placeholder="البريد الإلكتروني" value={email} onChange={e=>setEmail(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-white p-3.5 rounded-xl text-left text-sm focus:outline-none focus:border-yellow-500 transition" />
-              {view !== 'forgot' && <input type="password" required placeholder="كلمة المرور" value={pwd} onChange={e=>setPwd(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-white p-3.5 rounded-xl text-left text-sm focus:outline-none focus:border-yellow-500 transition" />}
-              {(view === 'register' || view === 'forgot') && <input type="text" required placeholder="سؤال الأمان: مدينتك المفضلة؟" value={sec} onChange={e=>setSec(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-yellow-500 p-3.5 rounded-xl text-sm focus:outline-none focus:border-yellow-500 transition" />}
-              <button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600 text-slate-950 font-bold py-3.5 rounded-xl text-sm shadow-md transition">{view === 'login' ? 'دخول المنصة' : view === 'register' ? 'إنشاء الحساب' : 'استعادة الرمز'}</button>
-            </form>
-            <div className="mt-6 flex flex-col gap-3 text-center text-sm">
-              {view === 'login' ? (
-                <><button type="button" onClick={() => setView('forgot')} className="text-slate-400 hover:text-white transition">نسيت كلمة المرور؟ 🔍</button><button type="button" onClick={() => setView('register')} className="text-yellow-500 font-bold transition">إنشاء ملف جديد ➕</button></>
-              ) : (
-                <button type="button" onClick={() => setView('login')} className="text-slate-400 hover:text-white transition">العودة لتسجيل الدخول 🔑</button>
-              )}
-            </div>
-          </div>
+ return (
+  <div className="bg-slate-900 p-5 rounded-3xl border border-slate-800 space-y-4 pop">
+   <h3 className="text-sm font-black text-white border-b border-slate-800 pb-2 flex gap-2"><I.A/> استوديو تحليل دراسات الجدوى</h3>
+   <div className="space-y-3 text-xs">
+    <input type="text" placeholder="اسم المشروع التجاري المقترح..." value={n} onChange={e=>setN(e.target.value)} className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 outline-none" />
+    <input type="date" value={d} onChange={e=>setD(e.target.value)} className="w-full bg-slate-950 text-white p-3.5 rounded-xl text-center font-bold border border-slate-800 outline-none" />
+    <input type="number" placeholder="رأس المال المطلوب للتشغيل (ج.س)" value={c} onChange={e=>setC(e.target.value)} className="w-full bg-slate-950 text-white p-3.5 rounded-xl text-center font-bold border border-slate-800 outline-none" />
+    <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
+     <div className="flex gap-2"><input type="number" placeholder="إيراد ومداخيل المشروع" value={rv} onChange={e=>setRv(e.target.value)} className="flex-1 bg-slate-900 p-3 rounded-xl text-center font-bold text-emerald-400 outline-none" /><select value={rf} onChange={e=>setRf(e.target.value)} className="bg-slate-900 text-white p-2 rounded-xl font-bold outline-none"><option value="daily">يومياً</option><option value="weekly">أسبوعياً</option><option value="monthly">شهرياً</option><option value="yearly">سنوياً</option></select></div>
+     <div className="flex gap-2"><input type="number" placeholder="مصروف وتكلفة الدورة" value={ex} onChange={e=>setEx(e.target.value)} className="flex-1 bg-slate-900 p-3 rounded-xl text-center font-bold text-red-400 outline-none" /><select value={ef} onChange={e=>setEf(e.target.value)} className="bg-slate-900 text-white p-2 rounded-xl font-bold outline-none"><option value="daily">يومياً</option><option value="weekly">أسبوعياً</option><option value="monthly">شهرياً</option><option value="yearly">سنوياً</option></select></div>
+    </div>
+    <select value={rm} onChange={e=>setRm(e.target.value)} className="w-full bg-slate-950 p-3.5 rounded-xl font-bold text-white outline-none"><option value="15">تضخم 15% (معيار محاسبي متزن)</option><option value="20">تضخم 20% (مخاطرة ومرتفع بالسوق)</option><option value="custom">أخرى (أدخل معدل مخصص)...</option></select>
+    {rm==='custom'&&<input type="number" placeholder="اكتب نسبة التضخم المخصصة %" value={cr} onChange={e=>setCr(e.target.value)} className="w-full bg-slate-950 p-3 rounded-xl text-center font-bold text-yellow-400 border border-slate-800" />}
+    <select value={dm} onChange={e=>setDm(e.target.value)} className="w-full bg-slate-950 p-3.5 rounded-xl text-center font-bold text-white outline-none"><option value="1">سنة واحدة فقط</option><option value="2">سنتان</option><option value="3">3 سنوات</option><option value="5">5 سنوات (معياري)</option><option value="10">10 سنوات</option><option value="custom">أخرى (تحديد مدة بالشهور)...</option></select>
+    {dm==='custom'&&<input type="number" placeholder="أدخل عدد الشهور المطلوبة (مثال: 6)" value={cm} onChange={e=>setCm(e.target.value)} className="w-full bg-slate-950 p-3 rounded-xl text-center font-bold text-yellow-400 border border-slate-800" />}
+   </div>
+   <button type="button" onClick={calc} className="w-full bg-yellow-500 text-slate-950 font-black py-4 rounded-xl text-sm">تطبيق الخوارزمية واستخراج التقرير ⚙️</button>
+   {res&&!res.err&&(
+    <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3 text-xs pop">
+     <div className="flex justify-between text-slate-400"><span>الرقم المرجعي للدراسة:</span><span className="font-bold text-white font-mono">{res.id}</span></div>
+     <div className="flex justify-between border-t border-slate-800 pt-2"><span>الربح الصافي ({dm==='custom'?cm+' شهر':'سنوي'}):</span><span className="text-emerald-400 font-bold text-sm">{Math.round(res.tP).toLocaleString()} ج</span></div>
+     <div className="flex justify-between"><span>الأرباح الحقيقية الصافية (NPV):</span><span className={res.ok?'text-emerald-400 font-bold':'text-red-400 font-bold'}>{Math.round(res.npv).toLocaleString()} ج</span></div>
+     <div className="flex justify-between"><span>نسبة أرباح المشروع الكلية (ROI):</span><span className="text-yellow-500 font-bold">{res.roi.toFixed(1)}%</span></div>
+     <div className="flex justify-between border-b border-slate-800 pb-2"><span>زمن استرداد رأس المال:</span><span className="text-white font-bold text-sm">{res.mo} شهراً و {res.dy} يوماً</span></div>
+     <p className={`p-2.5 rounded-xl text-center font-bold ${res.ok?'bg-emerald-500/10 text-emerald-400':'bg-red-500/10 text-red-400'}`}>{res.ok?'✅ ينصح ببدء المشروع فوراً، الأرباح ممتازة':'❌ تحذير: غير مجدٍ، التضخم يبتلع الأرباح'}</p>
+     <button type="button" onClick={share} className="w-full bg-slate-900 text-blue-400 py-3 rounded-xl font-bold">📋 مشاركة تفاصيل دراسة الجدوى</button>
+    </div>
+   )}
+   {res&&res.err&&<div className="bg-red-500/10 p-3 rounded-xl text-red-400 text-center font-bold text-xs">{res.err}</div>}
+  </div>
+ );
+}
+
+function Mod({g24,ed,cls,sav}) {
+ const isE=!!ed;const gt=isE?(ed.type||(ed.grams!==undefined?'gold':'real_estate')):'real_estate';
+ const [ty,setTy]=useState(gt);const [pm,setPm]=useState(isE&&ed.purityLabel?'other':(isE&&ed.purity==0.875?'21':(isE&&ed.purity==0.75?'18':'24')));
+ const [f,setF]=useState(isE?{...ed}:{name:'',area:'',currentValue:'',isRented:'no',monthlyRent:'',annualGrowth:'',grams:'',habba:'',purity:'1',periodicIncome:'',incomeFreq:'daily',customName:'',customFactor:''});
+ const am=(parseFloat(f.area)>0&&parseFloat(f.currentValue)>0)?(parseFloat(f.currentValue)/parseFloat(f.area)):0;
+ const snd=()=>{
+  const id=isE?ed.id:Date.now();const dt=isE?ed.date:new Date().toISOString().split('T')[0];
+  if(ty==='real_estate'){sav({id,type:'real_estate',name:f.name,area:parseFloat(f.area)||0,pricePerMeter:am,currentValue:parseFloat(f.currentValue)||0,isRented:f.isRented==='yes',monthlyRent:parseFloat(f.monthlyRent)||0,annualGrowth:parseFloat(f.annualGrowth)||0,date:dt},isE);}
+  else if(ty==='gold'){const tg=(parseFloat(f.grams)||0)+(parseFloat(f.habba)||0)*0.058;const fp=pm==='other'?parseFloat(f.customFactor):(pm==='21'?0.875:(pm==='18'?0.75:1));const fl=pm==='other'?f.customName:`ذهب عيار ${pm}`;sav({id,type:'gold',name:f.name||fl,grams:parseFloat(f.grams)||0,habba:parseFloat(f.habba)||0,totalGrams:tg,purity:fp,purityLabel:fl,currentValue:tg*g24*fp,date:dt},isE);}
+  else{sav({id,type:'vehicle_livestock',name:f.name,currentValue:parseFloat(f.currentValue)||0,isRented:f.isRented==='yes',periodicIncome:parseFloat(f.periodicIncome)||0,incomeFreq:f.incomeFreq||'daily',date:dt},isE);}
+ };
+ return (
+  <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+   <div className="bg-slate-900 w-full max-w-sm rounded-3xl p-5 border border-slate-800 space-y-4 max-h-[85vh] overflow-y-auto pop">
+    <div className="flex justify-between items-center"><h2 className="font-bold text-white text-base">{isE?'تعديل بيانات الحفظ ✏️':'قيد ملكية أصل جديد 🏢'}</h2><button onClick={cls} className="text-slate-400">❌</button></div>
+    {!isE&&<div className="flex bg-slate-950 p-1 rounded-xl text-xs font-bold border border-slate-800"><button onClick={()=>setTy('real_estate')} className={`flex-1 py-2 rounded-lg ${ty==='real_estate'?'bg-yellow-500 text-slate-950':''}`}>عقار</button><button onClick={()=>setTy('gold')} className={`flex-1 py-2 rounded-lg ${ty==='gold'?'bg-yellow-500 text-slate-950':''}`}>ذهب/نفائس</button><button onClick={()=>setTy('vehicle_livestock')} className={`flex-1 py-2 rounded-lg ${ty==='vehicle_livestock'?'bg-yellow-500 text-slate-950':''}`}>مركبات/مواشي</button></div>}
+    <div className="space-y-3 text-xs">
+     <input type="text" placeholder="اسم أو بيان الأصل العقاري/التجاري" value={f.name||''} onChange={e=>setF({...f,name:e.target.value})} className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 outline-none" />
+     {ty==='real_estate'&&(
+      <div className="space-y-3">
+       <input type="number" placeholder="المساحة الإجمالية (م²)" value={f.area||''} onChange={e=>setF({...f,area:e.target.value})} className="w-full bg-slate-950 p-3.5 rounded-xl text-center font-bold outline-none text-white" />
+       <input type="number" placeholder="القيمة المالية التقديرية الحالية" value={f.currentValue||''} onChange={e=>setF({...f,currentValue:e.target.value})} className="w-full bg-slate-950 p-3.5 rounded-xl text-center font-bold outline-none text-white" />
+       {am>0&&<div className="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between"><span>سعر المتر المستنتج آليًّا:</span><span className="text-emerald-400 font-bold">{Math.round(am).toLocaleString()} ج.س</span></div>}
+       <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between"><span>هل العقار مؤجّر حاليًا؟</span><select value={f.isRented||'no'} onChange={e=>setF({...f,isRented:e.target.value})} className="bg-slate-900 text-white p-1 rounded font-bold outline-none"><option value="no">لا، أصل ثابت</option><option value="yes">نعم، استثماري مدر للربح</option></select></div>
+       {f.isRented==='yes'&&(
+        <div className="space-y-3 pt-3 border-t border-slate-800 pop"><input type="number" placeholder="قيمة الإيجار الشهري الحالي" value={f.monthlyRent||''} onChange={e=>setF({...f,monthlyRent:e.target.value})} className="w-full bg-slate-950 p-3.5 rounded-xl text-center font-bold outline-none text-white" /><input type="number" placeholder="الزيادة السنوية المقررة للعقد %" value={f.annualGrowth||''} onChange={e=>setF({...f,annualGrowth:e.target.value})} className="w-full bg-slate-950 p-3.5 rounded-xl text-center font-bold outline-none text-white" /></div>
+       )}
+      </div>
+     )}
+     {ty==='gold'&&(
+      <div className="space-y-3">
+       <input type="number" placeholder="الوزن الصافي بالجرامات الصحيحة" value={f.grams||''} onChange={e=>setF({...f,grams:e.target.value})} className="w-full bg-slate-950 p-3.5 rounded-xl text-center font-bold outline-none text-white" />
+       <input type="number" placeholder="عدد الحبات والكسور (إن وُجد)" value={f.habba||''} onChange={e=>setF({...f,habba:e.target.value})} className="w-full bg-slate-950 p-3.5 rounded-xl text-center font-bold outline-none text-white" />
+       <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2"><label className="font-bold block text-white">العيار الصياغي أو المعدن المخصص:</label><select value={pm} onChange={e=>setPm(e.target.value)} className="w-full bg-slate-900 text-yellow-400 p-2.5 rounded-xl font-bold outline-none"><option value="24">ذهب - عيار 24 ({Math.round(g24).toLocaleString()} ج)</option><option value="21">ذهب - عيار 21 ({Math.round(g24*0.875).toLocaleString()} ج)</option><option value="18">ذهب - عيار 18 ({Math.round(g24*0.75).toLocaleString()} ج)</option><option value="other">نفائس أخرى مخصصة...</option></select>
+       {pm==='other'&&(
+        <div className="space-y-2 pt-2 border-t border-slate-800 pop"><input type="text" placeholder="اسم النفيس (مثال: فضة عيار 925)..." value={f.customName||''} onChange={e=>setF({...f,customName:e.target.value})} className="w-full bg-slate-950 p-2.5 rounded-lg text-white outline-none" /><input type="number" placeholder="معامل السعر لعيار 24 (الفضة 0.02)..." value={f.customFactor||''} onChange={e=>setF({...f,customFactor:e.target.value})} className="w-full bg-slate-950 p-2.5 rounded-lg text-center font-bold text-yellow-400 outline-none" /></div>
+       )}</div>
+      </div>
+     )}
+     {ty==='vehicle_livestock'&&(
+      <div className="space-y-3">
+       <input type="number" placeholder="القيمة الرأسمالية الحالية (ثمن الشراء)" value={f.currentValue||''} onChange={e=>setF({...f,currentValue:e.target.value})} className="w-full bg-slate-950 p-3.5 rounded-xl text-center font-bold outline-none text-white" />
+       <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center"><span>هل للأصل إنتاج وأرباح ملموسة؟</span><select value={f.isRented||'no'} onChange={e=>setF({...f,isRented:e.target.value})} className="bg-slate-900 text-white p-2 rounded-lg font-bold outline-none"><option value="no">لا، أصل ثابت</option><option value="yes">نعم، يورد أرباحاً دورية</option></select></div>
+       {f.isRented==='yes'&&(
+        <div className="space-y-2 pt-3 border-t border-slate-800 pop"><label className="text-[11px] text-emerald-400">مبلغ الربح الصافي ودورته النقدية:</label><div className="flex gap-2"><input type="number" placeholder="المبلغ" value={f.periodicIncome||''} onChange={e=>setF({...f,periodicIncome:e.target.value})} className="flex-1 bg-slate-950 p-3.5 rounded-xl text-center font-bold outline-none text-white" /><select value={f.incomeFreq||'daily'} onChange={e=>setF({...f,incomeFreq:e.target.value})} className="bg-slate-900 text-white p-2 rounded-xl font-bold text-xs outline-none"><option value="daily">يومياً</option><option value="weekly">أسبوعياً</option><option value="monthly">شهرياً</option></select></div></div>
+       )}
+      </div>
+     )}
+    </div>
+    <button onClick={snd} className="w-full bg-yellow-500 text-slate-950 font-black py-4 rounded-xl text-sm">تأكيد وحفظ بيانات الأصل</button>
+   </div>
+  </div>
+ );
+}
+
+function App() {
+ const [auth,setAuth]=useState(()=>localStorage.getItem('s_acc_sess')==='act');const [vw,setVw]=useState('login');
+ const [em,setEm]=useState(()=>localStorage.getItem('s_acc_em')||'');const [pw,setPw]=useState(()=>localStorage.getItem('s_acc_pw')||'1234');const [sec,setSec]=useState(()=>localStorage.getItem('s_acc_sec')||'');
+ const [tab,setTab]=useState('assets');const [srch,setSrch]=useState('');
+ const [ast,setAst]=useState(()=>JSON.parse(localStorage.getItem('smart_accountant_assets'))||[]);
+ const [txs,setTxs]=useState(()=>JSON.parse(localStorage.getItem('smart_accountant_tx'))||[]);
+ const [g24,setG24]=useState(()=>Number(localStorage.getItem('cfg_gold_24'))||75000);
+ const [bkp,setBkp]=useState(()=>Number(localStorage.getItem('s_acc_bkp'))||0);
+ const [mo,setMo]=useState(false);const [ed,setEd]=useState(null);const [rec,setRec]=useState(null);const [tst,setTst]=useState(null);
+
+ useEffect(()=>{if(!localStorage.getItem('s_acc_em'))setVw('register');},[]);
+ useEffect(()=>{localStorage.setItem('smart_accountant_assets',JSON.stringify(ast));},[ast]);
+ useEffect(()=>{localStorage.setItem('smart_accountant_tx',JSON.stringify(txs));},[txs]);
+ useEffect(()=>{localStorage.setItem('cfg_gold_24',g24);},[g24]);
+
+ const shT=m=>{setTst(m);setTimeout(()=>setTst(null),2500);};
+ const wlt=useMemo(()=>ast.reduce((s,a)=>s+parseFloat(a.currentValue||0),0),[ast]);
+ const fAst=ast.filter(a=>(a.name||'').includes(srch));
+
+ const doBkp=async()=>{
+  vib();const f={tx:JSON.parse(localStorage.getItem('smart_accountant_tx'))||[],db:JSON.parse(localStorage.getItem('smart_accountant_dbts'))||[],pt:JSON.parse(localStorage.getItem('smart_accountant_ptnrs'))||[],tr:JSON.parse(localStorage.getItem('smart_accountant_trusts'))||[],as:ast};
+  const b=btoa(unescape(encodeURIComponent(JSON.stringify(f))));const t=`[أرشيف]\n${new Date().toLocaleDateString('ar-EG')}\n\n${b}`;
+  const n=Date.now();setBkp(n);localStorage.setItem('s_acc_bkp',n);
+  try{if(navigator.share)await navigator.share({title:'أرشيف',text:t});else{await navigator.clipboard.writeText(t);shT('تم النسخ!');}}catch(e){shT('تم الحفظ');}
+ };
+ const doRes=(s)=>{
+  vib();try{const e=s.match(/[A-Za-z0-9+/=]{50,}/)?.[0]||s.trim();const d=JSON.parse(decodeURIComponent(escape(atob(e))));
+  if(d.as||d.tx){if(d.as)setAst(d.as);if(d.tx)setTxs(d.tx);if(d.db)localStorage.setItem('smart_accountant_dbts',JSON.stringify(d.db));if(d.pt)localStorage.setItem('smart_accountant_ptnrs',JSON.stringify(d.pt));if(d.tr)localStorage.setItem('smart_accountant_trusts',JSON.stringify(d.tr));const n=Date.now();setBkp(n);localStorage.setItem('s_acc_bkp',n);shT('تمت الاستعادة!');}else alert('كود تالف');
+  }catch(e){alert('فشل فك التشفير!');}
+ };
+ const doExp=()=>{
+  vib();if(ast.length===0)return alert('لا توجد أصول!');let c="data:text/csv;charset=utf-8,\uFEFFتاريخ,نوع,اسم,قيمة\r\n";
+  ast.forEach(a=>{c+=`${a.date},${a.type==='real_estate'?'عقار':(a.type==='gold'?'ذهب':'مركبات')},${a.name},${a.currentValue}\r\n`;});
+  const l=document.createElement("a");l.setAttribute("href",encodeURI(c));l.setAttribute("download",`أصول.csv`);document.body.appendChild(l);l.click();document.body.removeChild(l);shT('تم التحميل');
+ };
+ const savA=(d,i)=>{vib();if(i)setAst(ast.map(a=>a.id===d.id?d:a));else setAst([{...d,id:Date.now()},...ast]);shT('تم الحفظ');setMo(false);setEd(null);};
+ const delA=a=>{if(window.confirm(`حذف (${a.name})؟ موافق للإبقاء على الأرباح، إلغاء للتطهير.`)){setAst(ast.filter(x=>x.id!==a.id));shT('حُذف');}else if(window.confirm('تأكيد التطهير النهائي؟')){setAst(ast.filter(x=>x.id!==a.id));setTxs(txs.filter(t=>!(t.category||'').includes(`(${a.name})`)));shT('تم التطهير');}};
+ const genInc=a=>{const am=parseFloat(a.type==='real_estate'?a.monthlyRent:a.periodicIncome)||0;if(am<=0)return alert('حدد الربح أولاً');const w=window.confirm(`تحصيل ${am.toLocaleString()} ج.س؟\nموافق للبنك، إلغاء للكاش`);const nt={id:Date.now(),type:'income',amount:am,wallet:w?'bank':'cash',category:`إيراد ربح (${a.name})`,date:new Date().toISOString().split('T')[0]};setTxs([nt,...txs]);setRec({title:'سند أرباح',person:a.name,amount:am,date:nt.date,ref:`INC-${nt.id.toString().slice(-4)}`});};
+
+ if(!auth)return <AuthScreen view={vw} setView={setVw} savedEmail={em} savedPwd={pw} savedSecAnswer={sec} onRegister={(e,p,s)=>{localStorage.setItem('s_acc_em',e);localStorage.setItem('s_acc_pw',p);localStorage.setItem('s_acc_sec',s);localStorage.setItem('s_acc_sess','act');setEm(e);setPw(p);setSec(s);setAuth(true);}} onLogin={()=>{localStorage.setItem('s_acc_sess','act');setAuth(true);}} onResetPwd={n=>{localStorage.setItem('s_acc_pw',n);setPw(n);setVw('login');}} />;
+
+ return (
+  <div className="pb-24">
+   {tst&&<div className="fixed top-4 left-4 right-4 z-50 bg-yellow-500 text-slate-950 p-3 rounded-xl text-center font-bold pop">{tst}</div>}
+   <header className="bg-slate-900 border-b border-yellow-600/30 p-4 sticky top-0 z-10 flex justify-between items-center shadow-lg">
+    <div className="flex items-center gap-2"><div className="text-yellow-400 font-bold"><I.B/></div><div><h1 className="text-sm font-black text-white">إدارة الأملاك والأصول</h1><p className="text-[10px] text-yellow-500">السودان</p></div></div>
+    <a href="index.html" className="bg-slate-800 text-white text-xs px-3 py-1.5 rounded-lg font-bold">الخزينة 💵</a>
+   </header>
+   <main className="p-4 max-w-md mx-auto space-y-4">
+    {tab!=='profile'&&(
+     <div className="bg-gradient-to-br from-slate-900 to-slate-950 p-6 rounded-3xl border border-yellow-500/20 text-center pop shadow-xl">
+      <p className="text-slate-400 text-xs mb-1">القيمة السوقية الحالية</p>
+      <h2 className="text-3xl font-black text-yellow-500">{wlt.toLocaleString()} <span className="text-xs text-slate-400">ج</span></h2>
+      <div className="mt-3 pt-3 border-t border-slate-800 space-y-2"><div className="flex justify-between items-center text-xs"><span className="text-slate-400">سعر جرام الذهب (24):</span><input type="number" value={g24||''} onChange={e=>{const p=Number(e.target.value)||0;setG24(p);setAst(ast.map(x=>x.type==='gold'?{...x,currentValue:((x.grams||0)+(x.habba||0)*0.058)*p*(x.purity||1)}:x));}} className="w-24 bg-slate-950 text-center text-xs p-1.5 rounded-lg text-yellow-400 font-bold outline-none border border-slate-800" /></div><div className="flex justify-around bg-slate-950 p-2 rounded-xl text-[10px] text-yellow-500/70 font-bold"><span>عيار 21: {Math.round(g24*0.875).toLocaleString()}</span><span>عيار 18: {Math.round(g24*0.75).toLocaleString()}</span></div><a href="https://www.google.com/search?q=سعر+الذهب+اليوم+السودان" target="_blank" className="text-[10px] text-blue-400 underline block text-center">🔍 الأسعار بالسوق المحلي</a></div>
+     </div>
+    )}
+    {tab==='assets'&&(
+     <div className="space-y-4 pop">
+      <div className="flex justify-between items-center gap-2"><input type="text" placeholder="بحث بالممتلكات..." value={srch} onChange={e=>setSrch(e.target.value)} className="w-1/2 bg-slate-900 text-white rounded-xl py-2 px-3 text-xs outline-none border border-slate-800" /><button onClick={()=>{setEd(null);setMo(true);}} className="bg-yellow-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold shadow-md">➕ إضافة أصل</button></div>
+      {fAst.map(a=>(
+       <div key={a.id} className="bg-slate-900 p-5 rounded-3xl border border-slate-800 relative space-y-2 shadow-sm">
+        <div className="absolute top-3 left-3 flex gap-2"><button onClick={()=>setRec({title:'تقييم أصل',person:a.name,amount:a.currentValue,date:a.date,ref:`A-${a.id.toString().slice(-4)}`})} className="p-2 bg-slate-800 text-blue-400 rounded-xl"><I.R/></button><button onClick={()=>{setEd(a);setMo(true);}} className="p-2 bg-slate-800 text-emerald-400 rounded-xl"><I.E/></button><button onClick={()=>delA(a)} className="p-2 bg-slate-800 text-red-400 rounded-xl"><I.T/></button></div>
+        <h4 className="font-bold text-white pr-24 truncate text-sm">{a.name}</h4><p className="text-[10px] text-slate-500">{a.type==='gold'?'معادن ونفائس':a.type==='real_estate'?'أملاك عقارية':'مركبات ومواشي'}</p>
+        <div className="bg-slate-950 p-3 rounded-2xl flex justify-between items-center text-xs"><span className="text-slate-400">القيمة السوقية:</span><span className="font-bold text-yellow-500 text-sm">{parseFloat(a.currentValue||0).toLocaleString()} ج</span></div>
+        {a.isRented&&<button onClick={()=>genInc(a)} className="w-full mt-2 bg-emerald-600/20 text-emerald-400 py-2.5 rounded-xl text-xs font-bold border border-emerald-500/20">تحصيل وضخ الأرباح الدورية 💸</button>}
+       </div>
+      ))}
+     </div>
+    )}
+    {tab==='projection'&&(
+     <div className="space-y-3 pop">
+      <div className="bg-blue-950/20 p-4 rounded-2xl border border-blue-500/10 text-xs text-blue-300">🔮 خوارزمية الاستشراف واسترداد التكلفة للأصول المشغّلة:</div>
+      {ast.filter(a=>a.isRented).map(a=>{
+       const c=parseFloat(a.currentValue||0);const mu={'daily':360,'weekly':52,'monthly':12,'yearly':1};
+       const an=a.type==='real_estate'?(parseFloat(a.monthlyRent||0)*12):((parseFloat(a.periodicIncome||0))*mu[a.incomeFreq||'daily']);
+       let pb="لا يمكن الحساب";if(an>0&&c>0){const tm=Math.round((c/an)*12);const y=Math.floor(tm/12);const mo=tm%12;pb=y>0?`يسترجع رأسماله بالكامل بعد: ${y} سنة و ${mo} شهر تقريباً.`:`يسترجع رأسماله بالكامل بعد: ${mo} شهر تقريباً.`;}
+       let p3=0,p5=0,p10=0;if(a.type==='real_estate'){const r=(a.annualGrowth||0)/100;const m=a.monthlyRent||0;p3=m*Math.pow(1+r,3)*12;p5=m*Math.pow(1+r,5)*12;p10=m*Math.pow(1+r,10)*12;}else{p3=an*3;p5=an*5;p10=an*10;}
+       return(
+        <div key={a.id} className="bg-slate-900 p-5 rounded-3xl border border-slate-800 space-y-3 text-xs">
+         <h4 className="font-bold text-white border-b border-slate-800 pb-2">{a.name}</h4><p className="text-emerald-400 font-bold bg-emerald-500/5 p-2.5 rounded-xl border border-emerald-500/10 text-center text-[11px]">{pb}</p><p className="text-[10px] text-slate-400 pt-1">تراكم الأرباح الصافية مستقبلاً:</p>
+         <div className="grid grid-cols-3 gap-3 text-center text-[10px]"><div className="bg-slate-950 p-2 rounded-xl"><p className="text-slate-500 mb-1">3 سنوات</p><p className="text-yellow-500 font-bold">{Math.round(p3).toLocaleString()}</p></div><div className="bg-slate-950 p-2 rounded-xl"><p className="text-slate-500 mb-1">5 سنوات</p><p className="text-yellow-500 font-bold">{Math.round(p5).toLocaleString()}</p></div><div className="bg-slate-950 p-2 rounded-xl"><p className="text-slate-500 mb-1">10 سنوات</p><p className="text-yellow-500 font-bold">{Math.round(p10).toLocaleString()}</p></div></div>
         </div>
-      );
-    }
+       );
+      })}
+     </div>
+    )}
+    {tab==='feasibility'&&<Feas />}
+    {tab==='profile'&&(
+     <div className="space-y-4 pop text-xs pb-6">
+      <div className="bg-slate-900 p-4 rounded-2xl text-center border border-slate-800 shadow-md"><p className="text-slate-400 mb-1">الملف المالي النشط</p><p className="text-white font-bold text-sm">{em}</p></div>
+      <button onClick={doExp} className="w-full bg-slate-900 text-blue-400 py-3 rounded-xl font-bold border border-slate-800">📄 تصدير سجل الممتلكات (Excel)</button>
+      <div className="bg-slate-900 p-4 rounded-2xl border border-yellow-500/20 space-y-3"><h3 className="font-bold text-yellow-500">☁️ الأرشفة السحابية (جوجل كيب)</h3><p className="text-slate-400">المزامنة: {bkp?new Date(bkp).toLocaleString('ar-EG'):'لا يوجد'}</p><button onClick={doBkp} className="w-full bg-yellow-600 text-slate-950 py-2.5 rounded-xl font-bold shadow">ترحيل ونسخ لكافة الأنظمة</button><textarea id="rc" placeholder="كود الاستعادة..." className="w-full bg-slate-950 text-emerald-400 p-2 rounded-xl h-14 border border-slate-800 mt-2 outline-none" /><button onClick={()=>{const v=document.getElementById('rc').value;if(v.trim()&&window.confirm('تأكيد حقن البيانات؟')){doRes(v);document.getElementById('rc').value='';}}} className="w-full bg-slate-800 text-white py-2 rounded-xl font-bold">تأكيد استعادة وحقن</button></div>
+      <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-2"><p className="text-slate-400">رمز المرور الأمني: <span className="text-white font-bold bg-slate-950 px-2 py-1 rounded">{pw}</span></p><div className="flex gap-2"><input id="npw" type="text" placeholder="تحديث الرمز..." className="flex-1 bg-slate-950 p-2 rounded-xl text-white outline-none border border-slate-800" /><button onClick={()=>{const v=document.getElementById('npw').value;if(v.trim()){localStorage.setItem('s_acc_pw',v.trim());setPw(v.trim());shT('تم الحفظ');document.getElementById('npw').value='';}}} className="bg-yellow-500 text-slate-950 px-4 rounded-xl font-bold">حفظ</button></div></div>
+      <button onClick={()=>{if(window.confirm('تنبيه: هل أنت متأكد من مسح وتصفير الأصول وتطهير إيراداتها من الخزينة نهائياً؟')){setAst([]);setTxs([]);shT('تم التصفير والتطهير 🧹');}}} className="w-full bg-red-500/10 text-red-400 py-3 rounded-xl border border-red-500/20 font-bold shadow">تصفير وتطهير الأصول والخزينة 🗑️</button>
+      <button onClick={()=>{localStorage.removeItem('s_acc_sess');setAuth(false);setVw('login');}} className="w-full bg-slate-800 text-slate-400 py-3 rounded-xl font-bold shadow">تسجيل الخروج 🚪</button>
+     </div>
+    )}
+   </main>
+   <nav className="fixed bottom-0 w-full bg-slate-900 border-t border-slate-800 py-2.5 z-20 flex justify-around shadow-2xl">
+    <button onClick={()=>setTab('assets')} className={`flex flex-col items-center gap-1 text-[10px] font-bold ${tab==='assets'?'text-yellow-400':'text-slate-500'}`}><I.B/>الأصول</button>
+    <button onClick={()=>setTab('projection')} className={`flex flex-col items-center gap-1 text-[10px] font-bold ${tab==='projection'?'text-blue-400':'text-slate-500'}`}><I.C/>الاستشراف</button>
+    <button onClick={()=>setTab('feasibility')} className={`flex flex-col items-center gap-1 text-[10px] font-bold ${tab==='feasibility'?'text-emerald-400':'text-slate-500'}`}><I.A/>الجدوى</button>
+    <button onClick={()=>setTab('profile')} className={`flex flex-col items-center gap-1 text-[10px] font-bold ${tab==='profile'?'text-yellow-500':'text-slate-500'}`}><I.S/>الضبط</button>
+   </nav>
+   {mo&&<Mod g24={g24} ed={ed} cls={()=>{setMo(false);setEd(null);}} sav={savA} />}
+   {rec&&<ReceiptModal data={rec} onClose={()=>setRec(null)} showToast={shT} />}
+  </div>
+ );
+}
 
-    function App() {
-      const [isAuthenticated, setIsAuthenticated] = useState(() => localStorage.getItem('smart_acc_session') === 'active');
-      const [authView, setAuthView] = useState('login'); 
-      const [savedEmail, setSavedEmail] = useState(() => localStorage.getItem('smart_acc_email') || '');
-      const [savedPwd, setSavedPwd] = useState(() => localStorage.getItem('smart_acc_pwd') || '1234');
-      const [savedSecAnswer, setSavedSecAnswer] = useState(() => localStorage.getItem('smart_acc_sec') || '');
-      
-      useEffect(() => { if (!localStorage.getItem('smart_acc_email')) setAuthView('register'); }, []);
-
-      const [activeTab, setActiveTab] = useState('assets');
-      const [searchQuery, setSearchQuery] = useState('');
-      const [assets, setAssets] = useState(() => JSON.parse(localStorage.getItem('smart_accountant_assets')) || []);
-      const [transactions, setTransactions] = useState(() => JSON.parse(localStorage.getItem('smart_accountant_tx')) || []);
-      const [goldPrice24, setGoldPrice24] = useState(() => Number(localStorage.getItem('cfg_gold_24')) || 75000);
-      const [lastBackup, setLastBackup] = useState(() => Number(localStorage.getItem('smart_acc_last_backup')) || 0);
-
-      const [isModalOpen, setIsModalOpen] = useState(false);
-      const [editData, setEditData] = useState(null);
-      const [receiptData, setReceiptData] = useState(null);
-      const [toast, setToast] = useState(null);
-
-      useEffect(() => { localStorage.setItem('smart_accountant_assets', JSON.stringify(assets)); }, [assets]);
-      useEffect(() => { localStorage.setItem('smart_accountant_tx', JSON.stringify(transactions)); }, [transactions]);
-      useEffect(() => { localStorage.setItem('cfg_gold_24', goldPrice24); }, [goldPrice24]);
-
-      const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
-
-      const totalWealthInAssets = useMemo(() => {
-        return assets.reduce((sum, asset) => sum + parseFloat(asset.currentValue || 0), 0);
-      }, [assets]);
-
-      const filteredAssets = assets.filter(a => (a.name || '').includes(searchQuery));
-
-      const handleSaveAsset = (data, isEdit = false) => {
-        triggerHaptic();
-        if (isEdit) {
-          setAssets(assets.map(a => a.id === data.id ? data : a)); showToast('تم تعديل بيانات الأصل ✏️');
-        } else {
-          setAssets([{...data, id: data.id || Date.now()}, ...assets]); showToast('تم قيد الأصل 🏢');
-        }
-        setIsModalOpen(false); setEditData(null);
-      };
-
-      const handleDeleteAsset = (asset) => {
-        triggerHaptic();
-        const confirmFirst = window.confirm(`هل تود حذف الأصل (${asset.name || 'غير محدد'}) مع الاحتفاظ بإيراداته السابقة؟\n\nاضغط (إلغاء) للمسح الشامل وتطهير الإيرادات.`);
-        if (confirmFirst) {
-          setAssets(assets.filter(a => a.id !== asset.id)); showToast('تم حذف الأصل 🗑️');
-        } else {
-          if (window.confirm('تأكيد التطهير الشامل؟')) {
-            setAssets(assets.filter(a => a.id !== asset.id));
-            setTransactions(transactions.filter(t => !(t.category || '').includes(`(${asset.name})`)));
-            showToast('تم التطهير بنجاح 🧹');
-          }
-        }
-      };
-
-      const handleGenerateIncome = (asset) => {
-        triggerHaptic();
-        const incomeAmt = parseFloat(asset.type === 'real_estate' ? asset.monthlyRent : asset.periodicIncome) || 0;
-        if (incomeAmt <= 0) return alert('يجب تحديد الإيراد للأصل من خلال التعديل أولاً.');
-
-        const walletChoice = window.confirm(`تحصيل إيراد (${asset.name}) بمبلغ ${incomeAmt.toLocaleString()} ج.س.\n\n- اضغط (موافق) للإيداع في البنك 📱\n- اضغط (إلغاء) للإيداع في الكاش 💵`);
-        const newTx = { id: Date.now(), type: 'income', amount: incomeAmt, wallet: walletChoice ? 'bank' : 'cash', category: `عائد أصل (${asset.name})`, date: new Date().toISOString().split('T')[0] };
-        setTransactions([newTx, ...transactions]);
-        setReceiptData({ title: 'سند قبض إيراد أصل', person: asset.name || 'أصل عام', amount: incomeAmt, date: newTx.date, ref: `INC-${newTx.id.toString().slice(-5)}` });
-        showToast('تم الترحيل وإصدار الفاتورة!');
-      };
-
-      const handleBackupData = async () => {
-        triggerHaptic();
-        const fullData = { 
-          tx: JSON.parse(localStorage.getItem('smart_accountant_tx')) || [], 
-          db: JSON.parse(localStorage.getItem('smart_accountant_dbts')) || [], 
-          pt: JSON.parse(localStorage.getItem('smart_accountant_ptnrs')) || [], 
-          tr: JSON.parse(localStorage.getItem('smart_accountant_trusts')) || [],
-          as: assets 
-        };
-        const base64Data = btoa(unescape(encodeURIComponent(JSON.stringify(fullData))));
-        const shareText = `[نسخة احتياطية - أصول ومحاسبة]\nالتاريخ: ${new Date().toLocaleDateString('ar-EG')}\n\n${base64Data}`;
-        const now = Date.now(); setLastBackup(now); localStorage.setItem('smart_acc_last_backup', now);
-        try {
-          if (navigator.share) await navigator.share({ title: 'أرشيف', text: shareText });
-          else { await navigator.clipboard.writeText(shareText); showToast('تم النسخ للحافظة!'); }
-        } catch (e) { showToast('تم الحفظ'); }
-      };
-
-      const handleRestoreData = (backupStr) => {
-        triggerHaptic();
-        try {
-          const extractBase64 = backupStr.match(/[A-Za-z0-9+/=]{50,}/)?.[0] || backupStr.trim();
-          const data = JSON.parse(decodeURIComponent(escape(atob(extractBase64))));
-          if(data.as || data.tx) {
-            if(data.as) setAssets(data.as);
-            if(data.tx) setTransactions(data.tx);
-            if(data.db) localStorage.setItem('smart_accountant_dbts', JSON.stringify(data.db));
-            if(data.pt) localStorage.setItem('smart_accountant_ptnrs', JSON.stringify(data.pt));
-            if(data.tr) localStorage.setItem('smart_accountant_trusts', JSON.stringify(data.tr));
-            const now = Date.now(); setLastBackup(now); localStorage.setItem('smart_acc_last_backup', now);
-            showToast('تمت استعادة كل الأنظمة بنجاح!');
-          } else alert('الكود غير مكتمل.');
-        } catch (e) { alert('فشل الاستعادة!'); }
-      };
-
-      const handleExportCSV = () => {
-        triggerHaptic();
-        if (assets.length === 0) return alert('لا توجد أصول!');
-        let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
-        csvContent += "تاريخ القيد,نوع الأصل,الاسم,القيمة السوقية\r\n";
-        assets.forEach(a => {
-          let typeStr = a.type === 'real_estate' ? 'عقار' : (a.type === 'gold' ? 'ذهب/مقتنيات' : 'مركبات/حيوانية');
-          csvContent += `${a.date},${typeStr},${a.name},${a.currentValue}\r\n`;
-        });
-        const encodedUri = encodeURI(csvContent); const link = document.createElement("a"); 
-        link.setAttribute("href", encodedUri); link.setAttribute("download", `سجل_الأصول.csv`);
-        document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        showToast('تم تحميل السجل 📄');
-      };
-
-      if (!isAuthenticated) {
-        return <AuthScreen view={authView} setView={setAuthView} savedEmail={savedEmail} savedPwd={savedPwd} savedSecAnswer={savedSecAnswer} onRegister={(e,p,s) => { localStorage.setItem('smart_acc_email', e); localStorage.setItem('smart_acc_pwd', p); localStorage.setItem('smart_acc_sec', s); localStorage.setItem('smart_acc_session', 'active'); setSavedEmail(e); setSavedPwd(p); setSavedSecAnswer(s); setIsAuthenticated(true); }} onLogin={() => { localStorage.setItem('smart_acc_session', 'active'); setIsAuthenticated(true); }} onResetPwd={(np) => { localStorage.setItem('smart_acc_pwd', np); setSavedPwd(np); setAuthView('login'); }} />;
-      }
-
-      return (
-        <div className="pb-28">
-          {toast && <div className="fixed top-6 left-4 right-4 z-[100] bg-yellow-500 text-slate-900 px-4 py-3 rounded-xl flex items-center gap-3 shadow-xl border border-yellow-400/20 animate-slide-down max-w-sm mx-auto font-bold"><Icons.Check /> <span className="text-sm">{toast}</span></div>}
-
-          <header className="bg-slate-900 border-b border-yellow-600/30 p-4 sticky top-0 z-10 flex justify-between items-center shadow-lg">
-            <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-br from-yellow-400 to-yellow-600 p-2.5 rounded-xl text-slate-950 font-bold"><Icons.Building /></div>
-              <div><h1 className="text-base font-black text-white">إدارة الأصول</h1><p className="text-[11px] text-yellow-500">الهندسة والاستشراف</p></div>
-            </div>
-            <a href="index.html" onClick={triggerHaptic} className="bg-slate-800 hover:bg-slate-700 text-white text-xs px-3 py-2 rounded-xl font-bold border border-slate-700 flex items-center gap-1.5 shadow-sm transition"><Icons.Wallet /> المحاسب الذكي</a>
-          </header>
-
-          <main className="p-4 max-w-md mx-auto">
-            {activeTab !== 'profile' && (
-              <div className="bg-gradient-to-br from-slate-900 to-slate-950 p-6 rounded-3xl border border-yellow-500/20 text-center relative overflow-hidden mb-6 shadow-xl animate-pop">
-                <p className="text-slate-400 text-xs font-bold mb-2">إجمالي قيمة المحفظة والأصول العينية 🏢</p>
-                <h2 className="text-4xl font-black text-yellow-500">{totalWealthInAssets.toLocaleString()} <span className="text-xs font-normal text-slate-400">ج.س</span></h2>
-                <div className="mt-4 pt-4 border-t border-slate-800/80 flex flex-col justify-center gap-3 items-center">
-                  <div className="flex justify-between items-center w-full">
-                    <span className="text-xs text-slate-400 font-medium">تسعيرة جرام الذهب (24) اليوم:</span>
-                    <input type="number" value={goldPrice24 || ''} onChange={e => { const price = Number(e.target.value) || 0; setGoldPrice24(price); setAssets(assets.map(a => a.type === 'gold' ? { ...a, currentValue: ((a.grams || 0) + ((a.habba || 0) * 0.058)) * price * (a.purity || 1) } : a)); }} className="w-28 bg-slate-950 text-center text-sm font-bold text-yellow-400 border border-yellow-500/40 p-2.5 rounded-xl focus:outline-none focus:border-yellow-400 transition" />
-                  </div>
-                  <div className="w-full flex justify-around bg-slate-950/50 p-2 rounded-lg border border-slate-800 text-[10px] text-yellow-500/70 font-bold">
-                    <span>عيار 21: {(goldPrice24 * 0.875).toLocaleString()} ج</span><span>عيار 18: {(goldPrice24 * 0.750).toLocaleString()} ج</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'assets' && (
-              <div className="space-y-4 animate-pop">
-                <div className="flex justify-between items-center px-1 mb-2">
-                  <input type="text" placeholder="ابحث عن أصل..." value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} className="w-1/2 bg-slate-900 border border-slate-800 text-white rounded-xl py-2 px-3 text-xs focus:outline-none focus:border-yellow-500" />
-                  <button onClick={()=>{setEditData(null); setIsModalOpen(true);}} className="bg-yellow-500 hover:bg-yellow-600 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold shadow-md transition">➕ أصل جديد</button>
-                </div>
-                
-                {filteredAssets.map(asset => (
-                  <div key={asset.id} className="bg-slate-900 p-5 rounded-3xl border border-slate-800 shadow-md relative">
-                    <div className="absolute top-4 left-4 flex gap-2">
-                      <button onClick={()=>setReceiptData({title: 'شهادة تقييم أصل', person: asset.name || 'أصل عام', amount: asset.currentValue || 0, date: asset.date || new Date().toISOString().split('T')[0], ref: `AST-${(asset.id||0).toString().slice(-5)}`})} className="p-2 bg-slate-800 text-blue-400 hover:bg-slate-700 rounded-xl transition" title="شهادة تقييم"><Icons.Receipt /></button>
-                      <button onClick={()=>{setEditData(asset); setIsModalOpen(true);}} className="p-2 bg-slate-800 text-emerald-400 hover:bg-slate-700 rounded-xl transition"><Icons.Edit /></button>
-                      <button onClick={()=>handleDeleteAsset(asset)} className="p-2 bg-slate-800 text-red-400 hover:bg-slate-700 rounded-xl transition"><Icons.Trash /></button>
-                    </div>
-                    <h4 className="font-black text-white text-lg mb-1 truncate max-w-[60%]">{asset.name || 'أصل غير مسمى'}</h4>
-                    <p className="text-xs text-slate-500 mb-4">{asset.date || ''} • {asset.type === 'gold' ? 'معادن ثمينة 🪙' : asset.type === 'vehicle_livestock' ? 'مركبات/حيوانية 🛺🐪' : 'أصول عقارية 🏗️'}</p>
-                    <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800/80 space-y-3">
-                       <div className="flex justify-between items-center text-sm"><span className="text-slate-400">القيمة السوقية:</span><span className="font-black text-yellow-500 text-lg">{parseFloat(asset.currentValue || 0).toLocaleString()} ج.س</span></div>
-                       {asset.type === 'real_estate' && <div className="flex justify-between items-center text-xs text-slate-400 border-t border-slate-800/80 pt-3"><span className="bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-800">مساحة: {asset.area || 0} م²</span><span className="bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-800">متر: {parseFloat(asset.pricePerMeter || 0).toLocaleString()}</span></div>}
-                       {asset.type === 'gold' && <div className="flex justify-between items-center text-xs text-slate-400 border-t border-slate-800/80 pt-3"><span className="bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-800">الوزن: {(asset.totalGrams || (asset.grams + (asset.habba||0)*0.058) || 0).toFixed(2)} جم</span><span className="bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-800">عيار: {asset.purity == 1 ? '24' : asset.purity == 0.875 ? '21' : '18'}</span></div>}
-                    </div>
-                    {asset.isRented && <button onClick={()=>handleGenerateIncome(asset)} className="w-full mt-4 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 py-3 rounded-2xl text-sm font-bold transition flex items-center justify-center gap-1.5 shadow-sm">تحصيل الإيراد ({parseFloat(asset.type === 'real_estate' ? asset.monthlyRent : asset.periodicIncome || 0).toLocaleString()}) 💸</button>}
-                  </div>
-                ))}
-                {filteredAssets.length === 0 && <p className="text-center py-10 text-xs text-slate-500 border border-dashed border-slate-800 rounded-3xl">لا يوجد نتائج.</p>}
-              </div>
-            )}
-
-            {activeTab === 'projection' && (
-              <div className="space-y-5 animate-pop">
-                <div className="bg-blue-950/20 p-5 rounded-2xl border border-blue-500/20 text-xs text-blue-300 leading-relaxed shadow-sm">🔮 <b>الاستشراف المالي:</b> يوضح القيمة المستقبلية لعقاراتك (نمو مركب) وإجمالي النقد المتراكم للمركبات والثروة الحيوانية.</div>
-                
-                {assets.filter(a => a.isRented).map(asset => {
-                  let p3 = 0, p5 = 0, p10 = 0, rateLabel = "";
-                  
-                  if (asset.type === 'real_estate') {
-                    const r = (parseFloat(asset.annualGrowth) || 0) / 100; const rent = parseFloat(asset.monthlyRent) || 0;
-                    p3 = rent * Math.pow(1 + r, 3); p5 = rent * Math.pow(1 + r, 5); p10 = rent * Math.pow(1 + r, 10);
-                    rateLabel = `إيجار شهري بنمو سنوي مركب: %${asset.annualGrowth || 0}`;
-                  } else if (asset.type === 'vehicle_livestock') {
-                    const multipliers = { 'daily': 30 * 12, 'weekly': 52, 'monthly': 12, 'yearly': 1 };
-                    const annual = (parseFloat(asset.periodicIncome) || 0) * multipliers[asset.incomeFreq || 'daily'];
-                    p3 = annual * 3; p5 = annual * 5; p10 = annual * 10;
-                    rateLabel = `إجمالي العائد النقدي التراكمي للتشغيل`;
-                  }
-
-                  return (
-                    <div key={asset.id} className="bg-slate-900 p-5 rounded-3xl border border-slate-800 space-y-4 text-xs shadow-sm">
-                      <h4 className="font-black text-white text-sm border-b border-slate-800 pb-3">📈 استشراف: {asset.name || 'غير محدد'}</h4>
-                      <div className="grid grid-cols-3 gap-3 text-center">
-                        <div className="bg-slate-950 p-3 rounded-xl border border-slate-800"><p className="text-[10px] text-slate-500 mb-2">بعد 3 سنوات</p><p className="text-yellow-500 font-bold text-sm">{Math.round(p3 || 0).toLocaleString()}</p></div>
-                        <div className="bg-slate-950 p-3 rounded-xl border border-slate-800"><p className="text-[10px] text-slate-500 mb-2">بعد 5 سنوات</p><p className="text-yellow-500 font-bold text-sm">{Math.round(p5 || 0).toLocaleString()}</p></div>
-                        <div className="bg-slate-950 p-3 rounded-xl border border-slate-800"><p className="text-[10px] text-slate-500 mb-2">بعد 10 سنوات</p><p className="text-yellow-500 font-black text-base">{Math.round(p10 || 0).toLocaleString()}</p></div>
-                      </div>
-                      <p className="text-[10px] text-slate-400 text-center bg-slate-950 py-2 rounded-xl border border-slate-800/50">{rateLabel}</p>
-                    </div>
-                  );
-                })}
-                {assets.filter(a => a.isRented).length === 0 && <p className="text-center py-10 text-xs text-slate-500 border border-dashed border-slate-800 rounded-3xl">لا توجد أصول استثمارية لتطبيق الاستشراف عليها.</p>}
-              </div>
-            )}
-
-            {activeTab === 'feasibility' && <FeasibilityStudio />}
-            
-            {activeTab === 'profile' && (
-              <ProfileView email={savedEmail} currentPwd={savedPwd} lastBackup={lastBackup} onBackup={handleBackupData} onRestore={handleRestoreData} onExportExcel={handleExportCSV} onChangePwd={pwd => { localStorage.setItem('smart_acc_pwd', pwd); setSavedPwd(pwd); showToast('تم التحديث بنجاح'); }} onReset={() => { if(window.confirm('سيتم تصفير منصة الأصول تماماً؟')) { setAssets([]); showToast('تم التصفير'); } }} onLogout={() => { triggerHaptic(); localStorage.removeItem('smart_acc_session'); setIsAuthenticated(false); setAuthView('login'); }} />
-            )}
-          </main>
-
-          <nav className="fixed bottom-0 w-full bg-slate-900 border-t border-slate-800 py-3 z-20 px-2 shadow-2xl">
-            <div className="flex justify-between items-center max-w-md mx-auto">
-              <button onClick={() => { triggerHaptic(); setActiveTab('assets'); }} className={`flex flex-col items-center p-2 rounded-xl transition-all min-w-[65px] ${activeTab === 'assets' ? 'text-yellow-400 bg-slate-800' : 'text-slate-500 hover:text-slate-300'}`}><div><Icons.Building /></div><span className="text-[10px] font-bold mt-1">الأصول</span></button>
-              <button onClick={() => { triggerHaptic(); setActiveTab('projection'); }} className={`flex flex-col items-center p-2 rounded-xl transition-all min-w-[65px] ${activeTab === 'projection' ? 'text-blue-400 bg-slate-800' : 'text-slate-500 hover:text-slate-300'}`}><div><Icons.Chart /></div><span className="text-[10px] font-bold mt-1">الاستشراف</span></button>
-              <button onClick={() => { triggerHaptic(); setActiveTab('feasibility'); }} className={`flex flex-col items-center p-2 rounded-xl transition-all min-w-[65px] ${activeTab === 'feasibility' ? 'text-emerald-400 bg-slate-800' : 'text-slate-500 hover:text-slate-300'}`}><div><Icons.Calculator /></div><span className="text-[10px] font-bold mt-1">الجدوى</span></button>
-              <button onClick={() => { triggerHaptic(); setActiveTab('profile'); }} className={`flex flex-col items-center p-2 rounded-xl transition-all min-w-[65px] ${activeTab === 'profile' ? 'text-yellow-400 bg-slate-800' : 'text-slate-500 hover:text-slate-300'}`}><div><Icons.Settings /></div><span className="text-[10px] font-bold mt-1">الضبط</span></button>
-            </div>
-          </nav>
-
-          {isModalOpen && <AssetModal goldPrice24={goldPrice24} editData={editData} onClose={() => {setIsModalOpen(false); setEditData(null);}} onSave={handleSaveAsset} />}
-          {receiptData && <ReceiptModal data={receiptData} onClose={() => setReceiptData(null)} showToast={showToast} />}
-        </div>
-      );
-    }
-
-    function ProfileView({ email, currentPwd, lastBackup, onBackup, onRestore, onExportExcel, onChangePwd, onReset, onLogout }) {
-      const [pwd, setPwd] = useState(''); const [restoreCode, setRestoreCode] = useState('');
-      const formatLastBackup = () => !lastBackup ? 'لم يتم أخذ نسخة ⚠️' : new Date(lastBackup).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' });
-      return (
-        <div className="space-y-5 animate-pop text-sm pb-6">
-          <div className="bg-slate-900 p-4 rounded-2xl text-center border border-slate-800 shadow-sm"><p className="text-xs text-slate-400 mb-1">حساب الأصول المتصل</p><p className="text-white font-bold text-base">{email}</p></div>
-          <div className="bg-slate-900 p-4 rounded-2xl border border-blue-500/30 relative overflow-hidden shadow-sm"><div className="absolute top-0 right-0 w-1.5 bg-blue-500 h-full"></div><h3 className="font-bold text-blue-400 mb-1.5 flex items-center gap-2 text-base"><Icons.FileExcel /> تقرير الممتلكات</h3><p className="text-xs text-slate-400 mb-4">تحميل سجلات الأصول كملف إكسل.</p><button onClick={onExportExcel} className="w-full bg-slate-800 hover:bg-slate-700 text-blue-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2"><Icons.Download /> تصدير السجل</button></div>
-          <div className="bg-slate-900 p-4 rounded-2xl border border-yellow-500/30 relative overflow-hidden shadow-sm"><div className="absolute top-0 right-0 w-1.5 bg-yellow-500 h-full"></div><h3 className="font-bold text-yellow-500 mb-1.5 flex items-center gap-2 text-base"><Icons.Cloud /> السحابة الشاملة</h3><div className="bg-slate-950 p-3 rounded-xl border border-slate-800 mb-4 mt-3"><p className="text-xs text-slate-300 flex justify-between items-center"><span>آخر أرشفة للأنظمة:</span><span className={!lastBackup ? 'text-red-400' : 'text-emerald-400'}>{formatLastBackup()}</span></p></div><button onClick={onBackup} className="w-full bg-yellow-600 hover:bg-yellow-500 text-slate-900 py-3 rounded-xl font-bold mb-5 flex items-center justify-center gap-2">أخذ نسخة أمان (كل الأنظمة)</button><div className="border-t border-slate-800 pt-4"><p className="text-xs font-bold text-slate-300 mb-3">استعادة الحسابات:</p><textarea value={restoreCode} onChange={e=>setRestoreCode(e.target.value)} placeholder="ألصق كود النسخة هنا..." className="w-full bg-slate-950 text-emerald-400 p-3 rounded-xl border border-slate-800 text-xs h-20 font-mono mb-3 focus:outline-none" /><button onClick={()=>{if(restoreCode.trim() && window.confirm('متأكد من الاستعادة الشاملة؟')) { onRestore(restoreCode); setRestoreCode(''); } }} className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">تأكيد الاستعادة</button></div></div>
-          <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 shadow-sm"><p className="text-xs text-slate-400">رمز الأمان: <span className="text-white bg-slate-950 px-2 py-1 rounded font-bold mx-1">{currentPwd}</span></p><div className="flex gap-2"><input type="text" value={pwd} onChange={e=>setPwd(e.target.value)} placeholder="تغيير الرمز..." className="flex-1 bg-slate-950 p-3 rounded-xl text-white border border-slate-800 text-sm focus:outline-none" /><button onClick={()=>{if(pwd.trim()){onChangePwd(pwd.trim()); setPwd('');}}} className="bg-yellow-500 text-slate-900 px-4 rounded-xl font-bold">حفظ</button></div></div>
-          <button onClick={onReset} className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 py-3 rounded-xl font-bold mt-2">تصفير سجلات الأصول</button>
-          <button onClick={onLogout} className="w-full bg-slate-800 text-white py-3 rounded-xl font-bold mt-2">تسجيل الخروج 🚪</button>
-        </div>
-      );
-    }
-
-    function FeasibilityStudio() {
-      const [capital, setCapital] = useState(''); const [revInput, setRevInput] = useState(''); const [revFreq, setRevFreq] = useState('monthly');
-      const [expInput, setExpInput] = useState(''); const [expFreq, setExpFreq] = useState('monthly');
-      const [discountRate, setDiscountRate] = useState('15'); const [years, setYears] = useState('5'); const [result, setResult] = useState(null);
-
-      const handleCalculateFeasibility = (e) => {
-        e.preventDefault(); triggerHaptic();
-        const cap = parseFloat(capital) || 0; const rev = parseFloat(revInput) || 0; const exp = parseFloat(expInput) || 0;
-        const rate = (parseFloat(discountRate) || 0) / 100; const n = parseInt(years) || 1;
-        if (cap <= 0 || rev <= 0) return alert('الرجاء إدخال بيانات صحيحة לרأس المال والإيراد');
-        const multipliers = { 'daily': 30 * 12, 'weekly': 52, 'monthly': 12, 'yearly': 1 };
-        const annualRev = rev * multipliers[revFreq]; const annualExp = exp * multipliers[expFreq]; const annualFlow = annualRev - annualExp;
-        if(annualFlow <= 0) { setResult({ isViable: false, error: 'المصروفات تفوق الإيرادات! المشروع يخسر دائماً.' }); return; }
-        let npvSum = 0; for (let t = 1; t <= n; t++) { npvSum += annualFlow / Math.pow(1 + rate, t); }
-        const finalNPV = npvSum - cap; const totalReturn = (annualFlow * n) - cap; const roi = (totalReturn / cap) * 100;
-        const paybackYears = cap / annualFlow; const paybackMonths = Math.floor(paybackYears * 12); const paybackDays = Math.round((paybackYears * 12 - paybackMonths) * 30);
-        setResult({ annualFlow, npv: finalNPV, roi, months: paybackMonths, days: paybackDays, isViable: finalNPV > 0 });
-      };
-
-      return (
-        <div className="space-y-5 animate-pop pb-6">
-          <div className="bg-slate-900 p-6 rounded-3xl border border-slate-800 space-y-5 shadow-lg">
-            <h3 className="text-sm font-black text-white border-b border-slate-800 pb-3 flex items-center gap-2"><Icons.Calculator /> استوديو تحليل الجدوى</h3>
-            <form onSubmit={handleCalculateFeasibility} className="space-y-5">
-              <div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium block">رأس المال الاستثماري للمشروع (ج.س):</label><input type="number" required value={capital} onChange={e=>setCapital(e.target.value)} placeholder="مثال: 5000000" className="w-full bg-slate-950 text-white p-3.5 rounded-xl text-sm border border-slate-700 text-center font-bold focus:outline-none focus:border-yellow-500" /></div>
-              <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-4">
-                <div className="space-y-1.5"><label className="text-xs text-emerald-400 font-medium block">الإيرادات المتوقعة (المبيعات):</label><div className="flex gap-2"><input type="number" required value={revInput} onChange={e=>setRevInput(e.target.value)} placeholder="المبلغ" className="flex-1 bg-slate-900 text-emerald-400 p-3.5 rounded-xl text-sm border border-slate-700 text-center font-bold focus:outline-none focus:border-emerald-500" /><select value={revFreq} onChange={e=>setRevFreq(e.target.value)} className="w-1/3 bg-slate-900 text-white p-2 rounded-xl text-xs border border-slate-700 focus:outline-none font-bold"><option value="daily">يومياً</option><option value="weekly">أسبوعياً</option><option value="monthly">شهرياً</option><option value="yearly">سنوياً</option></select></div></div>
-                <div className="space-y-1.5 border-t border-slate-800 pt-3"><label className="text-xs text-red-400 font-medium block">المصروفات المتوقعة (تشغيل/رواتب):</label><div className="flex gap-2"><input type="number" required value={expInput} onChange={e=>setExpInput(e.target.value)} placeholder="المبلغ" className="flex-1 bg-slate-900 text-red-400 p-3.5 rounded-xl text-sm border border-slate-700 text-center font-bold focus:outline-none focus:border-red-500" /><select value={expFreq} onChange={e=>setExpFreq(e.target.value)} className="w-1/3 bg-slate-900 text-white p-2 rounded-xl text-xs border border-slate-700 focus:outline-none font-bold"><option value="daily">يومياً</option><option value="weekly">أسبوعياً</option><option value="monthly">شهرياً</option><option value="yearly">سنوياً</option></select></div></div>
-              </div>
-              <div className="space-y-4">
-                <div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium block">معدل التضخم/الخصم السنوي:</label><select value={discountRate} onChange={e=>setDiscountRate(e.target.value)} className="w-full bg-slate-950 text-white p-3.5 rounded-xl text-xs border border-slate-700 focus:outline-none font-bold"><option value="10">10% (تضخم منخفض - بيئة مستقرة)</option><option value="15">15% (المعدل المحاسبي المعياري الافتراضي)</option><option value="20">20% (تضخم عالي - مخاطرة)</option><option value="25">25% (تضخم مفرط - مخاطرة عالية جداً)</option></select></div>
-                <div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium block">عمر الدراسة المطلوب:</label><select value={years} onChange={e=>setYears(e.target.value)} className="w-full bg-slate-950 text-white p-3.5 rounded-xl text-xs border border-slate-700 focus:outline-none font-bold text-center"><option value="3">3 سنوات</option><option value="5">5 سنوات (معياري)</option><option value="10">10 سنوات (طويل الأجل)</option></select></div>
-              </div>
-              <button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600 text-slate-950 font-black py-4 rounded-xl text-sm shadow-lg mt-2">استخراج القرار الاستثماري ⚙️</button>
-            </form>
-          </div>
-          {result && !result.error && (
-            <div className="bg-slate-900 p-6 rounded-3xl border border-slate-800 space-y-5 animate-pop text-sm shadow-xl">
-              <h4 className="font-black text-white text-center text-base border-b border-slate-800 pb-3">📋 تقرير الجدوى المالي</h4>
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex justify-between items-center font-bold"><span className="text-slate-400">الصافي السنوي المُستنتج آلياً:</span><span className="text-emerald-400 text-lg">{(result.annualFlow||0).toLocaleString()} ج.س</span></div>
-              <div className="flex flex-col gap-3">
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex justify-between items-center"><p className="text-xs text-slate-500">القيمة الحالية (NPV)</p><p className={`font-black text-lg ${result.isViable?'text-emerald-400':'text-red-400'}`}>{Math.round(result.npv||0).toLocaleString()}</p></div>
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex justify-between items-center"><p className="text-xs text-slate-500">معدل العائد (ROI)</p><p className="text-yellow-400 font-black text-lg">{(result.roi||0).toFixed(1)}%</p></div>
-              </div>
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-center"><p className="text-xs text-slate-500 mb-2">فترة استرداد رأس المال بالكامل (Payback)</p><p className="text-white font-black text-lg">{result.months||0} أشهر و {result.days||0} أيام</p></div>
-              <div className={`p-4 rounded-2xl text-center border font-bold text-sm leading-relaxed ${result.isViable?'bg-emerald-500/10 text-emerald-400 border-emerald-500/20':'bg-red-500/10 text-red-400 border-red-500/20'}`}>{result.isViable ? '✅ قرار الخوارزمية: المشروع مُربح ومقاوم للتضخم بامتياز.' : '❌ قرار الخوارزمية: التضخم سيأكل أرباح المشروع، لا يُنصح به.'}</div>
-            </div>
-          )}
-          {result && result.error && <div className="bg-red-500/10 border border-red-500/30 p-5 rounded-3xl text-red-400 font-bold text-center text-sm">{result.error}</div>}
-        </div>
-      );
-    }
-
-    function AssetModal({ goldPrice24, editData, onClose, onSave }) {
-      const isEdit = !!editData;
-      let guessedType = 'real_estate';
-      if (isEdit) { if (editData.type) guessedType = editData.type; else if (editData.grams !== undefined) guessedType = 'gold'; }
-      const [type, setType] = useState(guessedType);
-      const [formData, setFormData] = useState(isEdit ? {...editData} : { name: '', area: '', totalValue: '', isRented: 'no', monthlyRent: '', annualGrowth: '', grams: '', habba: '', purity: '1', periodicIncome: '', incomeFreq: 'daily' });
-
-      useEffect(() => { if (isEdit && type === 'real_estate' && !formData.totalValue && formData.currentValue) { setFormData(prev => ({...prev, totalValue: prev.currentValue})); } }, [isEdit, type]);
-      const autoPricePerMeter = (parseFloat(formData.area) > 0 && parseFloat(formData.totalValue) > 0) ? (parseFloat(formData.totalValue) / parseFloat(formData.area)) : 0;
-
-      const handleSubmit = (e) => {
-        e.preventDefault();
-        const safeId = isEdit ? (editData.id || Date.now()) : Date.now();
-        const safeDate = isEdit ? (editData.date || new Date().toISOString().split('T')[0]) : new Date().toISOString().split('T')[0];
-
-        if (type === 'real_estate') {
-          const area = parseFloat(formData.area) || 0; const totalValue = parseFloat(formData.totalValue) || 0; const pricePerMeter = area > 0 ? (totalValue / area) : 0;
-          onSave({ id: safeId, type: 'real_estate', name: formData.name || '', area, pricePerMeter, currentValue: totalValue, isRented: formData.isRented === 'yes', monthlyRent: parseFloat(formData.monthlyRent) || 0, annualGrowth: parseFloat(formData.annualGrowth) || 0, date: safeDate }, isEdit);
-        } else if (type === 'gold') {
-          const grams = parseFloat(formData.grams) || 0; const habba = parseFloat(formData.habba) || 0; const totalGrams = grams + (habba * 0.058); const purity = parseFloat(formData.purity) || 1;
-          onSave({ id: safeId, type: 'gold', name: formData.name || `ذهب عيار ${purity == 1 ? '24' : purity == 0.875 ? '21' : '18'}`, grams, habba, totalGrams, purity, currentValue: totalGrams * (goldPrice24 || 0) * purity, date: safeDate }, isEdit);
-        } else if (type === 'vehicle_livestock') {
-          const totalValue = parseFloat(formData.totalValue) || 0;
-          onSave({ id: safeId, type: 'vehicle_livestock', name: formData.name || 'أصل غير محدد', currentValue: totalValue, isRented: formData.isRented === 'yes', periodicIncome: parseFloat(formData.periodicIncome) || 0, incomeFreq: formData.incomeFreq || 'daily', date: safeDate }, isEdit);
-        }
-      };
-
-      return (
-        <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 w-full max-w-sm rounded-3xl p-6 border border-slate-800 shadow-2xl animate-pop max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6"><h2 className="font-bold text-lg text-white">{isEdit ? 'تعديل بيانات الأصل ✏️' : 'إضافة أصل جديد 🏢'}</h2><button onClick={onClose} className="bg-slate-800 hover:bg-slate-700 p-2.5 rounded-xl transition text-slate-300">❌</button></div>
-            {!isEdit && (
-              <div className="flex flex-wrap gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800 mb-6"><button type="button" onClick={()=>setType('real_estate')} className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition ${type==='real_estate'?'bg-yellow-500 text-slate-950':'text-slate-400'}`}>عقار / أرض</button><button type="button" onClick={()=>setType('gold')} className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition ${type==='gold'?'bg-yellow-500 text-slate-950':'text-slate-400'}`}>ذهب / مقتنيات</button><button type="button" onClick={()=>setType('vehicle_livestock')} className={`flex-1 min-w-[100px] py-2.5 rounded-lg text-xs font-bold transition ${type==='vehicle_livestock'?'bg-yellow-500 text-slate-950':'text-slate-400'}`}>مركبات/حيوانية</button></div>
-            )}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {type === 'real_estate' && (
-                <><div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">اسم العقار أو الأرض:</label><input type="text" required value={formData.name || ''} onChange={e=>setFormData({...formData, name: e.target.value})} placeholder="مثال: عمارة المعمورة..." className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-sm focus:outline-none focus:border-yellow-500" /></div><div className="space-y-4"><div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">المساحة الإجمالية (م²):</label><input type="number" step="any" required value={formData.area || ''} onChange={e=>setFormData({...formData, area: e.target.value})} placeholder="0" className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-center text-sm font-bold focus:outline-none focus:border-yellow-500" /></div><div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">القيمة التقديرية الحالية (ج.س):</label><input type="number" required value={formData.totalValue || ''} onChange={e=>setFormData({...formData, totalValue: e.target.value})} placeholder="مثال: 10000000" className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-center text-sm font-bold focus:outline-none focus:border-yellow-500" /></div></div>
-                  {autoPricePerMeter > 0 && <div className="bg-slate-950/50 p-3 rounded-xl border border-slate-800 text-center flex justify-between items-center"><p className="text-xs text-slate-500 font-bold">سعر المتر المُستنتج آلياً:</p><p className="text-sm font-black text-emerald-400">{Math.round(autoPricePerMeter).toLocaleString()} ج.س/م²</p></div>}
-                  <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center mt-2"><label className="text-sm text-slate-300 font-bold">هل الأصل مُؤجّر (يُدر عائداً)؟</label><select value={formData.isRented || 'no'} onChange={e=>setFormData({...formData, isRented: e.target.value})} className="bg-slate-900 text-white p-2 rounded-lg text-sm focus:outline-none border border-slate-700 font-bold"><option value="no">لا</option><option value="yes">نعم</option></select></div>
-                  {formData.isRented === 'yes' && <div className="space-y-4 pt-2 border-t border-slate-800"><div className="space-y-1.5"><label className="text-xs text-emerald-400 font-medium">الإيجار الشهري الحالي (ج.س):</label><input type="number" required value={formData.monthlyRent || ''} onChange={e=>setFormData({...formData, monthlyRent: e.target.value})} placeholder="0" className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-center text-sm font-bold focus:outline-none focus:border-emerald-500" /></div><div className="space-y-1.5"><label className="text-xs text-blue-400 font-medium">الزيادة السنوية المتوقعة للإيجار (%):</label><input type="number" required value={formData.annualGrowth || ''} onChange={e=>setFormData({...formData, annualGrowth: e.target.value})} placeholder="مثال: 10" className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-center text-sm font-bold focus:outline-none focus:border-blue-500" /></div></div>}</>
-              )}
-              {type === 'gold' && (
-                <><div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">وصف المقتنى (اختياري):</label><input type="text" value={formData.name || ''} onChange={e=>setFormData({...formData, name: e.target.value})} placeholder="مثال: غويشة، سبيكة..." className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-sm focus:outline-none focus:border-yellow-500" /></div><div className="space-y-4"><div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">الوزن بالجرام الصحيح:</label><input type="number" step="any" required value={formData.grams || ''} onChange={e=>setFormData({...formData, grams: e.target.value})} placeholder="0" className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-center text-sm font-bold focus:outline-none focus:border-yellow-500" /></div><div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">عدد الحبات الكسرية (إن وجدت):</label><input type="number" step="any" value={formData.habba || ''} onChange={e=>setFormData({...formData, habba: e.target.value})} placeholder="0" className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-center text-sm font-bold focus:outline-none focus:border-yellow-500" /></div></div><div className="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2 mt-2"><label className="text-sm text-slate-300 font-bold block">العيار الصياغي للمقتنى:</label><select value={formData.purity || '1'} onChange={e=>setFormData({...formData, purity: e.target.value})} className="w-full bg-slate-900 text-yellow-500 p-3.5 rounded-xl text-sm font-bold focus:outline-none border border-slate-700"><option value="1">24 قيراط ({Math.round(goldPrice24).toLocaleString()} ج.س/جم)</option><option value="0.875">21 قيراط ({Math.round(goldPrice24 * 0.875).toLocaleString()} ج.س/جم)</option><option value="0.750">18 قيراط ({Math.round(goldPrice24 * 0.750).toLocaleString()} ج.س/جم)</option></select></div></>
-              )}
-              {type === 'vehicle_livestock' && (
-                <><div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">اسم/وصف الأصل:</label><input type="text" required value={formData.name || ''} onChange={e=>setFormData({...formData, name: e.target.value})} placeholder="مثال: ركشة، تكتك، 50 رأس ضأن..." className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-sm focus:outline-none focus:border-yellow-500" /></div><div className="space-y-1.5"><label className="text-xs text-slate-400 font-medium">القيمة الرأسمالية الحالية (ج.س):</label><input type="number" required value={formData.totalValue || ''} onChange={e=>setFormData({...formData, totalValue: e.target.value})} placeholder="مثال: 3000000" className="w-full bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-center text-sm font-bold focus:outline-none focus:border-yellow-500" /></div><div className="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center mt-2"><label className="text-sm text-slate-300 font-bold">هل الأصل يُدر عائداً؟</label><select value={formData.isRented || 'no'} onChange={e=>setFormData({...formData, isRented: e.target.value})} className="bg-slate-900 text-white p-2 rounded-lg text-sm focus:outline-none border border-slate-700 font-bold"><option value="no">لا</option><option value="yes">نعم، يعمل ويُدر دخلاً</option></select></div>{formData.isRented === 'yes' && <div className="space-y-4 pt-2 border-t border-slate-800"><div className="space-y-1.5"><label className="text-xs text-emerald-400 font-medium">مبلغ الإيراد الدوري (ج.س):</label><div className="flex gap-2"><input type="number" required value={formData.periodicIncome || ''} onChange={e=>setFormData({...formData, periodicIncome: e.target.value})} placeholder="مثال: 25000" className="flex-1 bg-slate-950 text-white p-3.5 rounded-xl border border-slate-800 text-center text-sm font-bold focus:outline-none focus:border-emerald-500" /><select value={formData.incomeFreq || 'daily'} onChange={e=>setFormData({...formData, incomeFreq: e.target.value})} className="w-1/3 bg-slate-900 text-white p-2 rounded-xl text-xs border border-slate-700 focus:outline-none font-bold"><option value="daily">يومياً</option><option value="weekly">أسبوعياً</option><option value="monthly">شهرياً</option></select></div></div></div>}</>
-              )}
-              <button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600 text-slate-950 font-black py-4 rounded-xl text-base mt-4 shadow-lg transition">حفظ وتأكيد بيانات الأصل</button>
-            </form>
-          </div>
-        </div>
-      );
-    }
-
-    function ReceiptModal({ data, onClose, showToast }) {
-      if (!data) return null;
-      const safeAmount = data.amount ? parseFloat(data.amount) : 0; const safeRef = data.ref || 'غير محدد'; const safeDate = data.date || new Date().toISOString().split('T')[0]; const safeTitle = data.title || 'سند مالي'; const safePerson = data.person || 'عام';
-      const receiptText = `🧾 *${safeTitle}*\n-----------------------\n▪️ *المرجع:* ${safeRef}\n▪️ *التاريخ:* ${safeDate}\n▪️ *الجهة:* ${safePerson}\n-----------------------\n💰 *القيمة:* ${safeAmount.toLocaleString()} ج.س`;
-      const copyText = () => { triggerHaptic(); navigator.clipboard.writeText(receiptText); showToast('تم نسخ السند بنجاح!'); };
-
-      return (
-        <div className="fixed inset-0 bg-slate-950/80 z-[70] flex items-center justify-center p-5 animate-pop">
-          <div className="bg-white text-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl" style={{fontFamily: 'monospace'}}>
-            <div className="border-b border-dashed border-slate-300 pb-3 mb-4 text-center"><h2 className="font-bold text-lg">{safeTitle}</h2></div>
-            <div className="space-y-3 text-sm mb-5 font-medium"><div className="flex justify-between"><span>المرجع:</span><span>{safeRef}</span></div><div className="flex justify-between"><span>التاريخ:</span><span>{safeDate}</span></div><div className="flex justify-between"><span>الأصل/الجهة:</span><span className="truncate max-w-[60%]">{safePerson}</span></div></div>
-            <div className="border-t border-dashed border-slate-300 pt-5 text-center"><h3 className="text-3xl font-black text-slate-900">{safeAmount.toLocaleString()} <span className="text-base">ج.س</span></h3></div>
-            <div className="mt-8 space-y-3">
-              <a href={`whatsapp://send?text=${encodeURIComponent(receiptText)}`} className="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-md transition">📱 إرسال للواتساب</a>
-              <button onClick={copyText} className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 py-3.5 rounded-xl font-bold text-sm transition">📋 نسخ كنص</button>
-              <button onClick={onClose} className="w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold text-sm transition">إغلاق النافذة ❌</button>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
-  </script>
-</body>
-</html>
+function ReceiptModal({ data, onClose, showToast }) {
+ if (!data) return null; const safeAmt = data.amount ? parseFloat(data.amount) : 0;
+ const rTxt = `🧾 *${data.title}*\n▪️ المرجع: ${data.ref}\n▪️ التاريخ: ${data.date}\n▪️ البيان: ${data.person}\n💰 الأرباح المسجلة: ${safeAmt.toLocaleString()} ج.س`;
+ return (
+  <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-5 pop">
+   <div className="bg-white text-slate-950 w-full max-w-sm rounded-3xl p-5 font-mono shadow-2xl space-y-4">
+    <h2 className="font-bold text-center text-base border-b border-dashed border-slate-300 pb-2">{data.title}</h2>
+    <div className="text-xs space-y-1.5 font-medium"><div className="flex justify-between"><span>المرجع:</span><span>{data.ref}</span></div><div className="flex justify-between"><span>التاريخ:</span><span>{data.date}</span></div><div className="flex justify-between"><span>البيان:</span><span className="truncate max-w-[60%]">{data.person}</span></div></div>
+    <div className="border-t border-dashed border-slate-300 pt-3 text-center"><h3 className="text-xl font-black">{safeAmt.toLocaleString()} ج.س</h3></div>
+    <div className="space-y-2 pt-2"><button onClick={()=>{vib();window.location.href=`whatsapp://send?text=${encodeURIComponent(rTxt)}`;}} className="w-full bg-emerald-600 text-white py-2.5 rounded-xl font-bold text-xs shadow-md">📱 إرسال للواتساب</button><button onClick={()=>{vib();navigator.clipboard.writeText(rTxt);showToast('تم النسخ!');}} className="w-full bg-slate-100 text-slate-800 py-2.5 rounded-xl font-bold text-xs">📋 نسخ السند نصياً</button><button onClick={onClose} className="w-full bg-slate-950 text-white py-2.5 rounded-xl font-bold text-xs">إغلاق ❌</button></div>
+   </div>
+  </div>
+ );
+}
+const root=ReactDOM.createRoot(document.getElementById('root'));root.render(<App/>);
+</script></body></html>
