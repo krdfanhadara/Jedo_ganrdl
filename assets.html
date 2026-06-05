@@ -491,6 +491,43 @@ function ReceiptModal({ data, onClose, showToast }) {
   );
 }
 
+// نافذة التصفية / بيع الأصل الجديدة
+function SellMod({ a, oC, oS }) {
+  const [p, setP] = useState(a.currentValue || '');
+  const [w, setW] = useState('bank');
+
+  const sub = e => {
+    e.preventDefault();
+    if (p <= 0) return alert('الرجاء إدخال مبلغ صحيح');
+    if (window.confirm(`تأكيد بيع (${a.name}) وإرسال ماله إلى المحاسب الذكي؟`)) {
+      oS(a.id, p, w);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+      <div className="bg-slate-900 w-full max-w-sm rounded-3xl p-6 border border-slate-800 space-y-4 pop shadow-2xl">
+        <h2 className="font-black text-white text-base text-center border-b border-slate-800 pb-3">تصفية وبيع أصل 💸</h2>
+        <p className="text-xs text-slate-400 text-center font-semibold">أنت على وشك بيع <span className="text-amber-400 font-bold px-1">({a.name})</span></p>
+        <form onSubmit={sub} className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-[11px] text-slate-400 font-bold px-1">سعر البيع الفعلي (السيولة المستلمة):</label>
+            <input type="number" value={p} onChange={x => setP(x.target.value)} required className="w-full bg-slate-950 p-3.5 rounded-xl border border-slate-700/50 text-center text-2xl font-black tracking-tighter focus:border-amber-500 text-amber-400 outline-none transition" placeholder="أدخل القيمة..." autoFocus />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-[11px] text-slate-400 font-bold px-1">أين سيتم إيداع مال البيع؟</label>
+            <div className="flex gap-2">
+              <button type="button" onClick={() => setW('bank')} className={`flex-1 py-3 rounded-xl text-xs font-bold transition ${w === 'bank' ? 'bg-blue-500 text-white shadow-md' : 'bg-slate-950 text-slate-500 border border-slate-800'}`}>البنك 📱</button>
+              <button type="button" onClick={() => setW('cash')} className={`flex-1 py-3 rounded-xl text-xs font-bold transition ${w === 'cash' ? 'bg-emerald-500 text-white shadow-md' : 'bg-slate-950 text-slate-500 border border-slate-800'}`}>الكاش 💵</button>
+            </div>
+          </div>
+          <button type="submit" className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-900 font-black py-4 rounded-xl text-sm shadow-md transition mt-2">تأكيد البيع وترحيل المال ✅</button>
+        </form>
+        <button onClick={oC} className="w-full text-slate-400 hover:text-white text-sm pt-2 font-semibold transition">إلغاء النافذة</button>
+      </div>
+    </div>
+  );
+}
 function App() {
   const [auth, setAuth] = useState(() => localStorage.getItem('s_acc_sess') === 'act');
   const [vw, setVw] = useState('login');
@@ -512,6 +549,7 @@ function App() {
   const [plM, setPlM] = useState(null);
   const [incM, setIncM] = useState(null); 
   const [maintM, setMaintM] = useState(null);
+  const [sellM, setSellM] = useState(null); // حالة نافذة البيع الجديدة
 
   const [liveRates, setLiveRates] = useState({
     usdOfficial: 1300, usdParallel: 1950, sarOfficial: 346, sarParallel: 520, lastUpdate: 'تحديث...'
@@ -593,6 +631,27 @@ function App() {
     }
   };
 
+  // دالة بيع وتصفية الأصل وترحيل المال
+  const handleSellAsset = (id, price, wallet) => {
+    vib();
+    const asset = ast.find(a => a.id === id);
+    if (!asset) return;
+
+    const nt = {
+      id: Date.now(),
+      type: 'income',
+      amount: parseFloat(price),
+      wallet: wallet,
+      category: `مال بيع: ${asset.name}`,
+      date: new Date().toISOString().split('T')[0]
+    };
+    
+    setTxs([nt, ...txs]);
+    setAst(ast.filter(a => a.id !== id));
+    setSellM(null);
+    shT(`تم الترحيل! أُضيف ${parseFloat(price).toLocaleString()} ج للصافي الحر بنجاح ✅`);
+  };
+
   const changePw = () => {
     const el = document.getElementById('npw');
     const v = el.value;
@@ -623,6 +682,7 @@ function App() {
       {maintM && <MaintMod a={maintM} ast={ast} setAst={setAst} txs={txs} setTxs={setTxs} oC={() => setMaintM(null)} shT={shT} />}
       {plM && <PlMod p={plM} txs={txs} oC={() => setPlM(null)} oD={id => setTxs(txs.filter(t => t.id !== id))} />}
       {rec && <ReceiptModal data={rec} onClose={() => setRec(null)} showToast={shT} />}
+      {sellM && <SellMod a={sellM} oC={() => setSellM(null)} oS={handleSellAsset} />}
 
       <header className="bg-slate-900 border-b border-yellow-600/30 p-4 sticky top-0 z-10 flex justify-between items-center shadow-lg">
         <div className="flex items-center gap-2">
@@ -700,6 +760,8 @@ function App() {
                     </div>
                   </>
                 )}
+                {/* زر التصفية والبيع المضاف هنا */}
+                <button onClick={() => {vib(); setSellM(a);}} className="w-full mt-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 py-2.5 rounded-xl text-xs font-bold transition border border-amber-500/20">تصفية / بيع الأصل 💸</button>
               </div>
             )})}
           </div>
