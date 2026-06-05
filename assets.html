@@ -14,6 +14,7 @@
     input[type=number]::-webkit-inner-spin-button { display: none; }
     .pop { animation: p .2s ease-out forwards; }
     @keyframes p { 0% { transform: scale(.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom, 1rem); }
   </style>
 </head>
 <body>
@@ -30,9 +31,7 @@ const I = {
   S: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 5.4 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1-2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
   T: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></svg>,
   E: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
-  R: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/></svg>,
-  M: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
-  Sw: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M7 10l5-5 5 5M7 14l5 5 5-5"/></svg>
+  M: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
 };
 
 const vib = () => { if (navigator.vibrate) navigator.vibrate(30); };
@@ -81,15 +80,8 @@ function AuthScreen({ view, setView, savedEmail, savedPwd, savedSecAnswer, onReg
 }
 
 function CurrencyConverter({ rates }) {
-  const [amt, setAmt] = useState('');
-  const [cur, setCur] = useState('USD');
-  const [dir, setDir] = useState('to_sdg'); 
-
-  const calc = (rate) => {
-    const value = parseFloat(amt) || 0;
-    if(dir === 'to_sdg') return Math.round(value * rate).toLocaleString();
-    return (value / rate).toFixed(2).toLocaleString();
-  };
+  const [amt, setAmt] = useState(''); const [cur, setCur] = useState('USD'); const [dir, setDir] = useState('to_sdg'); 
+  const calc = (rate) => { const value = parseFloat(amt) || 0; if(dir === 'to_sdg') return Math.round(value * rate).toLocaleString(); return (value / rate).toFixed(2).toLocaleString(); };
 
   return (
     <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-5 rounded-3xl border border-indigo-500/30 space-y-4 pop shadow-xl">
@@ -97,20 +89,16 @@ function CurrencyConverter({ rates }) {
         <span className="flex gap-2"><I.M/> تحويل العملات</span>
         <span className="text-[10px] bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-1 rounded-md font-mono">تحديث: {rates.lastUpdate}</span>
       </h3>
-      
       <div className="flex gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold">
         <button onClick={()=>{vib(); setDir('to_sdg');}} className={`flex-1 py-2.5 rounded-lg transition ${dir==='to_sdg'?'bg-indigo-500 text-white':'text-slate-400'}`}>بيع (أملك أجنبي)</button>
         <button onClick={()=>{vib(); setDir('from_sdg');}} className={`flex-1 py-2.5 rounded-lg transition ${dir==='from_sdg'?'bg-indigo-500 text-white':'text-slate-400'}`}>شراء (أملك جنيه)</button>
       </div>
-
       <div className="flex gap-2">
         <input type="number" placeholder="أدخل المبلغ هنا..." value={amt} onChange={e => setAmt(e.target.value)} className="flex-1 min-w-0 bg-slate-950 p-3.5 rounded-xl text-center font-bold outline-none text-white border border-slate-700 focus:border-indigo-500 transition font-sans" />
         <select value={cur} onChange={e => setCur(e.target.value)} className="bg-slate-900 text-white p-3 rounded-xl font-bold outline-none border border-slate-700 shrink-0">
-          <option value="USD">دولار ($)</option>
-          <option value="SAR">ريال (ر.س)</option>
+          <option value="USD">دولار ($)</option><option value="SAR">ريال (ر.س)</option>
         </select>
       </div>
-      
       {amt > 0 && (
         <div className="space-y-3 pt-2">
           <div className="bg-slate-950/80 p-4 rounded-2xl border border-slate-700 flex flex-col items-center justify-center relative overflow-hidden">
@@ -133,15 +121,13 @@ function CurrencyConverter({ rates }) {
 
 function Feas({ g24 }) {
   const [n, setN] = useState(''); const [d, setD] = useState(() => new Date().toISOString().split('T')[0]);
-  const [c, setC] = useState(''); 
-  const [gk, setGk] = useState('24'); const [gg, setGg] = useState(''); // Gold calculator
+  const [c, setC] = useState(''); const [gk, setGk] = useState('24'); const [gg, setGg] = useState('');
   const [rv, setRv] = useState(''); const [rf, setRf] = useState('monthly'); const [rc, setRc] = useState('');
   const [ex, setEx] = useState(''); const [ef, setEf] = useState('monthly'); const [ec, setEc] = useState('');
   const [rm, setRm] = useState('15'); const [cr, setCr] = useState(''); 
   const [dm, setDm] = useState('5'); const [cm, setCm] = useState('');
   const [res, setRes] = useState(null);
 
-  // Auto calculate capital if gold grams entered
   useEffect(() => {
     if (parseFloat(gg) > 0) {
       const p = gk === '21' ? 0.875 : (gk === '18' ? 0.75 : 1);
@@ -150,12 +136,8 @@ function Feas({ g24 }) {
   }, [gg, gk, g24]);
 
   const getMultiplier = (freq, customDays) => {
-    if(freq === 'daily') return 360;
-    if(freq === 'weekly') return 52;
-    if(freq === 'monthly') return 12;
-    if(freq === 'yearly') return 1;
-    if(freq === 'custom') return 360 / (parseFloat(customDays) || 1);
-    return 12;
+    if(freq === 'daily') return 360; if(freq === 'weekly') return 52; if(freq === 'monthly') return 12; if(freq === 'yearly') return 1;
+    if(freq === 'custom') return 360 / (parseFloat(customDays) || 1); return 12;
   }
 
   const calc = () => {
@@ -164,7 +146,6 @@ function Feas({ g24 }) {
     const rate = ((rm === 'custom' ? parseFloat(cr) : parseFloat(rm)) || 0) / 100;
     const yrs = dm === 'custom' ? (parseFloat(cm || 0) / 12) : parseInt(dm);
     if (cap <= 0 || r <= 0 || yrs <= 0) return alert('الرجاء إدخال بيانات صحيحة.');
-    
     const aF = (r * getMultiplier(rf, rc)) - (e * getMultiplier(ef, ec));
     if (aF <= 0) return setRes({ err: 'تكاليف التشغيل تفوق الأرباح المكتسبة! المشروع خاسر محاسبياً.' });
     
@@ -180,8 +161,8 @@ function Feas({ g24 }) {
 
   const share = () => {
     if(!res) return;
-    const txt = `📊 *تقرير دراسة جدوى موثق*\n🔢 الرقم المرجعي: ${res.id}\n💼 اسم المشروع: ${n || 'عام'}\n📅 تاريخ الدراسة: ${d}\n💰 رأس المال: ${parseFloat(c).toLocaleString()} ج.س\n📈 الأرباح الصافية المتوقعة: ${Math.round(res.tP).toLocaleString()} ج.س\n⚖️ القيمة الحالية الصافية (NPV) بعد التضخم: ${Math.round(res.npv).toLocaleString()} ج.س\n⚡ العائد على الاستثمار (ROI): ${res.roi.toFixed(1)}%\n⏱️ زمن استرداد رأس المال: ${res.mo} شهراً و ${res.dy} يوماً\n-----------------------\n🔮 القرار المحاسبي: ${res.ok ? '✅ مشروع ناجح ومُجدي' : '❌ التضخم يبتلع الأرباح، غير مجدي'}`;
-    navigator.clipboard.writeText(txt); alert('تم نسخ التقرير للنشر!');
+    const txt = `📊 *تقرير دراسة جدوى*\n🔢 المرجع: ${res.id}\n💼 المشروع: ${n || 'عام'}\n📅 التاريخ: ${d}\n💰 رأس المال: ${parseFloat(c).toLocaleString()} ج.س\n📈 الأرباح الصافية المتوقعة: ${Math.round(res.tP).toLocaleString()} ج.س\n⚖️ (NPV) بعد التضخم: ${Math.round(res.npv).toLocaleString()} ج.س\n⚡ العائد (ROI): ${res.roi.toFixed(1)}%\n⏱️ زمن الاسترداد: ${res.mo} شهراً و ${res.dy} يوماً\n🔮 القرار: ${res.ok ? '✅ مشروع ناجح' : '❌ التضخم يبتلع الأرباح'}`;
+    navigator.clipboard.writeText(txt); alert('تم النسخ للنشر!');
   };
 
   return (
@@ -189,8 +170,6 @@ function Feas({ g24 }) {
       <h3 className="text-sm font-black text-emerald-400 border-b border-slate-700/50 pb-3 flex gap-2 items-center"><I.A/> استوديو دراسات الجدوى</h3>
       <div className="space-y-3 text-sm font-semibold">
         <input type="text" placeholder="اسم المشروع المقترح..." value={n} onChange={e => setN(e.target.value)} className="w-full bg-slate-900/80 text-white p-3.5 rounded-xl border border-slate-700/50 outline-none focus:border-emerald-500" />
-        
-        {/* تقييم رأس المال بالذهب */}
         <div className="p-3 bg-slate-900/60 rounded-xl border border-yellow-500/30 space-y-2">
           <p className="text-[10px] text-yellow-500 font-bold">تسعير رأس المال بالذهب المباشر (اختياري)</p>
           <div className="flex gap-2">
@@ -202,30 +181,24 @@ function Feas({ g24 }) {
             </select>
           </div>
         </div>
-
         <input type="number" placeholder="رأس المال الكلي للتشغيل (ج.س)" value={c} onChange={e => setC(e.target.value)} className="w-full bg-slate-900/80 text-white p-3.5 rounded-xl text-center font-bold border border-slate-700/50 outline-none focus:border-emerald-500 font-sans" />
-        
         <div className="p-4 bg-slate-900/80 rounded-2xl border border-slate-700/50 space-y-3 shadow-inner">
           <div className="flex gap-2">
-            <input type="number" placeholder="الإيراد" value={rv} onChange={e => setRv(e.target.value)} className="flex-1 min-w-0 bg-slate-950 p-3 rounded-xl text-center font-bold text-emerald-400 outline-none border border-slate-800" />
+            <input type="number" placeholder="الإيراد المتوقع" value={rv} onChange={e => setRv(e.target.value)} className="flex-1 min-w-0 bg-slate-950 p-3 rounded-xl text-center font-bold text-emerald-400 outline-none border border-slate-800" />
             <select value={rf} onChange={e => setRf(e.target.value)} className="bg-slate-950 text-white p-2 rounded-xl font-bold outline-none border border-slate-800"><option value="daily">يومي</option><option value="weekly">أسبوعي</option><option value="monthly">شهري</option><option value="yearly">سنوي</option><option value="custom">مخصص</option></select>
           </div>
-          {rf === 'custom' && <input type="number" placeholder="أدخل عدد الأيام لدورة الإيراد (مثلاً 45)" value={rc} onChange={e=>setRc(e.target.value)} className="w-full bg-slate-950 p-2.5 rounded-xl text-center text-emerald-300 outline-none text-xs border border-emerald-500/30" />}
-          
+          {rf === 'custom' && <input type="number" placeholder="دورة الإيراد بالأيام (مثلاً 45)" value={rc} onChange={e=>setRc(e.target.value)} className="w-full bg-slate-950 p-2.5 rounded-xl text-center text-emerald-300 outline-none text-xs border border-emerald-500/30" />}
           <div className="flex gap-2 border-t border-slate-700/50 pt-3">
-            <input type="number" placeholder="المصروف" value={ex} onChange={e => setEx(e.target.value)} className="flex-1 min-w-0 bg-slate-950 p-3 rounded-xl text-center font-bold text-red-400 outline-none border border-slate-800" />
+            <input type="number" placeholder="المصروف التشغيلي" value={ex} onChange={e => setEx(e.target.value)} className="flex-1 min-w-0 bg-slate-950 p-3 rounded-xl text-center font-bold text-red-400 outline-none border border-slate-800" />
             <select value={ef} onChange={e => setEf(e.target.value)} className="bg-slate-950 text-white p-2 rounded-xl font-bold outline-none border border-slate-800"><option value="daily">يومي</option><option value="weekly">أسبوعي</option><option value="monthly">شهري</option><option value="yearly">سنوي</option><option value="custom">مخصص</option></select>
           </div>
-          {ef === 'custom' && <input type="number" placeholder="أدخل عدد الأيام لدورة المصروف (مثلاً 14)" value={ec} onChange={e=>setEc(e.target.value)} className="w-full bg-slate-950 p-2.5 rounded-xl text-center text-red-300 outline-none text-xs border border-red-500/30" />}
+          {ef === 'custom' && <input type="number" placeholder="دورة المصروف بالأيام (مثلاً 14)" value={ec} onChange={e=>setEc(e.target.value)} className="w-full bg-slate-950 p-2.5 rounded-xl text-center text-red-300 outline-none text-xs border border-red-500/30" />}
         </div>
-        
         <select value={rm} onChange={e => setRm(e.target.value)} className="w-full bg-slate-900/80 p-3.5 rounded-xl font-bold text-white outline-none border border-slate-700/50 focus:border-emerald-500"><option value="15">معدل التضخم 15%</option><option value="20">معدل التضخم 20%</option><option value="custom">تضخم مخصص...</option></select>
         {rm === 'custom' && <input type="number" placeholder="اكتب النسبة %" value={cr} onChange={e => setCr(e.target.value)} className="w-full bg-slate-900/80 p-3 rounded-xl text-center font-bold text-amber-400 border border-amber-500/30 outline-none" />}
-        
         <select value={dm} onChange={e => setDm(e.target.value)} className="w-full bg-slate-900/80 p-3.5 rounded-xl text-center font-bold text-white outline-none border border-slate-700/50 focus:border-emerald-500"><option value="1">دراسة لـ 1 سنة</option><option value="3">دراسة لـ 3 سنوات</option><option value="5">دراسة لـ 5 سنوات</option><option value="custom">مدة مخصصة...</option></select>
         {dm === 'custom' && <input type="number" placeholder="أدخل عدد الشهور الكلي" value={cm} onChange={e => setCm(e.target.value)} className="w-full bg-slate-900/80 p-3 rounded-xl text-center font-bold text-amber-400 border border-amber-500/30 outline-none" />}
       </div>
-      
       <button type="button" onClick={calc} className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black py-4 rounded-xl text-sm transition shadow-lg mt-2">استخراج التقرير المالي ⚙️</button>
       
       {res && !res.err && (
@@ -246,28 +219,39 @@ function Feas({ g24 }) {
 
 function Mod({ g24, ed, cls, sav }) {
   const isE = !!ed; 
+  const isRentedVal = isE ? (ed.isRented === true || ed.isRented === 'yes' ? 'yes' : 'no') : 'no';
   const gt = isE ? (ed.type || (ed.grams !== undefined ? 'gold' : 'real_estate')) : 'real_estate';
+  
   const [ty, setTy] = useState(gt); 
   const [pm, setPm] = useState(isE && ed.purityLabel ? 'other' : (isE && ed.purity == 0.875 ? '21' : (isE && ed.purity == 0.75 ? '18' : '24')));
   
   const defInc = isE ? (ed.periodicIncome || ed.monthlyRent || '') : '';
-  const [f, setF] = useState(isE ? { ...ed, periodicIncome: defInc } : { name: '', area: '', currentValue: '', isRented: 'no', annualGrowth: '', grams: '', habba: '', purity: '1', periodicIncome: '', incomeFreq: 'monthly', customName: '', customFactor: '' });
+  const defExp = isE ? (ed.periodicExpense || '') : '';
+  
+  const [f, setF] = useState(isE ? { 
+    ...ed, isRented: isRentedVal, periodicIncome: defInc, periodicExpense: defExp 
+  } : { 
+    name: '', area: '', currentValue: '', isRented: 'no', annualGrowth: '', 
+    grams: '', habba: '', purity: '1', periodicIncome: '', periodicExpense: '', 
+    maintenanceFund: 0, incomeFreq: 'monthly', customName: '', customFactor: '' 
+  });
   
   const am = (parseFloat(f.area) > 0 && parseFloat(f.currentValue) > 0) ? (parseFloat(f.currentValue) / parseFloat(f.area)) : 0;
   
   const snd = () => {
     const id = isE ? ed.id : Date.now(); 
     const dt = isE ? ed.date : new Date().toISOString().split('T')[0];
+    const isR = f.isRented === 'yes' ? 'yes' : 'no';
     
     if (ty === 'real_estate') { 
-      sav({ id, type: 'real_estate', name: f.name, area: parseFloat(f.area) || 0, pricePerMeter: am, currentValue: parseFloat(f.currentValue) || 0, isRented: f.isRented === 'yes', periodicIncome: parseFloat(f.periodicIncome) || 0, incomeFreq: f.incomeFreq || 'monthly', annualGrowth: parseFloat(f.annualGrowth) || 0, date: dt }, isE); 
+      sav({ id, type: 'real_estate', name: f.name, area: parseFloat(f.area) || 0, pricePerMeter: am, currentValue: parseFloat(f.currentValue) || 0, isRented: isR, periodicIncome: parseFloat(f.periodicIncome) || 0, periodicExpense: parseFloat(f.periodicExpense) || 0, maintenanceFund: parseFloat(f.maintenanceFund) || 0, incomeFreq: f.incomeFreq || 'monthly', annualGrowth: parseFloat(f.annualGrowth) || 0, date: dt }, isE); 
     } else if (ty === 'gold') { 
       const tg = (parseFloat(f.grams) || 0) + (parseFloat(f.habba) || 0) * 0.058; 
       const fp = pm === 'other' ? parseFloat(f.customFactor) : (pm === '21' ? 0.875 : (pm === '18' ? 0.75 : 1)); 
       const fl = pm === 'other' ? f.customName : `عيار ${pm}`; 
       sav({ id, type: 'gold', name: f.name || fl, grams: parseFloat(f.grams) || 0, habba: parseFloat(f.habba) || 0, totalGrams: tg, purity: fp, purityLabel: fl, currentValue: tg * g24 * fp, date: dt }, isE); 
     } else { 
-      sav({ id, type: 'vehicle_livestock', name: f.name, currentValue: parseFloat(f.currentValue) || 0, isRented: f.isRented === 'yes', periodicIncome: parseFloat(f.periodicIncome) || 0, incomeFreq: f.incomeFreq || 'monthly', date: dt }, isE); 
+      sav({ id, type: 'vehicle_livestock', name: f.name, currentValue: parseFloat(f.currentValue) || 0, isRented: isR, periodicIncome: parseFloat(f.periodicIncome) || 0, periodicExpense: parseFloat(f.periodicExpense) || 0, maintenanceFund: parseFloat(f.maintenanceFund) || 0, incomeFreq: f.incomeFreq || 'monthly', date: dt }, isE); 
     }
   };
 
@@ -298,9 +282,12 @@ function Mod({ g24, ed, cls, sav }) {
               {f.isRented === 'yes' && (
                 <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-3">
                   <div className="flex gap-2">
-                    <input type="number" placeholder="مبلغ الربح" value={f.periodicIncome || ''} onChange={e => setF({ ...f, periodicIncome: e.target.value })} className="flex-1 min-w-0 bg-slate-900 p-3 rounded-lg text-center text-emerald-400 outline-none" />
-                    <select value={f.incomeFreq || 'monthly'} onChange={e => setF({ ...f, incomeFreq: e.target.value })} className="bg-slate-900 text-white p-2 rounded-lg outline-none shrink-0"><option value="daily">يومي</option><option value="weekly">أسبوعي</option><option value="monthly">شهري</option><option value="yearly">سنوي</option></select>
+                    <input type="number" placeholder="الإيراد الكلي" value={f.periodicIncome || ''} onChange={e => setF({ ...f, periodicIncome: e.target.value })} className="flex-1 min-w-0 bg-slate-900 p-3 rounded-lg text-center text-emerald-400 outline-none" />
+                    <input type="number" placeholder="مصروف الصيانة" value={f.periodicExpense || ''} onChange={e => setF({ ...f, periodicExpense: e.target.value })} className="flex-1 min-w-0 bg-slate-900 p-3 rounded-lg text-center text-red-400 outline-none" />
                   </div>
+                  <select value={f.incomeFreq || 'monthly'} onChange={e => setF({ ...f, incomeFreq: e.target.value })} className="w-full bg-slate-900 text-white p-3 rounded-lg outline-none text-center">
+                    <option value="daily">دورة يومية</option><option value="weekly">دورة أسبوعية</option><option value="monthly">دورة شهرية</option><option value="yearly">دورة سنوية</option>
+                  </select>
                   <input type="number" placeholder="الزيادة السنوية للإيجار % (إن وجدت)" value={f.annualGrowth || ''} onChange={e => setF({ ...f, annualGrowth: e.target.value })} className="w-full bg-slate-900 p-3 rounded-lg text-center text-white outline-none" />
                 </div>
               )}
@@ -309,11 +296,13 @@ function Mod({ g24, ed, cls, sav }) {
           
           {ty === 'gold' && (
             <div className="space-y-3">
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <input type="number" placeholder="الجرامات" value={f.grams || ''} onChange={e => setF({ ...f, grams: e.target.value })} className="w-1/2 min-w-0 bg-slate-950 p-3.5 rounded-xl text-center text-white outline-none" />
                 <input type="number" placeholder="الحبات" value={f.habba || ''} onChange={e => setF({ ...f, habba: e.target.value })} className="w-1/2 min-w-0 bg-slate-950 p-3.5 rounded-xl text-center text-white outline-none" />
               </div>
-              <select value={pm} onChange={e => setPm(e.target.value)} className="w-full bg-slate-900 text-yellow-400 p-3.5 rounded-xl font-bold outline-none border border-slate-800"><option value="24">عيار 24</option><option value="21">عيار 21</option><option value="18">عيار 18</option><option value="other">عيار مخصص...</option></select>
+              <select value={pm} onChange={e => setPm(e.target.value)} className="w-full bg-slate-900 text-yellow-400 p-3.5 rounded-xl font-bold outline-none border border-slate-800">
+                <option value="24">عيار 24</option><option value="21">عيار 21</option><option value="18">عيار 18</option><option value="other">عيار مخصص...</option>
+              </select>
             </div>
           )}
           
@@ -322,9 +311,14 @@ function Mod({ g24, ed, cls, sav }) {
               <input type="number" placeholder="القيمة الحالية التقديرية" value={f.currentValue || ''} onChange={e => setF({ ...f, currentValue: e.target.value })} className="w-full bg-slate-950 p-3.5 rounded-xl text-center text-white outline-none" />
               <select value={f.isRented || 'no'} onChange={e => setF({ ...f, isRented: e.target.value })} className="w-full bg-slate-900 text-white p-3.5 rounded-xl font-bold outline-none border border-slate-800"><option value="no">لا يدر ربح</option><option value="yes">نعم، يورد أرباح</option></select>
               {f.isRented === 'yes' && (
-                <div className="flex gap-2 p-3 bg-slate-950 rounded-xl border border-slate-800">
-                  <input type="number" placeholder="الربح الصافي" value={f.periodicIncome || ''} onChange={e => setF({ ...f, periodicIncome: e.target.value })} className="flex-1 min-w-0 bg-slate-900 p-3 rounded-lg text-center text-emerald-400 outline-none" />
-                  <select value={f.incomeFreq || 'monthly'} onChange={e => setF({ ...f, incomeFreq: e.target.value })} className="bg-slate-900 text-white p-2 rounded-lg outline-none shrink-0"><option value="daily">يومي</option><option value="weekly">أسبوعي</option><option value="monthly">شهري</option><option value="yearly">سنوي</option></select>
+                <div className="space-y-3 p-3 bg-slate-950 rounded-xl border border-slate-800">
+                  <div className="flex gap-2">
+                    <input type="number" placeholder="الإيراد الكلي" value={f.periodicIncome || ''} onChange={e => setF({ ...f, periodicIncome: e.target.value })} className="flex-1 min-w-0 bg-slate-900 p-3 rounded-lg text-center text-emerald-400 outline-none" />
+                    <input type="number" placeholder="مصروف الصيانة" value={f.periodicExpense || ''} onChange={e => setF({ ...f, periodicExpense: e.target.value })} className="flex-1 min-w-0 bg-slate-900 p-3 rounded-lg text-center text-red-400 outline-none" />
+                  </div>
+                  <select value={f.incomeFreq || 'monthly'} onChange={e => setF({ ...f, incomeFreq: e.target.value })} className="w-full bg-slate-900 text-white p-3 rounded-lg outline-none text-center">
+                    <option value="daily">دورة يومية</option><option value="weekly">دورة أسبوعية</option><option value="monthly">دورة شهرية</option><option value="yearly">دورة سنوية</option>
+                  </select>
                 </div>
               )}
             </div>
@@ -336,29 +330,101 @@ function Mod({ g24, ed, cls, sav }) {
   );
 }
 
-function IncMod({ a, txs, setTxs, oC, shT, setRec }) {
-  const defAmt = parseFloat(a.periodicIncome || a.monthlyRent || 0);
-  const [am, setAm] = useState(defAmt > 0 ? defAmt : '');
+function IncMod({ a, txs, setTxs, ast, setAst, oC, shT, setRec }) {
+  const defInc = parseFloat(a.periodicIncome || a.monthlyRent || 0);
+  const defExp = parseFloat(a.periodicExpense || 0);
+  
+  const [gross, setGross] = useState(defInc > 0 ? defInc : '');
+  const [maint, setMaint] = useState(defExp > 0 ? defExp : '');
+  
+  const net = (parseFloat(gross) || 0) - (parseFloat(maint) || 0);
 
-  const sub = (w) => {
+  const handleDeposit = (w) => {
     vib();
-    if(!am || am <= 0) return alert('أدخل مبلغاً صحيحاً');
-    const nt = { id: Date.now(), type: 'income', amount: parseFloat(am), wallet: w, category: `إيراد أصل (${a.name})`, date: new Date().toISOString().split('T')[0] };
-    setTxs([nt, ...txs]);
-    setRec({ title: 'سند إيراد أصل', person: a.name, amount: am, date: nt.date, ref: `INC-${nt.id.toString().slice(-4)}` });
+    if (net < 0) return alert('الصافي لا يمكن أن يكون سالباً!');
+    if (parseFloat(maint) > 0) {
+      setAst(ast.map(x => x.id === a.id ? { ...x, maintenanceFund: (x.maintenanceFund || 0) + parseFloat(maint) } : x));
+    }
+    if (net > 0) {
+      const nt = { id: Date.now(), type: 'income', amount: net, wallet: w, category: `إيراد أصل (${a.name})`, date: new Date().toISOString().split('T')[0] };
+      setTxs([nt, ...txs]);
+      setRec({ title: 'سند إيراد أصل', person: a.name, amount: net, date: nt.date, ref: `INC-${nt.id.toString().slice(-4)}` });
+    } else {
+      shT('تم احتجاز المبلغ بالكامل كصندوق صيانة ✅');
+    }
     oC();
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
       <div className="bg-slate-900 w-full max-w-sm rounded-3xl p-6 border border-slate-800 space-y-5 pop shadow-2xl">
         <h2 className="font-bold text-white text-base border-b border-slate-700/50 pb-3 text-center truncate px-2">تحصيل أرباح ({a.name})</h2>
-        <input type="number" placeholder="مبلغ الإيراد..." value={am} onChange={e=>setAm(e.target.value)} className="w-full bg-slate-950 p-4 rounded-xl text-center text-2xl font-black text-emerald-400 outline-none border border-slate-800 focus:border-emerald-500 transition font-sans" autoFocus />
+        <div className="space-y-3">
+          <div className="flex justify-between items-center bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <span className="text-xs text-slate-400">الإيراد الكلي:</span>
+            <input type="number" placeholder="الإجمالي..." value={gross} onChange={e=>setGross(e.target.value)} className="w-28 bg-slate-900 p-2 rounded-lg text-center font-bold text-white outline-none border border-slate-700" autoFocus />
+          </div>
+          <div className="flex justify-between items-center bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <span className="text-xs text-slate-400">مخصص صيانة:</span>
+            <input type="number" placeholder="المحتجز..." value={maint} onChange={e=>setMaint(e.target.value)} className="w-28 bg-slate-900 p-2 rounded-lg text-center font-bold text-red-400 outline-none border border-slate-700" />
+          </div>
+        </div>
+        <div className="text-center space-y-1 py-2">
+          <p className="text-xs text-slate-500 font-bold">الصافي المورد لخزينة المحاسب الذكي</p>
+          <p className="text-2xl font-black text-emerald-400" dir="ltr">{net.toLocaleString()} ج</p>
+        </div>
         <div className="flex gap-2">
-          <button onClick={()=>sub('bank')} className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3.5 rounded-xl font-bold text-sm shadow-md transition">إيداع للبنك 📱</button>
-          <button onClick={()=>sub('cash')} className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-xl font-bold text-sm shadow-md transition">إيداع للكاش 💵</button>
+          <button onClick={() => handleDeposit('bank')} className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3.5 rounded-xl font-bold text-sm shadow-md transition">إيداع للبنك 📱</button>
+          <button onClick={() => handleDeposit('cash')} className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-xl font-bold text-sm shadow-md transition">إيداع للكاش 💵</button>
         </div>
         <button onClick={oC} className="w-full text-slate-400 pt-2 text-sm font-semibold">إلغاء النافذة</button>
+      </div>
+    </div>
+  )
+}
+
+function MaintMod({ a, ast, setAst, txs, setTxs, oC, shT }) {
+  const mFund = parseFloat(a.maintenanceFund || 0);
+  const [amt, setAmt] = useState('');
+
+  const handleMaint = (action) => {
+    vib();
+    const v = parseFloat(amt) || 0;
+    if (v <= 0 || v > mFund) return alert('المبلغ المدخل غير متاح في صندوق الصيانة!');
+    if (action === 'spend') {
+      setAst(ast.map(x => x.id === a.id ? { ...x, maintenanceFund: mFund - v } : x));
+      shT('تم صرف مبلغ الصيانة 🔧');
+    } else {
+      const w = window.confirm('تحويل الفائض إلى البنك أم الكاش؟\nموافق = بنك | إلغاء = كاش');
+      const nt = { 
+        id: Date.now(), 
+        type: 'income', 
+        amount: v, 
+        wallet: w ? 'bank' : 'cash', 
+        category: `[فائض صيانة مسترد] - ${a.name}`, 
+        date: new Date().toISOString().split('T')[0] 
+      };
+      setTxs([nt, ...txs]);
+      setAst(ast.map(x => x.id === a.id ? { ...x, maintenanceFund: mFund - v } : x));
+      shT('تم ترحيل الفائض للمحاسب الذكي 💸');
+    }
+    oC();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+      <div className="bg-slate-900 w-full max-w-sm rounded-3xl p-6 border border-slate-800 space-y-5 pop shadow-2xl">
+        <h2 className="font-bold text-white text-base border-b border-slate-700/50 pb-3 text-center truncate px-2">إدارة صندوق صيانة ({a.name})</h2>
+        <div className="bg-slate-950 p-4 rounded-xl border border-yellow-500/30 text-center space-y-1 shadow-inner">
+          <p className="text-xs text-slate-400 font-bold">الرصيد المحتجز والمتاح للصيانة</p>
+          <p className="text-2xl font-black text-yellow-500" dir="ltr">{mFund.toLocaleString()} ج</p>
+        </div>
+        <input type="number" placeholder="المبلغ المراد صرفه أو تحويله..." value={amt} onChange={e=>setAmt(e.target.value)} className="w-full bg-slate-950 p-4 rounded-xl text-center text-lg font-bold text-white outline-none border border-slate-800 focus:border-yellow-500 transition font-sans" autoFocus />
+        <div className="flex gap-2">
+          <button onClick={() => handleMaint('spend')} className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 py-3 rounded-xl font-bold text-[11px] transition">صرف على عطل 🔧</button>
+          <button onClick={() => handleMaint('transfer')} className="flex-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 py-3 rounded-xl font-bold text-[11px] transition">ترحيل للمحاسب 💸</button>
+        </div>
+        <button onClick={oC} className="w-full text-slate-400 pt-2 text-sm font-semibold">إلغاء</button>
       </div>
     </div>
   )
@@ -367,7 +433,6 @@ function IncMod({ a, txs, setTxs, oC, shT, setRec }) {
 function PlMod({ p, txs, oC, oD }) {
   const pt = txs.filter(t => (t.category || '').includes(`(${p.name})`) && t.type === 'income');
   const tot = pt.reduce((s, t) => s + parseFloat(t.amount || 0), 0);
-  
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
       <div className="bg-slate-900 w-full max-w-sm rounded-3xl p-5 border border-slate-800 space-y-4 max-h-[85vh] overflow-y-auto pop shadow-2xl">
@@ -401,54 +466,25 @@ function ReceiptModal({ data, onClose, showToast }) {
   const safeAmt = data.amount ? parseFloat(data.amount) : 0;
   const rTxt = `🧾 *${data.title}*\n▪️ المرجع: ${data.ref}\n▪️ التاريخ: ${data.date}\n▪️ البيان: ${data.person}\n💰 المبلغ: ${safeAmt.toLocaleString()} ج.س`;
 
+  const sendWa = () => { vib(); window.location.href=`whatsapp://send?text=${encodeURIComponent(rTxt)}`; };
+  const copyTxt = () => { vib(); navigator.clipboard.writeText(rTxt); showToast('تم النسخ بنجاح!'); };
+
   return (
     <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-5 pop">
       <div className="bg-white text-slate-950 w-full max-w-sm rounded-3xl p-6 font-sans shadow-2xl space-y-5">
-        <h2 className="font-black text-center text-lg border-b border-dashed border-slate-300 pb-3">
-          {data.title}
-        </h2>
+        <h2 className="font-black text-center text-lg border-b border-dashed border-slate-300 pb-3">{data.title}</h2>
         <div className="text-sm space-y-2 font-bold text-slate-700">
-          <div className="flex justify-between">
-            <span>المرجع:</span>
-            <span className="font-mono bg-slate-100 px-2 rounded">{data.ref}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>التاريخ:</span>
-            <span className="font-mono">{data.date}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>البيان:</span>
-            <span className="truncate max-w-[60%] text-left">{data.person}</span>
-          </div>
+          <div className="flex justify-between"><span>المرجع:</span><span className="font-mono bg-slate-100 px-2 rounded">{data.ref}</span></div>
+          <div className="flex justify-between"><span>التاريخ:</span><span className="font-mono">{data.date}</span></div>
+          <div className="flex justify-between"><span>البيان:</span><span className="truncate max-w-[60%] text-left">{data.person}</span></div>
         </div>
         <div className="border-t border-dashed border-slate-300 pt-4 text-center">
-          <h3 className="text-2xl font-black text-emerald-600" dir="ltr">
-            {safeAmt.toLocaleString()} <span className="text-sm text-slate-500">ج.س</span>
-          </h3>
+          <h3 className="text-2xl font-black text-emerald-600" dir="ltr">{safeAmt.toLocaleString()} <span className="text-sm text-slate-500">ج.س</span></h3>
         </div>
         <div className="space-y-2.5 pt-3">
-          <button 
-            onClick={()=>{
-              vib(); window.location.href=`whatsapp://send?text=${encodeURIComponent(rTxt)}`;
-            }} 
-            className="w-full bg-emerald-500 text-white py-3 rounded-xl font-black text-sm shadow-md"
-          >
-            إرسال واتساب
-          </button>
-          <button 
-            onClick={()=>{
-              vib(); navigator.clipboard.writeText(rTxt); showToast('تم النسخ بنجاح!');
-            }} 
-            className="w-full bg-slate-100 text-slate-800 py-3 rounded-xl font-bold text-sm"
-          >
-            نسخ السند
-          </button>
-          <button 
-            onClick={onClose} 
-            className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold text-sm"
-          >
-            إغلاق ❌
-          </button>
+          <button onClick={sendWa} className="w-full bg-emerald-500 text-white py-3 rounded-xl font-black text-sm shadow-md">إرسال واتساب</button>
+          <button onClick={copyTxt} className="w-full bg-slate-100 text-slate-800 py-3 rounded-xl font-bold text-sm">نسخ السند</button>
+          <button onClick={onClose} className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold text-sm">إغلاق ❌</button>
         </div>
       </div>
     </div>
@@ -475,6 +511,7 @@ function App() {
   const [tst, setTst] = useState(null);
   const [plM, setPlM] = useState(null);
   const [incM, setIncM] = useState(null); 
+  const [maintM, setMaintM] = useState(null);
 
   const [liveRates, setLiveRates] = useState({
     usdOfficial: 1300, usdParallel: 1950, sarOfficial: 346, sarParallel: 520, lastUpdate: 'تحديث...'
@@ -521,7 +558,10 @@ function App() {
     try { if (navigator.share) await navigator.share({ title: 'أرشيف', text: t }); else { await navigator.clipboard.writeText(t); shT('تم النسخ للرفع!'); } } catch (e) { shT('تم الحفظ'); }
   };
   
-  const doRes = (s) => {
+  const triggerRestore = () => {
+    const el = document.getElementById('rc');
+    const s = el.value;
+    if (!s.trim()) return;
     vib(); 
     try { 
       const e = s.match(/[A-Za-z0-9+/=]{50,}/)?.[0] || s.trim(); 
@@ -529,6 +569,7 @@ function App() {
       if (d.as) setAst(d.as); 
       if (d.tx) setTxs(d.tx); 
       setBkp(Date.now()); shT('تمت الاستعادة بنجاح!'); 
+      el.value = '';
     } catch (e) { alert('كود تالف أو غير صحيح'); }
   };
 
@@ -541,7 +582,7 @@ function App() {
 
   const savA = (d, i) => { vib(); if (i) setAst(ast.map(a => a.id === d.id ? d : a)); else setAst([{ ...d, id: Date.now() }, ...ast]); shT('تم الحفظ'); setMo(false); setEd(null); };
   
-  const delA = a => {
+  const hDeleteAsset = a => {
     vib();
     if (window.confirm(`حذف أصل (${a.name}) نهائياً؟`)) {
       if (window.confirm('هل تريد مسح كل أرباحه السابقة من سجل المحاسب الذكي لتطهير الخزينة كلياً؟')) {
@@ -552,12 +593,37 @@ function App() {
     }
   };
 
+  const changePw = () => {
+    const el = document.getElementById('npw');
+    const v = el.value;
+    if (v.trim()) {
+      localStorage.setItem('s_acc_pw', v.trim());
+      setPw(v.trim());
+      shT('تم تغيير الرمز بنجاح!');
+      el.value = '';
+    }
+  };
+
+  const purgeAll = () => {
+    if (window.confirm('تحذير نهائي: هل أنت متأكد من مسح وتصفير الأصول وتطهير إيراداتها من المحاسب الذكي كلياً؟ هذا الإجراء لا يمكن التراجع عنه!')) { 
+      setAst([]); 
+      setTxs([]); 
+      shT('تم التصفير والتطهير بنجاح 🧹'); 
+    }
+  };
+
   if (!auth) return <AuthScreen view={vw} setView={setVw} savedEmail={em} savedPwd={pw} savedSecAnswer={sec} onRegister={(e, p, s) => { localStorage.setItem('s_acc_em', e); localStorage.setItem('s_acc_pw', p); localStorage.setItem('s_acc_sec', s); localStorage.setItem('s_acc_sess', 'act'); setEm(e); setPw(p); setSec(s); setAuth(true); }} onLogin={() => { localStorage.setItem('s_acc_sess', 'act'); setAuth(true); }} onResetPwd={n => { localStorage.setItem('s_acc_pw', n); setPw(n); setVw('login'); }} />;
 
   return (
-    <div className="pb-24">
+    <div className="pb-24 min-h-screen flex flex-col relative">
       {tst && <div className="fixed top-4 left-4 right-4 z-[100] bg-emerald-500 text-slate-950 p-3 rounded-xl text-center font-bold pop shadow-xl">{tst}</div>}
       
+      {mo && <Mod g24={g24} ed={ed} cls={() => { setMo(false); setEd(null); }} sav={savA} />}
+      {incM && <IncMod a={incM} txs={txs} setTxs={setTxs} ast={ast} setAst={setAst} oC={() => setIncM(null)} shT={shT} setRec={setRec} />}
+      {maintM && <MaintMod a={maintM} ast={ast} setAst={setAst} txs={txs} setTxs={setTxs} oC={() => setMaintM(null)} shT={shT} />}
+      {plM && <PlMod p={plM} txs={txs} oC={() => setPlM(null)} oD={id => setTxs(txs.filter(t => t.id !== id))} />}
+      {rec && <ReceiptModal data={rec} onClose={() => setRec(null)} showToast={shT} />}
+
       <header className="bg-slate-900 border-b border-yellow-600/30 p-4 sticky top-0 z-10 flex justify-between items-center shadow-lg">
         <div className="flex items-center gap-2">
           <div className="text-yellow-400 font-bold"><I.B/></div>
@@ -566,7 +632,7 @@ function App() {
         <a href="index.html" className="bg-slate-800 hover:bg-slate-700 text-white text-xs px-4 py-2 rounded-xl font-bold flex items-center gap-1.5 transition border border-slate-700">المحاسب الذكي 💼</a>
       </header>
       
-      <main className="p-4 max-w-md mx-auto space-y-4">
+      <main className="p-4 max-w-md w-full mx-auto space-y-4 flex-1">
         {tab !== 'profile' && (
           <div className="bg-gradient-to-br from-slate-900 to-slate-950 p-5 rounded-3xl border border-yellow-500/20 text-center pop shadow-xl relative overflow-hidden">
             <p className="text-slate-400 text-xs font-semibold mb-1">القيمة السوقية الكلية</p>
@@ -606,48 +672,63 @@ function App() {
               <button onClick={() => { setEd(null); setMo(true); }} className="bg-yellow-500 hover:bg-yellow-400 text-slate-950 px-4 py-2.5 rounded-xl text-sm font-black transition">➕ إضافة</button>
             </div>
             
-            {fAst.map(a => (
+            {fAst.map(a => {
+              const isAssetRented = a.isRented === 'yes' || a.isRented === true;
+              return (
               <div key={a.id} className="bg-slate-900 p-5 rounded-3xl border border-slate-800 relative space-y-3 shadow-sm">
                 <div className="absolute top-4 left-4 flex gap-1.5">
                   <button onClick={() => { setEd(a); setMo(true); }} className="p-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 rounded-lg transition"><I.E/></button>
-                  <button onClick={() => delA(a)} className="p-1.5 bg-slate-800 hover:bg-slate-700 text-red-400 rounded-lg transition"><I.T/></button>
+                  <button onClick={() => hDeleteAsset(a)} className="p-1.5 bg-slate-800 hover:bg-slate-700 text-red-400 rounded-lg transition"><I.T/></button>
                 </div>
                 <h4 className="font-bold text-white max-w-[65%] truncate text-sm leading-relaxed">{a.name}</h4>
                 <div className="bg-slate-950 p-3 rounded-2xl flex justify-between items-center text-xs border border-slate-800/50">
                   <span className="text-slate-400 font-semibold whitespace-nowrap">التقييم:</span>
                   <span className="font-black text-yellow-500 text-[15px] whitespace-nowrap tracking-tighter" dir="ltr">{parseFloat(a.currentValue || 0).toLocaleString()} ج</span>
                 </div>
-                {a.isRented && (
-                  <div className="flex gap-2 mt-2">
-                    <button onClick={() => {vib(); setIncM(a);}} className="flex-1 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 py-2.5 rounded-xl text-xs font-bold transition border border-emerald-500/10">تحصيل 💸</button>
-                    <button onClick={() => {vib(); setPlM(a);}} className="flex-1 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 py-2.5 rounded-xl text-xs font-bold transition border border-blue-500/10">الأرباح 📋</button>
-                  </div>
+                {isAssetRented && (
+                  <>
+                    <div className="bg-slate-950 p-3 rounded-2xl flex justify-between items-center text-xs border border-slate-800/50">
+                      <span className="text-slate-400 font-semibold whitespace-nowrap">صندوق الصيانة:</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-amber-500 text-[13px] whitespace-nowrap tracking-tighter" dir="ltr">{parseFloat(a.maintenanceFund || 0).toLocaleString()} ج</span>
+                        <button onClick={() => {vib(); setMaintM(a);}} className="text-[10px] bg-slate-800 text-amber-400 px-2 py-1 rounded">إدارة ⚙️</button>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 mt-2">
+                      <button onClick={() => {vib(); setIncM(a);}} className="flex-1 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 py-2.5 rounded-xl text-xs font-bold transition border border-emerald-500/10">تحصيل 💸</button>
+                      <button onClick={() => {vib(); setPlM(a);}} className="flex-1 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 py-2.5 rounded-xl text-xs font-bold transition border border-blue-500/10">الأرباح 📋</button>
+                    </div>
+                  </>
                 )}
               </div>
-            ))}
+            )})}
           </div>
         )}
         
         {tab === 'projection' && (
           <div className="space-y-4 pop">
-            <div className="bg-gradient-to-r from-emerald-900/40 to-teal-900/40 p-4 rounded-2xl border border-emerald-500/30 text-xs text-emerald-300 font-bold leading-relaxed shadow-lg">🔮 خوارزمية الاستشراف واسترداد التكلفة للأصول المشغّلة (تراكم مالي)</div>
-            {ast.filter(a => a.isRented).map(a => {
+            <div className="bg-gradient-to-r from-emerald-900/40 to-teal-900/40 p-4 rounded-2xl border border-emerald-500/30 text-xs text-emerald-300 font-bold leading-relaxed shadow-lg">🔮 خوارزمية الاستشراف واسترداد التكلفة للأصول المشغّلة (تراكم مالي بصافي الربح)</div>
+            {ast.filter(a => a.isRented === 'yes' || a.isRented === true).map(a => {
               const c = parseFloat(a.currentValue || 0);
               const inc = parseFloat(a.periodicIncome || a.monthlyRent || 0);
+              const exp = parseFloat(a.periodicExpense || 0);
+              const netInc = inc - exp;
               const freq = a.incomeFreq || 'monthly';
-              const mu = { 'daily': 360, 'weekly': 52, 'monthly': 12, 'yearly': 1 };
-              const an = inc * mu[freq];
+              const mu = { 'daily': 360, 'weekly': 52, 'monthly': 12, 'yearly': 1, 'custom': 12 };
+              const an = netInc * mu[freq];
               
               let pb = "لا يمكن الحساب";
               if (an > 0 && c > 0) {
                 const tm = Math.round((c / an) * 12); const y = Math.floor(tm / 12); const mo = tm % 12;
                 pb = y > 0 ? `يسترد رأسماله بعد: ${y} سنة و ${mo} شهر تقريباً` : `يسترد رأسماله بعد: ${mo} شهر تقريباً`;
+              } else if (an <= 0) {
+                pb = "المصروفات تفوق الإيرادات، الأصل خاسر!";
               }
               
               return (
                 <div key={a.id} className="bg-gradient-to-br from-slate-800 to-slate-900 p-5 rounded-3xl border border-cyan-500/20 space-y-4 shadow-xl">
                   <h4 className="font-black text-cyan-400 border-b border-slate-700/50 pb-2 text-sm truncate">{a.name}</h4>
-                  <p className="text-emerald-300 font-bold bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20 text-center text-xs">{pb}</p>
+                  <p className={`font-bold p-3 rounded-xl border text-center text-xs ${an > 0 ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20' : 'text-red-300 bg-red-500/10 border-red-500/20'}`}>{pb}</p>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/50 flex flex-col items-center justify-center overflow-hidden"><p className="text-slate-400 mb-1 text-[9px] font-bold">3 سنوات</p><p className="text-amber-400 font-black text-[12px] whitespace-nowrap tracking-tighter" dir="ltr">{Math.round(an * 3).toLocaleString()}</p></div>
                     <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/50 flex flex-col items-center justify-center overflow-hidden"><p className="text-slate-400 mb-1 text-[9px] font-bold">5 سنوات</p><p className="text-amber-400 font-black text-[12px] whitespace-nowrap tracking-tighter" dir="ltr">{Math.round(an * 5).toLocaleString()}</p></div>
@@ -656,7 +737,7 @@ function App() {
                 </div>
               );
             })}
-            {ast.filter(a => a.isRented).length === 0 && <p className="text-center text-slate-500 text-sm py-10">لا توجد أصول مشغلة ومدرة للربح حالياً.</p>}
+            {ast.filter(a => a.isRented === 'yes' || a.isRented === true).length === 0 && <p className="text-center text-slate-500 text-sm py-10">لا توجد أصول مشغلة ومدرة للربح حالياً.</p>}
           </div>
         )}
 
@@ -664,54 +745,70 @@ function App() {
         
         {tab === 'profile' && (
           <div className="space-y-4 pop text-sm pb-6">
-            
             <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3">
               <h3 className="font-black text-slate-300">🔐 الأمان وكلمة المرور</h3>
               <p className="text-slate-500 text-[10px]">إذا نسيت الرمز، يمكنك استعادته من شاشة الدخول عبر إجابة سؤال الأمان.</p>
               <div className="flex gap-2">
                 <input id="npw" type="text" placeholder="الرمز الجديد..." className="flex-1 bg-slate-950 p-3 rounded-xl text-white outline-none border border-slate-700 font-sans" />
-                <button onClick={() => { const v = document.getElementById('npw').value; if (v.trim()) { localStorage.setItem('s_acc_pw', v.trim()); setPw(v.trim()); shT('تم تغيير الرمز بنجاح!'); document.getElementById('npw').value = ''; } }} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 px-4 rounded-xl font-bold transition">حفظ</button>
+                <button onClick={changePw} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 px-4 rounded-xl font-bold transition">حفظ</button>
               </div>
             </div>
 
             <div className="bg-slate-900 p-4 rounded-2xl border border-blue-500/20 space-y-3 shadow-sm">
-              <h3 className="font-black text-blue-400">☁️ الأرشفة السحابية (Google Keep)</h3>
-              <p className="text-slate-400 text-[10px] leading-relaxed">لرفع بياناتك للسحابة، اضغط زر النسخ بالأسفل، ثم افتح تطبيق (جوجل كيب) وألصق النص كملاحظة جديدة. وللاستعادة انسخ الملاحظة وألصقها هنا.</p>
-              <button onClick={doBkp} className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-black shadow transition">1. نسخ البيانات للرفع 📤</button>
-              <textarea id="rc" placeholder="ألصق كود الاستعادة المنسوخ من الملاحظة هنا..." className="w-full bg-slate-950 text-emerald-400 p-3 rounded-xl h-16 border border-slate-800 outline-none font-mono text-xs" dir="ltr" />
-              <button onClick={() => { const v = document.getElementById('rc').value; if (v.trim()) doRes(v); document.getElementById('rc').value=''; }} className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold transition">2. تأكيد الاستعادة والحقن 📥</button>
+              <h3 className="font-black text-blue-400">☁️ الأرشفة السحابية</h3>
+              <p className="text-slate-400 text-[10px] leading-relaxed">احفظ نسخة احتياطية من بياناتك لتجنب فقدانها. يمكنك استعادة البيانات باستخدام الكود المشفر.</p>
+              <div className="flex gap-2 mt-2">
+                <button onClick={doBkp} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold text-xs transition shadow-md">نسخ احتياطي (نص)</button>
+                <button onClick={doExp} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-bold text-xs transition border border-slate-700">تصدير CSV</button>
+              </div>
+              <div className="flex gap-2 mt-2 pt-3 border-t border-slate-800/50">
+                <input id="rc" type="text" placeholder="الصق كود الاستعادة هنا..." className="flex-1 bg-slate-950 p-3 rounded-xl text-slate-300 outline-none border border-slate-800 text-xs font-mono text-left" dir="ltr" />
+                <button onClick={triggerRestore} className="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-3 rounded-xl font-bold text-xs transition shadow-md">استعادة</button>
+              </div>
             </div>
 
-            <button onClick={doExp} className="w-full bg-slate-900 hover:bg-slate-800 text-blue-400 py-3.5 rounded-xl font-bold border border-slate-800 transition">📄 تصدير سجل الممتلكات (Excel)</button>
-            
-            <div className="bg-red-950/20 p-4 rounded-2xl border border-red-500/30 space-y-2 mt-4 shadow-inner">
-               <h3 className="font-black text-red-500 text-center text-xs">⚠️ منطقة الخطر</h3>
-               <button onClick={() => { if (window.confirm('تحذير نهائي: هل أنت متأكد من مسح وتصفير الأصول وتطهير إيراداتها من المحاسب الذكي كلياً؟ هذا الإجراء لا يمكن التراجع عنه!')) { setAst([]); setTxs([]); shT('تم التصفير والتطهير بنجاح 🧹'); } }} className="w-full bg-red-500 hover:bg-red-600 text-white py-3.5 rounded-xl font-black shadow-lg transition mt-2">تصفير وتطهير المنصة بالكامل 🗑️</button>
+            <div className="bg-red-500/10 p-4 rounded-2xl border border-red-500/20 space-y-3 mt-6">
+              <h3 className="font-black text-red-400">⚠️ منطقة الخطر</h3>
+              <p className="text-red-400/70 text-[10px] leading-relaxed">هذا الإجراء سيقوم بمسح كافة الأصول والسجلات بشكل نهائي لتطهير الحساب. لا يمكن التراجع عن هذه الخطوة أبدًا.</p>
+              <button onClick={purgeAll} className="w-full bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 py-3 rounded-xl font-black text-xs transition">تصفير ومسح كل البيانات 🗑️</button>
             </div>
-            
-            <button onClick={() => { localStorage.removeItem('s_acc_sess'); setAuth(false); setVw('login'); }} className="w-full bg-slate-800 hover:bg-slate-700 text-slate-400 py-3.5 rounded-xl font-bold shadow transition mt-6">تسجيل الخروج 🚪</button>
           </div>
         )}
       </main>
-      
-      <nav className="fixed bottom-0 w-full bg-slate-950 border-t border-slate-800/80 pb-safe pt-2 px-2 z-20 flex justify-between shadow-2xl">
-        <button onClick={() => {vib(); setTab('assets');}} className={`flex-1 flex flex-col items-center gap-1.5 pb-2 pt-1 text-[11px] font-bold transition-colors ${tab === 'assets' ? 'text-yellow-400' : 'text-slate-500'}`}><I.B/>الأصول</button>
-        <button onClick={() => {vib(); setTab('converter');}} className={`flex-1 flex flex-col items-center gap-1.5 pb-2 pt-1 text-[11px] font-bold transition-colors ${tab === 'converter' ? 'text-indigo-400' : 'text-slate-500'}`}><I.M/>صرف</button>
-        <button onClick={() => {vib(); setTab('projection');}} className={`flex-1 flex flex-col items-center gap-1.5 pb-2 pt-1 text-[11px] font-bold transition-colors ${tab === 'projection' ? 'text-cyan-400' : 'text-slate-500'}`}><I.C/>استشراف</button>
-        <button onClick={() => {vib(); setTab('feasibility');}} className={`flex-1 flex flex-col items-center gap-1.5 pb-2 pt-1 text-[11px] font-bold transition-colors ${tab === 'feasibility' ? 'text-emerald-400' : 'text-slate-500'}`}><I.A/>الجدوى</button>
-        <button onClick={() => {vib(); setTab('profile');}} className={`flex-1 flex flex-col items-center gap-1.5 pb-2 pt-1 text-[11px] font-bold transition-colors ${tab === 'profile' ? 'text-yellow-500' : 'text-slate-500'}`}><I.S/>الضبط</button>
+
+      <nav className="fixed bottom-0 w-full max-w-md left-1/2 -translate-x-1/2 bg-slate-950 border-t border-slate-800 flex justify-around p-3 pb-safe text-[10px] font-bold text-slate-400 z-40 shadow-[0_-10px_20px_rgba(0,0,0,0.5)]">
+        <button 
+          onClick={() => setTab('assets')} 
+          className={`flex flex-col items-center gap-1.5 transition ${tab === 'assets' ? 'text-yellow-500 scale-110' : 'hover:text-slate-200'}`}>
+          <I.B/>الأصول
+        </button>
+        <button 
+          onClick={() => setTab('projection')} 
+          className={`flex flex-col items-center gap-1.5 transition ${tab === 'projection' ? 'text-cyan-400 scale-110' : 'hover:text-slate-200'}`}>
+          <I.G/>استشراف
+        </button>
+        <button 
+          onClick={() => setTab('feasibility')} 
+          className={`flex flex-col items-center gap-1.5 transition ${tab === 'feasibility' ? 'text-emerald-400 scale-110' : 'hover:text-slate-200'}`}>
+          <I.A/>جدوى
+        </button>
+        <button 
+          onClick={() => setTab('converter')} 
+          className={`flex flex-col items-center gap-1.5 transition ${tab === 'converter' ? 'text-indigo-400 scale-110' : 'hover:text-slate-200'}`}>
+          <I.C/>عملات
+        </button>
+        <button 
+          onClick={() => setTab('profile')} 
+          className={`flex flex-col items-center gap-1.5 transition ${tab === 'profile' ? 'text-slate-200 scale-110' : 'hover:text-slate-200'}`}>
+          <I.S/>إعدادات
+        </button>
       </nav>
-      
-      {mo && <Mod g24={g24} ed={ed} cls={() => { setMo(false); setEd(null); }} sav={savA} />}
-      {incM && <IncMod a={incM} txs={txs} setTxs={setTxs} oC={() => setIncM(null)} shT={shT} setRec={setRec} />}
-      {rec && <ReceiptModal data={rec} onClose={() => setRec(null)} showToast={shT} />}
-      {plM && <PlMod p={plM} txs={txs} oC={() => setPlM(null)} oD={id => { setTxs(txs.filter(t => t.id !== id)); shT('تم التراجع ✅'); }} />}
     </div>
   );
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App/>);
+root.render(<App />);
 </script>
 </body>
 </html>
