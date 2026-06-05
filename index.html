@@ -101,7 +101,7 @@
     const [tab, setTab] = useState('dash'); const [qA, setQA] = useState(false); const [qT, setQT] = useState('transaction');
     const [eD, setED] = useState(null); const [pM, setPM] = useState(null); const [tM, setTM] = useState(null);
     const [dM, setDM] = useState(null); const [spM, setSpM] = useState(null); const [plM, setPlM] = useState(null);
-    const [rM, setRM] = useState(null); const [tst, setTst] = useState(null);
+    const [rM, setRM] = useState(null); const [srM, setSrM] = useState(null); const [tst, setTst] = useState(null);
     
     const [txs, setTxs] = useState(() => jP(K.t)); const [dbs, setDbs] = useState(() => jP(K.d));
     const [pts, setPts] = useState(() => jP(K.p)); const [pjs, setPjs] = useState(() => jP(K.pj));
@@ -133,14 +133,13 @@
       const tA = ast.reduce((s, a) => s + parseFloat(a.currentValue || 0), 0);
       const tDf = pjs.reduce((a, p) => a + (parseFloat(p.devFund) || 0), 0);
       
+      const sTot = txs.filter(t => (/فائض|فايض|فوائض/i).test(t.category || '')).reduce((a, t) => a + (t.type === 'expense' ? -parseFloat(t.amount || 0) : parseFloat(t.amount || 0)), 0);
+
       const mPc = pts.reduce((t, p) => {
         const me = p.partners?.find(x => x.name === 'أنت');
         if (!me) return t;
-        if (p.allocationMode === 'capital') {
-          return t + parseFloat(me.amount || 0);
-        } else {
-          return t; // لا يتم جمع حصص الشراكة اليدوية (المضاربة) مع أصولك لأنك لا تملك رأس المال
-        }
+        if (p.allocationMode === 'capital') return t + parseFloat(me.amount || 0);
+        return t; 
       }, 0);
 
       let bB = 0; let cB = 0;
@@ -170,8 +169,24 @@
       cB += aWm; const tAc = bB + cB; const aOc = tAc - aWm; 
       const nW = aOc + aEx + pTm + mPc + tA - pOm;
       
-      return { tAc, aOc, aWm, nW, mPc, tA, pTm, pOm, aEx, tDf, bB, cB, tIn: sIn, tOut: sOut };
+      return { tAc, aOc, aWm, nW, mPc, tA, pTm, pOm, aEx, tDf, bB, cB, tIn: sIn, tOut: sOut, sTot };
     }, [txs, dbs, trs, pts, pjs, ast]);
+
+    const svSr = (m, a, w, cTxt) => {
+      vib(); const ts = Date.now(); const dt = new Date().toISOString().split('T')[0];
+      let nx = [];
+      if (m === 'add') nx = [{ id: ts, type: 'income', amount: a, wallet: w, category: `فائض: ${cTxt || 'إيداع'}`, date: dt }];
+      else if (m === 'spend') nx = [{ id: ts, type: 'expense', amount: a, wallet: w, category: `فائض (منصرف): ${cTxt}`, date: dt }];
+      else if (m === 'release') nx = [
+        { id: ts, type: 'expense', amount: a, wallet: w, category: `سحب من الفائض للتحرير${cTxt ? ' - '+cTxt : ''}`, date: dt },
+        { id: ts + 1, type: 'income', amount: a, wallet: w, category: `إضافة للصافي الحر (تحرير)`, date: dt }
+      ];
+      else if (m === 'allocate') nx = [
+        { id: ts, type: 'expense', amount: a, wallet: w, category: `خصم من الصافي الحر (تخصيص)${cTxt ? ' - '+cTxt : ''}`, date: dt },
+        { id: ts + 1, type: 'income', amount: a, wallet: w, category: `فائض (تخصيص داخلي)`, date: dt }
+      ];
+      setTxs([...nx, ...txs]); setSrM(null); shT('تم تقييد العملية وتحديث الخزنة 💎');
+    };
 
     const delI = (t, id) => {
       vib();
@@ -322,7 +337,7 @@
         </header>
 
         <main className="p-4 max-w-md mx-auto w-full flex-1">
-          {tab === 'dash' && <Dash c={clc} txs={txs} lb={lBkp} oD={id => delI('tx', id)} oE={t => { setQT('transaction'); setED(t); setQA(true); }} oR={r => setRM(r)} />}
+          {tab === 'dash' && <Dash c={clc} txs={txs} lb={lBkp} oD={id => delI('tx', id)} oE={t => { setQT('transaction'); setED(t); setQA(true); }} oR={r => setRM(r)} oSr={m => { vib(); setSrM(m); }} />}
           {tab === 'bus' && <Bus pts={pts} pjs={pjs} aPt={() => { setQT('new_partnership'); setED(null); setQA(true); }} ePt={p => { setQT('new_partnership'); setED(p); setQA(true); }} dPt={id => delI('ptnr', id)} aPj={() => { setQT('new_project'); setED(null); setQA(true); }} ePj={p => { setQT('new_project'); setED(p); setQA(true); }} dPj={id => delI('project', id)} oDf={p => { vib(); setDM(p); }} dDf={dDf} oSp={p => { vib(); if ((p.devFund || 0) <= 0) return alert('لا يوجد رصيد للصرف'); setSpM({ id: p.id, amount: p.devFund, name: p.name }); }} cI={p => { setQT('transaction'); setED({ category: `أرباح مشروع (${p.name})`, amount: '', wallet: 'cash', type: 'income', date: new Date().toISOString().split('T')[0] }); setQA(true); }} oR={r => setRM(r)} oPl={p => { vib(); setPlM(p); }} />}
           {tab === 'dbs' && <Dbs dbs={dbs} oD={id => delI('debt', id)} oP={d => { vib(); setPM(d); }} oE={d => { setQT('debt'); setED(d); setQA(true); }} oR={r => setRM(r)} />}
           {tab === 'trs' && <Trs trs={trs} oD={id => delI('trust', id)} oP={t => { vib(); setTM(t); }} oE={t => { setQT('trust'); setED(t); setQA(true); }} oR={r => setRM(r)} />}
@@ -348,14 +363,15 @@
         {spM && <PMod i={spM} oC={() => setSpM(null)} oS={spDf} ti="صرف وتقييد مال التطوير" s="المتاح للصرف:" />}
         {rM && <RMod d={rM} oC={() => setRM(null)} sT={shT} />}
         {plM && <PlMod p={plM} txs={txs} oC={() => setPlM(null)} oD={id => delI('tx', id)} />}
+        {srM && <SrMod mode={srM} sT={clc.sTot} c={clc} oC={() => setSrM(null)} oS={svSr} />}
       </div>
     );
   }
-
-  function Dash({ c, txs, lb, oD, oE, oR }) {
+  function Dash({ c, txs, lb, oD, oE, oR, oSr }) {
     const [s, sS] = useState('');
     const fTxs = txs.filter(t => (t.category || '').includes(s) || t.amount.toString().includes(s));
     const nb = (c.tIn > 0 || c.tOut > 0) && (!lb || (Date.now() - lb > 259200000));
+    
     return (
       <div className="space-y-4 pop">
         {nb && (
@@ -371,10 +387,29 @@
             <div className="bg-slate-950/70 p-4 rounded-2xl border border-emerald-500/20 shadow-inner"><p className="text-[11px] text-slate-500 font-bold mb-1">الكاش 💵</p><h3 className="text-xl font-black text-emerald-400" dir="ltr">{c.cB.toLocaleString()}</h3></div>
           </div>
         </div>
+        
+        {/* صندوق الفوائض المحدث بلوحة التحكم */}
+        <div className="bg-slate-800/50 p-5 rounded-3xl border border-emerald-500/30 shadow-lg relative overflow-hidden pop">
+            <div className="flex justify-between items-center mb-4">
+                <div>
+                    <p className="text-[11px] text-emerald-400 font-bold mb-0.5">خزنة الفوائض المستردة 💎</p>
+                    <p className="text-[10px] text-slate-400">أموال الأصول والاحتياطي</p>
+                </div>
+                <h3 className="text-2xl font-black text-emerald-400 tracking-tighter" dir="ltr">{c.sTot.toLocaleString()} <span className="text-[10px] text-slate-500">ج</span></h3>
+            </div>
+            <div className="grid grid-cols-2 gap-2 border-t border-emerald-500/20 pt-3">
+                <button onClick={() => oSr('add')} className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 py-2.5 rounded-xl text-[10px] font-bold transition shadow-sm">إيداع / وارد 📥</button>
+                <button onClick={() => oSr('spend')} className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 py-2.5 rounded-xl text-[10px] font-bold transition shadow-sm">صرف (صيانة) 💸</button>
+                <button onClick={() => oSr('allocate')} className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 py-2.5 rounded-xl text-[10px] font-bold transition shadow-sm">حجز من الصافي ⬇️</button>
+                <button onClick={() => oSr('release')} className="bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 border border-yellow-500/20 py-2.5 rounded-xl text-[10px] font-bold transition shadow-sm">إرجاع للصافي ⬆️</button>
+            </div>
+        </div>
+
         <div className={cx.c}>
           <div className="flex justify-between items-center text-yellow-500 font-bold mb-3 text-xs"><span>صناديق التطوير المجمعة ⚙️:</span><span className="bg-yellow-500/10 px-2 py-1 rounded-md" dir="ltr">{c.tDf.toLocaleString()} ج</span></div>
-          <div className="flex justify-between items-center text-emerald-400 font-black border-t border-slate-700/60 pt-3 text-sm"><span>الصافي الحر للصرف 💸:</span><span dir="ltr">{(c.tAc - c.tDf).toLocaleString()} ج</span></div>
+          <div className="flex justify-between items-center text-emerald-400 font-black border-t border-slate-700/60 pt-3 text-sm"><span>الصافي الحر للصرف 💸:</span><span dir="ltr">{(c.tAc - c.tDf - c.sTot).toLocaleString()} ج</span></div>
         </div>
+        
         <div className={cx.c + " text-center"}>
           <p className="text-slate-400 text-xs font-semibold">صافي الثروة (الوزن المالي) 💎</p>
           <h3 className="text-3xl font-black text-blue-400 mt-2 tracking-tighter" dir="ltr">{c.nW.toLocaleString()} <span className="text-xs text-slate-500">ج</span></h3>
@@ -521,6 +556,7 @@
       </div>
     );
   }
+
   function Dbs({ dbs, oD, oP, oE, oR }) {
     const rL = (t, m) => dbs.filter(d => d.type === t).map(d => {
       const r = d.amount - (d.paid || 0); const iP = r <= 0; 
@@ -854,6 +890,65 @@
         </div>
       </div>
     );
+  }
+
+  function SrMod({ mode: initMode, sT, c, oC, oS }) {
+    const [m, setM] = useState(initMode);
+    const [a, setA] = useState('');
+    const [w, setW] = useState('bank');
+    const [cat, setCat] = useState('');
+
+    const mx = (m === 'spend' || m === 'release') ? sT : (m === 'allocate' ? (c.tAc - c.tDf - sT) : null);
+
+    const sub = e => {
+      e.preventDefault();
+      const v = parseFloat(a);
+      if (!v || v <= 0) return alert('مبلغ غير صحيح');
+      if (mx !== null && v > mx) return alert('الرصيد غير كافٍ لإتمام العملية');
+      oS(m, v, w, cat);
+    }
+
+    const mBtn = (id, txt, actC) => (
+       <button type="button" onClick={() => { setM(id); setCat(''); setA(''); }} className={`flex-1 py-2.5 rounded-xl text-[11px] font-bold transition border ${m === id ? actC : 'bg-slate-900 text-slate-500 border-slate-800 hover:bg-slate-800'}`}>{txt}</button>
+    );
+
+    return (
+      <div className={cx.m}>
+        <div className={cx.mc + " mb-10"}>
+           <div className={cx.f + " mb-4"}><h2 className="font-bold text-emerald-400 text-base">إدارة الخزنة 💎</h2><button type="button" onClick={oC} className="bg-slate-800 p-2 rounded-xl text-slate-400 hover:text-white transition">❌</button></div>
+           
+           <div className="flex gap-1 mb-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
+              {mBtn('add', 'إيداع خارجي', 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50 shadow-inner')}
+              {mBtn('spend', 'صرف (صيانة)', 'bg-red-500/20 text-red-400 border-red-500/50 shadow-inner')}
+           </div>
+           <div className="flex gap-1 mb-5 bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
+              {mBtn('allocate', 'حجز من الصافي', 'bg-blue-500/20 text-blue-400 border-blue-500/50 shadow-inner')}
+              {mBtn('release', 'إرجاع للصافي', 'bg-yellow-500/20 text-yellow-500 border-yellow-500/50 shadow-inner')}
+           </div>
+
+           <div className="bg-slate-950/50 border border-slate-800 p-4 rounded-2xl mb-5 text-center shadow-inner">
+              <p className="text-[10px] text-slate-400 font-bold mb-1">{m === 'spend' || m === 'release' ? 'الرصيد المتاح في الخزنة:' : (m === 'allocate' ? 'الصافي الحر المتاح:' : 'إجمالي الخزنة الحالي:')}</p>
+              <h3 className={`text-xl font-black ${m === 'spend' || m === 'release' ? 'text-emerald-400' : (m === 'allocate' ? 'text-blue-400' : 'text-slate-300')} tracking-tighter`} dir="ltr">{(mx !== null ? mx : sT).toLocaleString()} ج</h3>
+           </div>
+
+           <form onSubmit={sub} className="space-y-4">
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setW('bank')} className={`flex-1 py-3 rounded-xl border-2 text-xs font-bold transition ${w === 'bank' ? 'bg-blue-500 text-white border-blue-500 shadow-md' : 'bg-slate-900 text-slate-500 border-slate-800'}`}>البنك 📱</button>
+                <button type="button" onClick={() => setW('cash')} className={`flex-1 py-3 rounded-xl border-2 text-xs font-bold transition ${w === 'cash' ? 'bg-emerald-500 text-white border-emerald-500 shadow-md' : 'bg-slate-900 text-slate-500 border-slate-800'}`}>الكاش 💵</button>
+              </div>
+
+              <input type="number" required max={mx !== null ? mx : undefined} placeholder="المبلغ..." value={a} onChange={x => setA(x.target.value)} className={cx.i + " text-center text-xl font-black tracking-tighter"} autoFocus />
+              
+              <div className="space-y-1.5">
+                  <label className="text-[11px] text-slate-400 font-bold px-1">{m === 'spend' ? 'فيما تم الصرف؟ (مثال: صيانة سيارة)' : (m === 'add' ? 'مصدر الإيداع؟ (مثال: بيع أصل)' : 'ملاحظة أو بيان (اختياري)')}</label>
+                  <input type="text" required={m === 'spend' || m === 'add'} placeholder="اكتب هنا..." value={cat} onChange={x => setCat(x.target.value)} className={cx.i} />
+              </div>
+
+              <button type="submit" className={cx.b + " mt-2"}>تأكيد العملية ✅</button>
+           </form>
+        </div>
+      </div>
+    )
   }
 
   const root = ReactDOM.createRoot(document.getElementById('root'));
