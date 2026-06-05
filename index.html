@@ -4,15 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>المحاسب الذكي - الشامل</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: system-ui, sans-serif; background-color: #0f172a; color: #f1f5f9; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Cairo', system-ui, sans-serif; background-color: #020617; color: #f8fafc; -webkit-tap-highlight-color: transparent; }
     input[type=number]::-webkit-inner-spin-button { display: none; }
     .pop { animation: popIn 0.2s ease-out forwards; }
     @keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom, 1rem); }
   </style>
 </head>
 <body>
@@ -21,7 +23,6 @@
   const { useState, useEffect, useMemo } = React;
   const vib = () => { if (navigator.vibrate) navigator.vibrate(30); };
   
-  // دالة مساعدة لحماية التطبيق من الانهيار عند تلف الـ JSON
   const jP = (k) => { try { return JSON.parse(localStorage.getItem(k)) || []; } catch(e) { return []; } };
 
   const K = { 
@@ -31,12 +32,12 @@
   };
   
   const cx = {
-    i: "w-full bg-slate-800 text-white p-3.5 rounded-xl border border-slate-600 text-sm focus:outline-none focus:border-emerald-500",
-    b: "w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl shadow-md transition text-sm",
-    c: "bg-slate-800 rounded-xl p-4 border border-slate-700 shadow-sm relative",
-    m: "fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4",
-    mc: "bg-slate-900 w-full max-w-sm rounded-2xl p-5 border border-slate-700 max-h-[85vh] overflow-y-auto pop shadow-2xl",
-    ib: "p-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg transition text-lg",
+    i: "w-full bg-slate-900/80 text-white p-3.5 rounded-xl border border-slate-700/50 text-sm font-semibold focus:outline-none focus:border-emerald-500 transition",
+    b: "w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black py-4 rounded-xl shadow-lg transition text-sm",
+    c: "bg-slate-900/80 p-5 rounded-3xl border border-slate-800 shadow-xl relative pop",
+    m: "fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4",
+    mc: "bg-slate-900 w-full max-w-sm rounded-3xl p-6 border border-slate-800 max-h-[85vh] overflow-y-auto pop shadow-2xl",
+    ib: "p-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl transition text-base border border-slate-700/80 shadow-sm flex items-center justify-center",
     f: "flex justify-between items-center"
   };
 
@@ -50,7 +51,7 @@
     const sub = ev => {
       ev.preventDefault(); vib();
       if (v === 'register') {
-        if (!e || p.length < 4 || !s) return alert('بيانات غير مكتملة');
+        if (!e || p.length < 4 || !s) return alert('بيانات غير مكتملة (الرمز 4 أرقام على الأقل)');
         oR(e.toLowerCase(), p, s.trim());
       } else if (v === 'login') {
         if (e.toLowerCase() === sE.toLowerCase() && p === sP) oL(); else alert('خطأ في البيانات!');
@@ -58,28 +59,28 @@
         if ((e || '').toLowerCase() === (sE || '').toLowerCase() && (s || '').trim() === (sS || '').trim()) {
           const np = prompt('الرمز الجديد:'); 
           if (np && np.length >= 4) oRp(np); else alert('مرفوض');
-        } else alert('خطأ!');
+        } else alert('خطأ في الإجابة!');
       }
     };
 
     return (
       <div className={cx.m}>
-        <div className={cx.mc}>
-          <h1 className="text-xl font-bold text-white text-center mb-6">🔐 المحاسب الذكي</h1>
+        <div className="bg-slate-900 p-8 rounded-3xl w-full max-w-sm border border-slate-800 text-center space-y-5 shadow-xl">
+          <h1 className="text-2xl font-black text-emerald-400 tracking-tight">🔐 المحاسب الذكي</h1>
           <form onSubmit={sub} className="space-y-4">
-            <input type="email" required placeholder="البريد الإلكتروني" value={e} onChange={x => sE_(x.target.value)} className={cx.i} />
-            {v !== 'forgot' && <input type="password" required placeholder="كلمة المرور" value={p} onChange={x => sP_(x.target.value)} className={cx.i} />}
+            <input type="email" required placeholder="البريد الإلكتروني" value={e} onChange={x => sE_(x.target.value)} className={cx.i + " font-sans"} />
+            {v !== 'forgot' && <input type="password" required placeholder="كلمة المرور" value={p} onChange={x => sP_(x.target.value)} className={cx.i + " font-sans"} />}
             {(v === 'register' || v === 'forgot') && <input type="text" required placeholder="سؤال الأمان: مدينتك المفضلة؟" value={s} onChange={x => sS_(x.target.value)} className={cx.i + " text-emerald-400"} />}
-            <button type="submit" className={cx.b}>{v === 'login' ? 'دخول' : v === 'register' ? 'إنشاء ملف' : 'استعادة'}</button>
+            <button type="submit" className={cx.b}>{v === 'login' ? 'دخول الخزينة' : v === 'register' ? 'إنشاء ملف' : 'استعادة الصلاحية'}</button>
           </form>
-          <div className="mt-5 flex flex-col gap-3 text-center text-sm">
+          <div className="mt-6 flex flex-col gap-3 text-center text-sm font-semibold">
             {v === 'login' ? (
               <>
                 <button type="button" onClick={() => sV('forgot')} className="text-slate-400">نسيت الرمز؟</button>
-                <button type="button" onClick={() => sV('register')} className="text-emerald-400 font-bold">ملف جديد ➕</button>
+                <button type="button" onClick={() => sV('register')} className="text-emerald-400">ملف جديد ➕</button>
               </>
             ) : (
-              <button type="button" onClick={() => sV('login')} className="text-slate-400">عودة للدخول 🔑</button>
+              <button type="button" onClick={() => sV('login')} className="text-slate-400">تسجيل دخول 🔑</button>
             )}
           </div>
         </div>
@@ -210,7 +211,6 @@
       }
       if (window.confirm('تأكيد الحذف من الخزينة؟')) {
         if (t === 'tx') {
-          // --- بداية الإصلاح: إرجاع مال التطوير للمشروع عند حذف الحركة ---
           const txToDel = txs.find(x => x.id === id);
           if (txToDel && (txToDel.category || '').startsWith('مصروف تطوير (')) {
             const pName = txToDel.category.match(/\((.*?)\)/)?.[1];
@@ -218,7 +218,6 @@
               setPjs(pjs.map(p => p.name === pName ? { ...p, devFund: (p.devFund || 0) + parseFloat(txToDel.amount) } : p));
             }
           }
-          // --- نهاية الإصلاح ---
           setTxs(txs.filter(x => x.id !== id));
         }
         if (t === 'debt') setDbs(dbs.filter(x => x.id !== id));
@@ -229,7 +228,7 @@
 
     const rst = () => {
       vib();
-      if (window.confirm('تصفير كلي للحسابات؟')) {
+      if (window.confirm('تصفير كلي للحسابات؟ هذا الإجراء لا يمكن التراجع عنه.')) {
         setTxs([]); setDbs([]); setPts([]); setPjs([]); setTrs([]);
         localStorage.removeItem(K.t); localStorage.removeItem(K.d);
         localStorage.removeItem(K.p); localStorage.removeItem(K.pj);
@@ -299,7 +298,7 @@
       }));
       setSpM(null);
       setTxs(x => [{ id: Date.now(), type: 'expense', amount: a, wallet: w, category: `مصروف تطوير (${pn})`, date: new Date().toISOString().split('T')[0] }, ...x]);
-      shT('تم صرف التطوير وتقييد المنصرف 💸');
+      shT('تم تقييد المنصرف 💸');
     };
 
     const pDb = (id, a, w) => {
@@ -348,12 +347,12 @@
           if(d.ast) setAst(d.ast);
           const n = Date.now(); setLBkp(n); localStorage.setItem('sa_bkp', n);
           shT('تمت الاستعادة بنجاح');
-        } else alert('تالف');
+        } else alert('الملف تالف');
       } catch (e) { alert('فشل فك التشفير'); }
     };
 
     const expC = () => {
-      vib(); if (txs.length === 0) return alert('لا حركات');
+      vib(); if (txs.length === 0) return alert('لا توجد حركات');
       let c = "data:text/csv;charset=utf-8,\uFEFFالتاريخ,الخزنة,النوع,البيان,المبلغ\r\n";
       txs.forEach(t => {
         const ts = t.type === 'income' ? 'إيداع' : (t.type === 'expense' ? 'منصرف' : 'تحويل');
@@ -368,21 +367,28 @@
     if (!auth) return <Auth v={vw} sV={setVw} sE={sE} sP={sP} sS={sS} oR={(e, p, s) => { localStorage.setItem('sa_em', e); localStorage.setItem('sa_pw', p); localStorage.setItem('sa_sec', s); localStorage.setItem('sa_ses', '1'); setSE(e); setSP(p); setSS(s); setAuth(true); }} oL={() => { localStorage.setItem('sa_ses', '1'); setAuth(true); }} oRp={np => { localStorage.setItem('sa_pw', np); setSP(np); setVw('login'); }} />;
 
     return (
-      <div className="pb-28">
-        {tst && <div className="fixed top-6 left-4 right-4 z-[100] bg-emerald-500 text-white px-4 py-3 rounded-xl flex items-center gap-3 shadow-xl border border-emerald-400/20 pop max-w-sm mx-auto">✅ <span className="text-sm font-bold">{tst}</span></div>}
+      <div className="pb-28 min-h-screen flex flex-col bg-[#020617] relative">
+        {tst && <div className="fixed top-6 left-4 right-4 z-[100] bg-emerald-500 text-slate-950 px-4 py-3 rounded-2xl flex justify-center items-center font-bold shadow-xl border border-emerald-400 pop max-w-sm mx-auto">{tst}</div>}
         
-        <header className={cx.c + " rounded-none sticky top-0 z-10 " + cx.f}>
+        <header className="bg-slate-900/80 backdrop-blur-md border-b border-emerald-500/20 p-4 sticky top-0 z-30 flex justify-between items-center shadow-lg">
           <div className="flex items-center gap-3">
-            <div className="bg-emerald-500 p-2.5 rounded-xl text-white text-xl">💼</div>
-            <div><h1 className="font-bold text-white text-base">المحاسب الذكي</h1><p className="text-[11px] text-emerald-400">إدارة السيولة والخزن</p></div>
+            <div className="bg-gradient-to-br from-emerald-400 to-teal-500 p-2.5 rounded-2xl text-slate-900 text-xl shadow-lg shadow-emerald-500/20">💼</div>
+            <div>
+              <h1 className="font-black text-white text-base tracking-tight">المحاسب الذكي</h1>
+              <p className="text-[10px] text-emerald-400 font-bold">إدارة السيولة والخزن</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
-            <a href="assets.html" onClick={vib} className="flex items-center gap-1 bg-yellow-600 text-white text-xs px-3 py-2 rounded-lg font-bold">🏢 الأصول</a>
-            <button onClick={() => { vib(); localStorage.removeItem('sa_ses'); setAuth(false); setVw('login'); }} className="text-slate-300 text-xs px-3 py-2 border border-slate-700 rounded-lg">🚪</button>
+            <a href="assets.html" onClick={vib} className="flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-yellow-500 text-xs px-4 py-2.5 rounded-2xl font-black transition shadow-sm">
+              🏢 الأصول
+            </a>
+            <button onClick={() => { vib(); localStorage.removeItem('sa_ses'); setAuth(false); setVw('login'); }} className="bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-300 text-sm h-10 w-10 rounded-2xl flex items-center justify-center transition shadow-sm">
+              🚪
+            </button>
           </div>
         </header>
 
-        <main className="p-4 max-w-md mx-auto">
+        <main className="p-4 max-w-md mx-auto w-full flex-1">
           {tab === 'dash' && <Dash c={clc} txs={txs} lb={lBkp} oD={id => delI('tx', id)} oE={t => { setQT('transaction'); setED(t); setQA(true); }} oR={r => setRM(r)} />}
           
           {tab === 'bus' && <Bus pts={pts} pjs={pjs} 
@@ -405,15 +411,15 @@
           {tab === 'prf' && <Prf e={sE} oRs={rst} oP={p => { localStorage.setItem('sa_pw', p); setSP(p); shT('حُفظ الرمز'); }} cP={sP} oB={bkpD} oR={resD} lb={lBkp} oE={expC} />}
         </main>
 
-        <button onClick={() => { vib(); setQT('transaction'); setED(null); setQA(true); }} className="fixed bottom-24 left-6 w-14 h-14 bg-emerald-500 text-white rounded-full shadow-lg flex items-center justify-center z-20 text-3xl pb-1">➕</button>
+        <button onClick={() => { vib(); setQT('transaction'); setED(null); setQA(true); }} className="fixed bottom-24 left-6 w-14 h-14 bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-900 rounded-full shadow-lg shadow-emerald-500/30 flex items-center justify-center z-20 text-3xl pb-1 hover:scale-105 transition-transform font-black">➕</button>
         
-        <nav className="fixed bottom-0 w-full bg-slate-800 border-t border-slate-700 py-3 z-10 px-2">
-          <div className={"max-w-md mx-auto " + cx.f}>
-            <NavI i="🏠" l="الرئيسية" a={tab === 'dash'} oC={() => setTab('dash')} />
-            <NavI i="💼" l="الأعمال" a={tab === 'bus'} oC={() => setTab('bus')} />
-            <NavI i="💳" l="الديون" a={tab === 'dbs'} oC={() => setTab('dbs')} />
-            <NavI i="🛡️" l="الأمانات" a={tab === 'trs'} oC={() => setTab('trs')} />
-            <NavI i="⚙️" l="الضبط" a={tab === 'prf'} oC={() => setTab('prf')} />
+        <nav className="fixed bottom-0 w-full max-w-md left-1/2 -translate-x-1/2 bg-slate-950 border-t border-slate-800 p-3 pb-safe z-40 shadow-[0_-10px_20px_rgba(0,0,0,0.5)]">
+          <div className="flex justify-around items-center">
+            <NavI i="🏠" l="الرئيسية" a={tab === 'dash'} oC={() => setTab('dash')} c="emerald" />
+            <NavI i="💼" l="الأعمال" a={tab === 'bus'} oC={() => setTab('bus')} c="emerald" />
+            <NavI i="💳" l="الديون" a={tab === 'dbs'} oC={() => setTab('dbs')} c="emerald" />
+            <NavI i="🛡️" l="الأمانات" a={tab === 'trs'} oC={() => setTab('trs')} c="emerald" />
+            <NavI i="⚙️" l="الضبط" a={tab === 'prf'} oC={() => setTab('prf')} c="slate" />
           </div>
         </nav>
 
@@ -428,6 +434,15 @@
     );
   }
 
+  function NavI({ i, l, a, oC, c }) { 
+    return (
+      <button onClick={() => { vib(); oC(); }} className={`flex flex-col items-center gap-1.5 transition-transform ${a ? `text-${c}-400 scale-110` : 'text-slate-500 hover:text-slate-300'}`}>
+        <div className="text-xl">{i}</div>
+        <span className="text-[10px] font-bold">{l}</span>
+      </button>
+    ); 
+  }
+
   function Dash({ c, txs, lb, oD, oE, oR }) {
     const [s, sS] = useState('');
     const fTxs = txs.filter(t => (t.category || '').includes(s) || t.amount.toString().includes(s));
@@ -435,59 +450,65 @@
     
     return (
       <div className="space-y-4 pop">
-        {nb && <div className="bg-red-500/10 border border-red-500/50 p-3 rounded-xl pop shadow-md flex gap-3 items-center"><span className="text-2xl">⚠️</span><div><p className="text-red-400 font-bold text-sm">تنبيه أمان!</p><p className="text-slate-300 text-xs mt-1">احفظ نسخة احتياطية فوراً.</p></div></div>}
+        {nb && <div className="bg-red-500/10 border border-red-500/50 p-3 rounded-2xl pop shadow-md flex gap-3 items-center"><span className="text-2xl">⚠️</span><div><p className="text-red-400 font-bold text-sm">تنبيه أمان!</p><p className="text-slate-300 text-xs mt-1">احفظ نسخة احتياطية فوراً.</p></div></div>}
         
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-5 border border-slate-700 text-center shadow-lg">
-          <p className="text-slate-300 text-sm font-bold mb-2">إجمالي السيولة النقدية 🏦</p>
-          <h2 className="text-4xl font-black text-white mb-5">{c.tAc.toLocaleString()} <span className="text-sm text-slate-400">ج.س</span></h2>
+        <div className="bg-gradient-to-br from-slate-900 to-slate-950 rounded-3xl p-6 border border-emerald-500/20 text-center shadow-xl relative overflow-hidden">
+          <p className="text-slate-400 text-xs font-semibold mb-2">إجمالي السيولة النقدية 🏦</p>
+          <h2 className="text-4xl font-black text-emerald-400 mb-6 tracking-tighter" dir="ltr">{c.tAc.toLocaleString()} <span className="text-sm text-slate-500">ج.س</span></h2>
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-blue-900/40 p-3 rounded-xl border border-blue-500/20"><p className="text-xs text-blue-200 mb-1">البنك 📱</p><h3 className="text-lg font-black text-blue-400">{c.bB.toLocaleString()}</h3></div>
-            <div className="bg-emerald-900/40 p-3 rounded-xl border border-emerald-500/20"><p className="text-xs text-emerald-200 mb-1">الكاش 💵</p><h3 className="text-lg font-black text-emerald-400">{c.cB.toLocaleString()}</h3></div>
+            <div className="bg-slate-950/70 p-4 rounded-2xl border border-blue-500/20 shadow-inner">
+              <p className="text-[11px] text-slate-500 font-bold mb-1">البنك 📱</p>
+              <h3 className="text-xl font-black text-blue-400" dir="ltr">{c.bB.toLocaleString()}</h3>
+            </div>
+            <div className="bg-slate-950/70 p-4 rounded-2xl border border-emerald-500/20 shadow-inner">
+              <p className="text-[11px] text-slate-500 font-bold mb-1">الكاش 💵</p>
+              <h3 className="text-xl font-black text-emerald-400" dir="ltr">{c.cB.toLocaleString()}</h3>
+            </div>
           </div>
         </div>
         
         <div className={cx.c}>
-          <div className="flex justify-between text-yellow-500 font-bold mb-3 text-sm"><span>صناديق التطوير المجمعة ⚙️:</span><span>{c.tDf.toLocaleString()} ج</span></div>
-          <div className="flex justify-between text-emerald-400 font-black border-t border-slate-700/60 pt-3 text-base"><span>الصافي الحر للصرف 💸:</span><span>{(c.tAc - c.tDf).toLocaleString()} ج</span></div>
+          <div className="flex justify-between items-center text-yellow-500 font-bold mb-3 text-xs"><span>صناديق التطوير المجمعة ⚙️:</span><span className="bg-yellow-500/10 px-2 py-1 rounded-md" dir="ltr">{c.tDf.toLocaleString()} ج</span></div>
+          <div className="flex justify-between items-center text-emerald-400 font-black border-t border-slate-700/60 pt-3 text-sm"><span>الصافي الحر للصرف 💸:</span><span dir="ltr">{(c.tAc - c.tDf).toLocaleString()} ج</span></div>
         </div>
         
         <div className={cx.c + " text-center"}>
-          <p className="text-slate-300 text-sm font-bold">صافي الثروة (وزنك المالي) 💎</p>
-          <h3 className="text-3xl font-black text-blue-400 mt-2">{c.nW.toLocaleString()} <span className="text-xs text-slate-500">ج</span></h3>
-          <div className="flex flex-col gap-2 text-xs bg-slate-900/50 p-3 rounded-xl text-right mt-4 border border-slate-700/50">
-            <div className="flex justify-between text-emerald-400"><span>الفعلي الحر:</span><span>{c.aOc.toLocaleString()} +</span></div>
-            <div className="flex justify-between text-blue-400"><span>أرصدة بالخارج:</span><span>{c.aEx.toLocaleString()} +</span></div>
-            {c.mPc > 0 && <div className="flex justify-between text-blue-400"><span>رأس مال الشراكات:</span><span>{c.mPc.toLocaleString()} +</span></div>}
-            {c.tA > 0 && <div className="flex justify-between text-yellow-400 font-bold border-t border-slate-700/50 pt-2 mt-1"><span>الأصول العينية 🏢:</span><span>{c.tA.toLocaleString()} +</span></div>}
-            <div className="flex justify-between text-emerald-400"><span>ديون مستحقة لك:</span><span>{c.pTm.toLocaleString()} +</span></div>
-            <div className="flex justify-between text-red-400"><span>التزامات عليك:</span><span>{c.pOm.toLocaleString()} -</span></div>
+          <p className="text-slate-400 text-xs font-semibold">صافي الثروة (الوزن المالي) 💎</p>
+          <h3 className="text-3xl font-black text-blue-400 mt-2 tracking-tighter" dir="ltr">{c.nW.toLocaleString()} <span className="text-xs text-slate-500">ج</span></h3>
+          <div className="flex flex-col gap-2 text-[11px] font-semibold bg-slate-950/50 p-4 rounded-2xl mt-4 border border-slate-700/50">
+            <div className="flex justify-between items-center text-emerald-400"><span>الفعلي الحر:</span><span dir="ltr">{c.aOc.toLocaleString()} +</span></div>
+            <div className="flex justify-between items-center text-blue-400"><span>أرصدة بالخارج:</span><span dir="ltr">{c.aEx.toLocaleString()} +</span></div>
+            {c.mPc > 0 && <div className="flex justify-between items-center text-blue-400"><span>رأس مال الشراكات:</span><span dir="ltr">{c.mPc.toLocaleString()} +</span></div>}
+            {c.tA > 0 && <div className="flex justify-between items-center text-yellow-400 font-bold border-t border-slate-700/50 pt-2 mt-1"><span>الأصول العينية 🏢:</span><span dir="ltr">{c.tA.toLocaleString()} +</span></div>}
+            <div className="flex justify-between items-center text-emerald-400"><span>ديون مستحقة لك:</span><span dir="ltr">{c.pTm.toLocaleString()} +</span></div>
+            <div className="flex justify-between items-center text-red-400"><span>التزامات عليك:</span><span dir="ltr">{c.pOm.toLocaleString()} -</span></div>
           </div>
         </div>
         
         <div className={cx.c}>
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-bold text-sm text-white">سجل الحركات</h3>
-            <input type="text" placeholder="بحث..." value={s} onChange={x => sS(x.target.value)} className="w-1/2 bg-slate-900 border border-slate-700 text-white rounded-lg py-1.5 px-3 text-xs outline-none focus:border-emerald-500" />
+            <input type="text" placeholder="بحث..." value={s} onChange={x => sS(x.target.value)} className="w-1/2 bg-slate-950 border border-slate-800 text-white rounded-xl py-2 px-3 text-xs outline-none focus:border-emerald-500 transition" />
           </div>
-          <div className="divide-y divide-slate-700/60 max-h-72 overflow-y-auto pr-1">
+          <div className="divide-y divide-slate-800/80 max-h-80 overflow-y-auto pr-1">
             {fTxs.map(t => {
               const iB = t.wallet === 'bank'; const iI = ['income', 'trust_bank_in'].includes(t.type); const iT = t.type === 'transfer';
               return (
                 <div key={t.id} className="py-3 flex justify-between items-center text-sm">
-                  <div className="min-w-0 flex-1 pl-3">
-                    <p className="text-white font-bold truncate flex gap-1.5">{iT ? '🔄' : (iB ? '📱' : '💵')} {t.category}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">{t.date}</p>
+                  <div className="min-w-0 flex-1 pl-2">
+                    <p className="text-white font-bold truncate text-xs flex gap-1.5">{iT ? '🔄' : (iB ? '📱' : '💵')} {t.category}</p>
+                    <p className="text-[10px] font-semibold text-slate-500 mt-1">{t.date}</p>
                   </div>
                   <div className="flex gap-1.5 shrink-0 items-center">
-                    <span className={`font-bold ml-2 ${iT ? 'text-blue-400' : (iI ? 'text-emerald-400' : 'text-red-400')}`}>{!iT && (iI ? '+' : '-')} {parseFloat(t.amount || 0).toLocaleString()}</span>
-                    {!iT && <button onClick={() => oR({ title: iI ? 'سند إيداع' : 'سند صرف', person: t.category, amount: t.amount, date: t.date, ref: `T-${t.id.toString().slice(-4)}` })} className={cx.ib + " text-blue-400"}>🧾</button>}
-                    <button onClick={() => oE(t)} className={cx.ib + " text-emerald-400"}>✏️</button>
-                    <button onClick={() => oD(t.id)} className={cx.ib + " text-red-400"}>🗑️</button>
+                    <span className={`font-black text-[13px] ml-2 tracking-tighter ${iT ? 'text-blue-400' : (iI ? 'text-emerald-400' : 'text-red-400')}`} dir="ltr">{!iT && (iI ? '+' : '-')} {parseFloat(t.amount || 0).toLocaleString()}</span>
+                    {!iT && <button onClick={() => oR({ title: iI ? 'سند إيداع' : 'سند صرف', person: t.category, amount: t.amount, date: t.date, ref: `T-${t.id.toString().slice(-4)}` })} className={cx.ib + " text-blue-400 p-2 text-[15px]"}>🧾</button>}
+                    <button onClick={() => oE(t)} className={cx.ib + " text-emerald-400 p-2 text-[15px]"}>✏️</button>
+                    <button onClick={() => oD(t.id)} className={cx.ib + " text-red-400 p-2 text-[15px]"}>🗑️</button>
                   </div>
                 </div>
               );
             })}
-            {fTxs.length === 0 && <p className="text-center py-6 text-xs text-slate-500">لا توجد حركات مسجلة.</p>}
+            {fTxs.length === 0 && <p className="text-center py-6 text-xs text-slate-500 font-semibold">لا توجد حركات مسجلة.</p>}
           </div>
         </div>
       </div>
@@ -498,46 +519,46 @@
     const [v, sV] = useState('projects');
     return (
       <div className="space-y-4 pop">
-        <div className="flex bg-slate-800 p-1.5 rounded-xl">
-          <button onClick={() => { vib(); sV('projects'); }} className={`flex-1 py-2 text-xs font-bold rounded-lg ${v === 'projects' ? 'bg-emerald-500 text-white' : 'text-slate-400'}`}>المشاريع التشغيلية</button>
-          <button onClick={() => { vib(); sV('ptnrs'); }} className={`flex-1 py-2 text-xs font-bold rounded-lg ${v === 'ptnrs' ? 'bg-emerald-500 text-white' : 'text-slate-400'}`}>الشراكات الكبرى</button>
+        <div className="flex bg-slate-950 border border-slate-800 p-1.5 rounded-2xl">
+          <button onClick={() => { vib(); sV('projects'); }} className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition ${v === 'projects' ? 'bg-emerald-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-slate-200'}`}>المشاريع التشغيلية</button>
+          <button onClick={() => { vib(); sV('ptnrs'); }} className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition ${v === 'ptnrs' ? 'bg-emerald-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-slate-200'}`}>الشراكات الكبرى</button>
         </div>
         
         {v === 'projects' ? (
           <div className="space-y-4 pop">
-            <div className="flex justify-between px-1"><h2 className="text-sm font-bold text-white">المشاريع الخاصة</h2><button onClick={aPj} className="bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow">➕ جديد</button></div>
+            <div className="flex justify-between px-1 items-center"><h2 className="text-sm font-bold text-white">المشاريع الخاصة</h2><button onClick={aPj} className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-black shadow transition">➕ جديد</button></div>
             {pjs.map(p => (
               <div key={p.id} className={cx.c + " space-y-3"}>
                 <div className="absolute top-4 left-4 flex gap-1.5">
-                  <button onClick={() => ePj(p)} className={cx.ib + " text-emerald-400"}>✏️</button>
-                  <button onClick={() => dPj(p.id)} className={cx.ib + " text-red-400"}>🗑️</button>
+                  <button onClick={() => ePj(p)} className={cx.ib + " text-emerald-400 p-2 text-sm"}>✏️</button>
+                  <button onClick={() => dPj(p.id)} className={cx.ib + " text-red-400 p-2 text-sm"}>🗑️</button>
                 </div>
                 <h3 className="font-bold text-white text-base pr-16 truncate">{p.name}</h3>
-                <p className="text-xs text-slate-400 border-b border-slate-700/60 pb-3">رأس المال المشغل: {parseFloat(p.capital || 0).toLocaleString()} ج</p>
-                <div className="bg-slate-900/50 p-3.5 rounded-xl space-y-3">
+                <p className="text-xs text-slate-400 border-b border-slate-700/60 pb-3 font-semibold">رأس المال المشغل: <span className="font-bold text-slate-200" dir="ltr">{parseFloat(p.capital || 0).toLocaleString()} ج</span></p>
+                <div className="bg-slate-950/60 border border-slate-800/50 p-4 rounded-2xl space-y-3">
                   <div className={cx.f}>
-                    <div><p className="text-[11px] text-slate-400 mb-1">مال التطوير المحتجز ⚙️</p><p className="text-sm font-black text-yellow-500">{(p.devFund || 0).toLocaleString()} ج</p></div>
+                    <div><p className="text-[10px] text-slate-400 mb-1 font-bold">مال التطوير المحتجز ⚙️</p><p className="text-sm font-black text-yellow-500" dir="ltr">{(p.devFund || 0).toLocaleString()} ج</p></div>
                     <div className="flex gap-1.5">
-                      <button onClick={() => oR({ title: 'صندوق تطوير', person: p.name, amount: p.devFund || 0, date: new Date().toISOString().split('T')[0], ref: `DV-${p.id.toString().slice(-4)}` })} className={cx.ib + " text-blue-400"}>🧾</button>
-                      <button onClick={() => { if (window.confirm('إلغاء التخصيص وإرجاع المال للصافي الحر؟')) dDf(p.id); }} className={cx.ib + " text-red-400"}>🗑️</button>
+                      <button onClick={() => oR({ title: 'صندوق تطوير', person: p.name, amount: p.devFund || 0, date: new Date().toISOString().split('T')[0], ref: `DV-${p.id.toString().slice(-4)}` })} className={cx.ib + " text-blue-400 p-2 text-sm"}>🧾</button>
+                      <button onClick={() => { if (window.confirm('إلغاء التخصيص وإرجاع المال للصافي الحر؟')) dDf(p.id); }} className={cx.ib + " text-red-400 p-2 text-sm"}>🗑️</button>
                     </div>
                   </div>
                   <div className="flex gap-2 border-t border-slate-700/50 pt-3">
-                    <button onClick={() => oDf(p)} className="flex-1 bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 py-2 rounded-lg text-[11px] font-bold">تخصيص (إيداع) ➕</button>
-                    <button onClick={() => oSp(p)} className="flex-1 bg-red-500/10 text-red-400 border border-red-500/30 py-2 rounded-lg text-[11px] font-bold">صرف وتقييد 💸</button>
+                    <button onClick={() => oDf(p)} className="flex-1 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 border border-yellow-500/20 py-2.5 rounded-xl text-[11px] font-bold transition">تخصيص ➕</button>
+                    <button onClick={() => oSp(p)} className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 py-2.5 rounded-xl text-[11px] font-bold transition">صرف وتقييد 💸</button>
                   </div>
                 </div>
                 <div className="flex gap-2 mt-2">
-                  <button onClick={() => cI(p)} className="flex-1 bg-emerald-600/20 text-emerald-400 py-3 rounded-xl text-xs font-bold border border-emerald-500/30">إيداع أرباح 💸</button>
-                  <button onClick={() => oPl(p)} className="flex-1 bg-blue-600/20 text-blue-400 py-3 rounded-xl text-xs font-bold border border-blue-500/30">سجل الأرباح 📋</button>
+                  <button onClick={() => cI(p)} className="flex-1 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 py-3 rounded-xl text-xs font-bold border border-emerald-500/20 transition">إيداع أرباح 💸</button>
+                  <button onClick={() => oPl(p)} className="flex-1 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 py-3 rounded-xl text-xs font-bold border border-blue-500/20 transition">سجل الأرباح 📋</button>
                 </div>
               </div>
             ))}
-            {pjs.length === 0 && <p className="text-center py-6 text-xs text-slate-500 border border-dashed border-slate-700 rounded-2xl">لا توجد مشاريع مضافة.</p>}
+            {pjs.length === 0 && <p className="text-center py-8 text-xs text-slate-500 font-semibold bg-slate-900/50 rounded-3xl border border-dashed border-slate-700">لا توجد مشاريع مضافة.</p>}
           </div>
         ) : (
           <div className="space-y-4 pop">
-            <div className="flex justify-between px-1"><h2 className="text-sm font-bold text-white">إدارة الشراكات</h2><button onClick={aPt} className="bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow">➕ جديدة</button></div>
+            <div className="flex justify-between px-1 items-center"><h2 className="text-sm font-bold text-white">إدارة الشراكات</h2><button onClick={aPt} className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-black shadow transition">➕ جديدة</button></div>
             {pts.map(p => {
               const le = p.evaluations?.[p.evaluations.length - 1]; 
               const fc = parseFloat(p.capital || 0); 
@@ -546,28 +567,28 @@
               return (
                 <div key={p.id} className={cx.c}>
                   <div className="absolute top-4 left-4 flex gap-1.5">
-                    <button onClick={() => ePt(p)} className={cx.ib + " text-emerald-400"}>✏️</button>
-                    <button onClick={() => dPt(p.id)} className={cx.ib + " text-red-400"}>🗑️</button>
+                    <button onClick={() => ePt(p)} className={cx.ib + " text-emerald-400 p-2 text-sm"}>✏️</button>
+                    <button onClick={() => dPt(p.id)} className={cx.ib + " text-red-400 p-2 text-sm"}>🗑️</button>
                   </div>
                   <h3 className="font-bold text-white text-base mb-1 max-w-[70%] truncate">{p.name}</h3>
-                  <p className="text-xs text-slate-400 mb-3">رأس المال الكلي: {fc.toLocaleString()} ج</p>
-                  <div className="bg-slate-900/50 p-3 rounded-xl space-y-2">
-                    <p className="text-xs text-slate-400 font-bold border-b border-slate-700 pb-1.5">أرباح (آخر جرد):</p>
+                  <p className="text-xs text-slate-400 mb-4 font-semibold">رأس المال الكلي: <span className="font-bold text-slate-200" dir="ltr">{fc.toLocaleString()} ج</span></p>
+                  <div className="bg-slate-950/60 border border-slate-800/50 p-4 rounded-2xl space-y-2">
+                    <p className="text-xs text-slate-400 font-bold border-b border-slate-700/50 pb-2 mb-2">أرباح (آخر جرد):</p>
                     {le && pr > 0 ? p.partners.map((pt, i) => {
                       const cs = p.allocationMode === 'capital' ? (parseFloat(pt.amount || 0) / tp) * 100 : parseFloat(pt.share || 0); 
                       const sa = pr * (cs / 100);
                       return (
-                        <div key={i} className="flex justify-between items-center text-xs text-slate-300 py-1.5 bg-slate-800/60 px-2.5 rounded-lg mb-1">
-                          <span className="truncate max-w-[45%]">{pt.name} ({cs.toFixed(1)}%)</span>
+                        <div key={i} className="flex justify-between items-center text-xs text-slate-300 py-2 bg-slate-900/80 px-3 rounded-xl mb-1.5 border border-slate-800/50">
+                          <span className="truncate max-w-[45%] font-semibold">{pt.name} <span className="text-[10px] text-slate-500">({cs.toFixed(1)}%)</span></span>
                           <div className="flex gap-2 items-center">
-                            <span className="text-emerald-400 font-bold">+{sa.toLocaleString()}</span>
-                            {pt.name !== 'أنت' && <button onClick={() => { vib(); window.location.href = `whatsapp://send?text=${encodeURIComponent(`📊 أرباح\nالاسم: ${pt.name}\nالمشروع: ${p.name}\nالمبلغ: ${sa.toLocaleString()} ج.س`)}`; }} className="p-1 bg-emerald-600/30 text-emerald-400 rounded">📤</button>}
+                            <span className="text-emerald-400 font-black tracking-tighter" dir="ltr">+{sa.toLocaleString()}</span>
+                            {pt.name !== 'أنت' && <button onClick={() => { vib(); window.location.href = `whatsapp://send?text=${encodeURIComponent(`📊 أرباح\nالاسم: ${pt.name}\nالمشروع: ${p.name}\nالمبلغ: ${sa.toLocaleString()} ج.س`)}`; }} className="p-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 rounded-lg transition">📤</button>}
                           </div>
                         </div>
                       );
-                    }) : <p className="text-center text-xs text-slate-500 py-2">لا يوجد أرباح مجرودة</p>}
+                    }) : <p className="text-center text-xs text-slate-500 py-3 font-semibold">لا يوجد أرباح مجرودة</p>}
                   </div>
-                  <button onClick={() => oPl(p)} className="w-full mt-3 bg-blue-600/20 text-blue-400 py-2 rounded-xl text-xs font-bold border border-blue-500/30">سجل الأرباح المحصلة 📋</button>
+                  <button onClick={() => oPl(p)} className="w-full mt-4 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 py-3 rounded-xl text-xs font-bold border border-blue-500/20 transition">سجل الأرباح المحصلة 📋</button>
                 </div>
               );
             })}
@@ -584,25 +605,25 @@
     return (
       <div className={cx.m}>
         <div className={cx.mc + " mb-10"}>
-          <div className={cx.f + " mb-4"}>
+          <div className={cx.f + " mb-5"}>
             <h2 className="font-bold text-white text-base">سجل أرباح ({p.name})</h2>
-            <button onClick={oC} className="bg-slate-800 p-1.5 rounded-lg text-slate-400">❌</button>
+            <button onClick={oC} className="bg-slate-800 p-2 rounded-xl text-slate-400 hover:text-white transition">❌</button>
           </div>
-          <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 mb-4 flex justify-between items-center">
-            <span className="text-xs text-slate-400">إجمالي المورد للخزينة:</span>
-            <span className="text-emerald-400 font-bold">{tot.toLocaleString()} ج</span>
+          <div className="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 mb-5 flex justify-between items-center shadow-inner">
+            <span className="text-xs text-slate-400 font-bold">إجمالي المورد للخزينة:</span>
+            <span className="text-emerald-400 font-black text-sm" dir="ltr">{tot.toLocaleString()} ج</span>
           </div>
-          <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+          <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
             {pt.map(t => (
-              <div key={t.id} className="bg-slate-800 p-3 rounded-xl flex justify-between items-center border border-slate-700">
+              <div key={t.id} className="bg-slate-950 p-3 rounded-2xl flex justify-between items-center border border-slate-800">
                 <div>
-                  <p className="text-emerald-400 font-bold text-sm">+{parseFloat(t.amount || 0).toLocaleString()}</p>
-                  <p className="text-[10px] text-slate-500 mt-1">{t.date}</p>
+                  <p className="text-emerald-400 font-black text-sm tracking-tighter" dir="ltr">+{parseFloat(t.amount || 0).toLocaleString()}</p>
+                  <p className="text-[10px] text-slate-500 mt-1 font-semibold">{t.date}</p>
                 </div>
-                <button onClick={() => oD(t.id)} className="bg-red-500/10 hover:bg-red-500/20 text-red-400 p-2 rounded-lg text-xs font-bold border border-red-500/20 transition">حذف 🗑️</button>
+                <button onClick={() => oD(t.id)} className="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-2 rounded-xl text-xs font-bold border border-red-500/20 transition">حذف 🗑️</button>
               </div>
             ))}
-            {pt.length === 0 && <p className="text-center text-xs text-slate-500 py-4">لا توجد أرباح محصلة</p>}
+            {pt.length === 0 && <p className="text-center text-xs text-slate-500 py-4 font-semibold">لا توجد أرباح محصلة</p>}
           </div>
         </div>
       </div>
@@ -614,92 +635,120 @@
       const r = d.amount - (d.paid || 0); const iP = r <= 0; 
       const bc = ((d.paid || 0) / d.amount) * 100 >= 50 ? (m === 'on_me' ? 'bg-red-500' : 'bg-emerald-500') : (m === 'on_me' ? 'bg-emerald-500' : 'bg-red-500');
       return (
-        <div key={d.id} className={`${cx.c} space-y-3 ${iP ? 'opacity-50' : ''}`}>
-          <div className="flex justify-between items-center text-sm">
-            <div className="min-w-0 flex-1">
-              <h4 className="font-bold text-white text-base truncate">{d.person}</h4>
-              <p className="text-xs text-slate-400 mt-1">الكلي: {d.amount.toLocaleString()}</p>
-            </div>
-            <div className="flex gap-1.5 items-center shrink-0">
-              {!iP ? <button onClick={() => oP(d)} className="bg-slate-700 text-white px-3 py-1.5 rounded-lg font-bold text-xs shadow">سداد</button> : <span className="text-emerald-400 text-xs font-bold bg-emerald-500/10 px-2 py-1 rounded-lg">مصفى</span>}
-              <button onClick={() => oR({ title: m === 'to_me' ? 'كشف (مستحق لي)' : 'كشف (التزام علي)', person: d.person, amount: d.amount, paid: d.paid || 0, rem: r, date: d.date || new Date().toISOString().split('T')[0], ref: `D-${d.id.toString().slice(-4)}`, isDetailed: true })} className={cx.ib + " text-blue-400"}>🧾</button>
-              <button onClick={() => oE(d)} className={cx.ib + " text-emerald-400"}>✏️</button>
-              <button onClick={() => oD(d.id)} className={cx.ib + " text-red-400"}>🗑️</button>
+        <div key={d.id} className={`${cx.c} space-y-4 ${iP ? 'opacity-50 grayscale' : ''}`}>
+          
+          <div className="flex justify-between items-center pb-2 border-b border-slate-800/50">
+            <h4 className="font-black text-white text-base truncate max-w-[65%]">{d.person}</h4>
+            <div className="text-[11px] text-slate-300 font-bold bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">
+              الكلي: <span dir="ltr">{d.amount.toLocaleString()}</span>
             </div>
           </div>
-          {!iP && <div className="space-y-1.5"><div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden"><div style={{ width: `${((d.paid || 0) / d.amount) * 100}%` }} className={`h-full rounded-full transition-all ${bc}`}></div></div><div className="flex justify-between text-[11px] text-slate-400"><span>مُسدد: {(d.paid || 0).toLocaleString()}</span><span>متبقي: {r.toLocaleString()}</span></div></div>}
+          
+          <div className="flex gap-2 items-center justify-end">
+            {!iP ? (
+              <button onClick={() => oP(d)} className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-2 rounded-xl font-bold text-xs shadow transition border border-slate-700/80">سداد</button>
+            ) : (
+              <span className="text-emerald-400 text-xs font-bold bg-emerald-500/10 px-5 py-2 rounded-xl border border-emerald-500/20">مصفى</span>
+            )}
+            <button onClick={() => oR({ title: m === 'to_me' ? 'كشف (مستحق لي)' : 'كشف (التزام علي)', person: d.person, amount: d.amount, paid: d.paid || 0, rem: r, date: d.date || new Date().toISOString().split('T')[0], ref: `D-${d.id.toString().slice(-4)}`, isDetailed: true })} className={cx.ib + " text-blue-400"}>🧾</button>
+            <button onClick={() => oE(d)} className={cx.ib + " text-emerald-400"}>✏️</button>
+            <button onClick={() => oD(d.id)} className={cx.ib + " text-red-400"}>🗑️</button>
+          </div>
+          
+          {!iP && (
+            <div className="space-y-2 pt-1">
+              <div className="h-1.5 w-full bg-slate-950 rounded-full overflow-hidden border border-slate-800/50">
+                <div style={{ width: `${((d.paid || 0) / d.amount) * 100}%` }} className={`h-full rounded-full transition-all ${bc}`}></div>
+              </div>
+              <div className="flex justify-between text-[11px] font-bold text-slate-400 pt-1">
+                <span dir="ltr">مُسدد: {(d.paid || 0).toLocaleString()}</span>
+                <span dir="ltr">متبقي: {r.toLocaleString()}</span>
+              </div>
+            </div>
+          )}
         </div>
       );
     });
-    return <div className="space-y-5 pop"><h3 className="text-sm font-bold text-emerald-400 px-1">ديون لك 📈</h3><div className="space-y-3">{rL('to_me', 'to_me')}</div><h3 className="text-sm font-bold text-red-400 border-t border-slate-700 pt-4 px-1">ديون عليك 📉</h3><div className="space-y-3">{rL('on_me', 'on_me')}</div></div>;
+    return <div className="space-y-6 pop"><h3 className="text-sm font-black text-emerald-400 px-2 tracking-wide">ديون لك 📈</h3><div className="space-y-4">{rL('to_me', 'to_me')}</div><h3 className="text-sm font-black text-red-400 border-t border-slate-800 pt-5 px-2 tracking-wide">ديون عليك 📉</h3><div className="space-y-4">{rL('on_me', 'on_me')}</div></div>;
   }
 
   function Trs({ trs, oD, oP, oE, oR }) {
     const rL = (t, c) => trs.filter(x => x.type === t).map(x => {
       const r = x.amount - (x.paid || 0); const iP = r <= 0; const bc = t === 'external' ? 'bg-blue-500' : 'bg-orange-500';
       return (
-        <div key={x.id} className={`${cx.c} ${iP ? 'opacity-50' : ''}`}>
-          <div className="absolute top-3 left-3 flex gap-1.5">
+        <div key={x.id} className={`${cx.c} ${iP ? 'opacity-50 grayscale' : ''}`}>
+          
+          <div className="flex justify-between items-center pb-2 border-b border-slate-800/50 mb-4">
+            <h4 className="font-black text-white text-base truncate max-w-[65%]">{x.person}</h4>
+            <div className={`text-[12px] font-black text-${c}-400 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800`} dir="ltr">
+              {x.amount.toLocaleString()} ج
+            </div>
+          </div>
+          
+          <div className="flex gap-2 items-center justify-end">
             <button onClick={() => oR({ title: t === 'external' ? 'أمانة (بالخارج)' : 'أمانة (لغيري)', person: x.person, amount: x.amount, paid: x.paid || 0, rem: r, date: x.date || new Date().toISOString().split('T')[0], ref: `T-${x.id.toString().slice(-4)}`, isDetailed: true })} className={cx.ib + " text-blue-400"}>🧾</button>
             <button onClick={() => oE(x)} className={cx.ib + " text-emerald-400"}>✏️</button>
             <button onClick={() => oD(x.id)} className={cx.ib + " text-red-400"}>🗑️</button>
           </div>
-          <h4 className="font-bold text-white text-base truncate max-w-[55%] mb-1">{x.person}</h4>
-          <div className="mt-3 text-xs"><div className="flex justify-between"><span className="text-slate-400">الأساسي:</span><span className={`font-bold text-${c}-400 text-sm`}>{x.amount.toLocaleString()} ج</span></div></div>
+
           {!iP ? (
-            <div className="mt-4 space-y-3"><div className="space-y-1.5"><div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden"><div style={{ width: `${((x.paid || 0) / x.amount) * 100}%` }} className={`h-full rounded-full transition-all ${bc}`}></div></div><div className="flex justify-between text-[11px] text-slate-400"><span>حركة: {(x.paid || 0).toLocaleString()}</span><span>متبقي: {r.toLocaleString()}</span></div></div><button onClick={() => oP(x)} className="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-xl text-xs font-bold transition">تسجيل حركة 💸</button></div>
-          ) : (<div className="w-full mt-4 bg-emerald-500/10 text-emerald-400 py-2 rounded-xl text-xs font-bold text-center">✅ الرصيد مصفى</div>)}
+            <div className="mt-4 space-y-4 pt-2">
+              <div className="space-y-2">
+                <div className="h-1.5 w-full bg-slate-950 rounded-full overflow-hidden border border-slate-800/50">
+                  <div style={{ width: `${((x.paid || 0) / x.amount) * 100}%` }} className={`h-full rounded-full transition-all ${bc}`}></div>
+                </div>
+                <div className="flex justify-between text-[11px] font-bold text-slate-400 pt-1">
+                  <span dir="ltr">حركة: {(x.paid || 0).toLocaleString()}</span>
+                  <span dir="ltr">متبقي: {r.toLocaleString()}</span>
+                </div>
+              </div>
+              <button onClick={() => oP(x)} className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl text-xs font-bold transition border border-slate-700/80 shadow-sm">تسجيل حركة 💸</button>
+            </div>
+          ) : (
+            <div className="w-full mt-5 bg-emerald-500/10 text-emerald-400 py-3 rounded-xl text-xs font-bold text-center border border-emerald-500/20">✅ الرصيد مصفى</div>
+          )}
         </div>
       );
     });
-    return <div className="space-y-5 pop"><h3 className="text-sm font-bold text-blue-400 px-1">أرصدة بالخارج 📤</h3><div className="space-y-3">{rL('external', 'blue')}</div><h3 className="text-sm font-bold text-orange-400 border-t border-slate-700 pt-4 px-1">أمانات للغير 📥</h3><div className="space-y-3">{rL('with_me', 'orange')}</div></div>;
+    return <div className="space-y-6 pop"><h3 className="text-sm font-black text-blue-400 px-2 tracking-wide">أرصدة بالخارج 📤</h3><div className="space-y-4">{rL('external', 'blue')}</div><h3 className="text-sm font-black text-orange-400 border-t border-slate-800 pt-5 px-2 tracking-wide">أمانات للغير 📥</h3><div className="space-y-4">{rL('with_me', 'orange')}</div></div>;
   }
 
   function Prf({ e, oRs, oP, cP, oB, oR, lb, oE }) {
     const [p, sP] = useState(''); const [r, sR] = useState('');
     return (
       <div className="space-y-5 pop text-sm pb-6">
-        <div className="bg-slate-800 p-4 rounded-xl text-center shadow-sm">
-          <p className="text-xs text-slate-400 mb-1">الحساب الفعال</p>
-          <p className="text-white font-bold">{e}</p>
+        <div className="bg-slate-900/80 p-5 rounded-3xl border border-slate-800 text-center shadow-xl">
+          <p className="text-xs text-slate-400 font-semibold mb-1">الحساب الفعال</p>
+          <p className="text-emerald-400 font-black">{e}</p>
         </div>
-        <div className="bg-slate-800 p-4 rounded-xl border border-blue-500/30 relative">
+        <div className="bg-slate-900/80 p-5 rounded-3xl border border-blue-500/20 relative shadow-lg overflow-hidden">
           <div className="absolute top-0 right-0 w-1.5 bg-blue-500 h-full"></div>
-          <h3 className="font-bold text-blue-400 mb-2 flex gap-2 items-center">📊 التقارير</h3>
-          <button onClick={oE} className="w-full bg-slate-700 hover:bg-slate-600 text-blue-400 py-3 rounded-xl font-bold flex justify-center gap-2">📥 تصدير السجلات (Excel)</button>
+          <h3 className="font-black text-blue-400 mb-3 flex gap-2 items-center">📊 التقارير</h3>
+          <button onClick={oE} className="w-full bg-slate-800 hover:bg-slate-700 text-blue-400 py-3.5 rounded-xl font-bold flex justify-center gap-2 transition border border-slate-700/50 shadow-sm">📥 تصدير السجلات (Excel)</button>
         </div>
-        <div className="bg-slate-800 p-4 rounded-xl border border-emerald-500/30 relative">
+        <div className="bg-slate-900/80 p-5 rounded-3xl border border-emerald-500/20 relative shadow-lg overflow-hidden">
           <div className="absolute top-0 right-0 w-1.5 bg-emerald-500 h-full"></div>
-          <h3 className="font-bold text-emerald-400 mb-2 flex gap-2 items-center">☁️ النسخ السحابي</h3>
-          <div className="bg-slate-900/50 p-3 rounded-xl mb-4 mt-2">
-            <p className="text-xs text-slate-300 flex justify-between"><span>آخر نسخة:</span><span className={!lb || (Date.now() - lb > 259200000) ? 'text-red-400 font-bold bg-red-500/10 px-2 py-1 rounded' : 'text-emerald-400 font-bold bg-emerald-500/10 px-2 py-1 rounded'}>{lb ? new Date(lb).toLocaleDateString('ar-EG') : 'لا توجد نسخة'}</span></p>
+          <h3 className="font-black text-emerald-400 mb-3 flex gap-2 items-center">☁️ النسخ السحابي</h3>
+          <div className="bg-slate-950/80 p-4 rounded-2xl mb-4 border border-slate-800/50 shadow-inner">
+            <p className="text-xs font-semibold text-slate-300 flex justify-between items-center"><span>آخر نسخة:</span><span className={!lb || (Date.now() - lb > 259200000) ? 'text-red-400 font-bold bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20' : 'text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20'}>{lb ? new Date(lb).toLocaleDateString('ar-EG') : 'لا توجد نسخة'}</span></p>
           </div>
-          <button onClick={oB} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold mb-5 flex justify-center gap-2 shadow">☁️ حفظ نسخة لجوجل كيب</button>
-          <div className="border-t border-slate-700/60 pt-4">
-            <p className="text-xs text-slate-400 mb-2">استعادة الحسابات:</p>
-            <textarea value={r} onChange={x => sR(x.target.value)} placeholder="ألصق كود النسخة هنا..." className={cx.i + " h-20 font-mono mb-3"} />
-            <button onClick={() => { if (r.trim() && window.confirm('تأكيد الحقن؟')) { oR(r); sR(''); } }} className="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-bold flex justify-center gap-2">📥 استعادة البيانات</button>
+          <button onClick={oB} className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 py-3.5 rounded-xl font-black mb-6 flex justify-center gap-2 shadow-md transition">☁️ حفظ نسخة نصية</button>
+          <div className="border-t border-slate-800/80 pt-5">
+            <p className="text-xs font-semibold text-slate-400 mb-3">استعادة الحسابات:</p>
+            <textarea value={r} onChange={x => sR(x.target.value)} placeholder="ألصق كود النسخة هنا..." className={cx.i + " h-24 font-mono mb-4 text-left"} dir="ltr" />
+            <button onClick={() => { if (r.trim() && window.confirm('تأكيد الحقن واستبدال البيانات الحالية؟')) { oR(r); sR(''); } }} className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3.5 rounded-xl font-bold flex justify-center gap-2 transition border border-slate-700/50 shadow-sm">📥 استعادة البيانات</button>
           </div>
         </div>
-        <div className={cx.c + " space-y-3 mt-5"}>
-          <p className="text-xs text-slate-400">الرمز السري: <span className="text-white bg-slate-900 px-3 py-1 rounded-lg font-bold">{cP}</span></p>
+        <div className={cx.c + " space-y-4 mt-6"}>
+          <p className="text-xs text-slate-400 font-semibold flex justify-between items-center">الرمز السري الحالي: <span className="text-white bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg font-mono font-bold tracking-widest">{cP}</span></p>
           <div className="flex gap-2">
-            <input type="text" value={p} onChange={x => sP(x.target.value)} placeholder="رمز جديد..." className={cx.i} />
-            <button onClick={() => { if (p.trim()) { oP(p.trim()); sP(''); } }} className="bg-emerald-500 text-white px-5 rounded-xl font-bold">حفظ</button>
+            <input type="text" value={p} onChange={x => sP(x.target.value)} placeholder="رمز جديد..." className={cx.i + " font-mono tracking-widest"} />
+            <button onClick={() => { if (p.trim()) { oP(p.trim()); sP(''); } }} className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-6 rounded-xl font-black transition shadow-sm">حفظ</button>
           </div>
         </div>
-        <button onClick={oRs} className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 py-3.5 rounded-xl font-bold mt-4 border border-red-500/20 transition">تصفير السجلات المالية كلياً</button>
+        <button onClick={oRs} className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 py-4 rounded-2xl font-black mt-6 border border-red-500/20 transition shadow-sm">تصفير السجلات المالية كلياً 🗑️</button>
       </div>
     );
-  }
-
-  function NavI({ i, l, a, oC }) { 
-    return (
-      <button onClick={() => { vib(); oC(); }} className={`flex flex-col items-center p-2 rounded-xl transition-all ${a ? 'text-emerald-400 bg-slate-700/50' : 'text-slate-500'}`}>
-        <div className="text-xl mb-1">{i}</div>
-        <span className="text-[10px] sm:text-[11px] font-bold whitespace-nowrap">{l}</span>
-      </button>
-    ); 
   }
 
   function QAdd({ t: iT, eD, oC, oS, pts }) {
@@ -741,18 +790,18 @@
     return (
       <div className={cx.m}>
         <div className={cx.mc}>
-          <div className={cx.f + " mb-5"}>
-            <h2 className="font-bold text-white text-lg">{iE ? 'تعديل السجل ✏️' : 'إدخال جديد ➕'}</h2>
-            <button type="button" onClick={oC} className="bg-slate-800 p-2 rounded-xl text-slate-400 hover:text-white">❌</button>
+          <div className={cx.f + " mb-6"}>
+            <h2 className="font-black text-white text-lg">{iE ? 'تعديل السجل ✏️' : 'إدخال جديد ➕'}</h2>
+            <button type="button" onClick={oC} className="bg-slate-800 p-2 rounded-xl text-slate-400 hover:text-white transition">❌</button>
           </div>
           
           {!iE && ['transaction', 'transfer', 'debt', 'trust', 'evaluation'].includes(t) && (
-            <div className="flex flex-wrap gap-1 bg-slate-800 p-1.5 rounded-xl mb-5">
-              <button type="button" onClick={() => sT('transaction')} className={`${t === 'transaction' ? 'bg-emerald-500 text-white' : 'text-slate-400'} flex-1 py-1.5 rounded-lg font-bold text-xs`}>تدفق</button>
-              <button type="button" onClick={() => sT('transfer')} className={`${t === 'transfer' ? 'bg-emerald-500 text-white' : 'text-slate-400'} flex-1 py-1.5 rounded-lg font-bold text-xs`}>تحويل</button>
-              <button type="button" onClick={() => sT('debt')} className={`${t === 'debt' ? 'bg-emerald-500 text-white' : 'text-slate-400'} flex-1 py-1.5 rounded-lg font-bold text-xs`}>دين</button>
-              <button type="button" onClick={() => { sT('trust'); sTxT('external'); }} className={`${t === 'trust' ? 'bg-blue-500 text-white' : 'text-slate-400'} flex-1 py-1.5 rounded-lg font-bold text-xs`}>أمانة</button>
-              <button type="button" onClick={() => sT('evaluation')} className={`${t === 'evaluation' ? 'bg-emerald-500 text-white' : 'text-slate-400'} flex-1 py-1.5 rounded-lg font-bold text-xs`}>جرد</button>
+            <div className="flex flex-wrap gap-1 bg-slate-950 p-1.5 rounded-2xl mb-6 border border-slate-800">
+              <button type="button" onClick={() => sT('transaction')} className={`${t === 'transaction' ? 'bg-emerald-500 text-slate-950 shadow-sm' : 'text-slate-400'} flex-1 py-2 rounded-xl font-bold text-[11px] transition`}>تدفق</button>
+              <button type="button" onClick={() => sT('transfer')} className={`${t === 'transfer' ? 'bg-emerald-500 text-slate-950 shadow-sm' : 'text-slate-400'} flex-1 py-2 rounded-xl font-bold text-[11px] transition`}>تحويل</button>
+              <button type="button" onClick={() => sT('debt')} className={`${t === 'debt' ? 'bg-emerald-500 text-slate-950 shadow-sm' : 'text-slate-400'} flex-1 py-2 rounded-xl font-bold text-[11px] transition`}>دين</button>
+              <button type="button" onClick={() => { sT('trust'); sTxT('external'); }} className={`${t === 'trust' ? 'bg-blue-500 text-white shadow-sm' : 'text-slate-400'} flex-1 py-2 rounded-xl font-bold text-[11px] transition`}>أمانة</button>
+              <button type="button" onClick={() => sT('evaluation')} className={`${t === 'evaluation' ? 'bg-emerald-500 text-slate-950 shadow-sm' : 'text-slate-400'} flex-1 py-2 rounded-xl font-bold text-[11px] transition`}>جرد</button>
             </div>
           )}
           
@@ -760,18 +809,42 @@
             {t === 'transaction' && (
               <>
                 <div className="flex gap-2">
-                  <button type="button" onClick={() => sTxT('income')} className={`flex-1 py-3 rounded-xl border-2 text-xs font-bold ${txT === 'income' ? 'border-emerald-500 text-emerald-400 bg-emerald-500/10' : 'border-slate-700 text-slate-400'}`}>وارد (+)</button>
-                  <button type="button" onClick={() => sTxT('expense')} className={`flex-1 py-3 rounded-xl border-2 text-xs font-bold ${txT === 'expense' ? 'border-red-500 text-red-400 bg-red-500/10' : 'border-slate-700 text-slate-400'}`}>منصرف (-)</button>
+                  <button type="button" onClick={() => sTxT('income')} className={`flex-1 py-3.5 rounded-xl border-2 text-xs font-bold transition ${txT === 'income' ? 'border-emerald-500 text-emerald-400 bg-emerald-500/10' : 'border-slate-800 text-slate-500 bg-slate-900'}`}>وارد (+)</button>
+                  <button type="button" onClick={() => sTxT('expense')} className={`flex-1 py-3.5 rounded-xl border-2 text-xs font-bold transition ${txT === 'expense' ? 'border-red-500 text-red-400 bg-red-500/10' : 'border-slate-800 text-slate-500 bg-slate-900'}`}>منصرف (-)</button>
                 </div>
                 <div className="flex gap-2">
-                  <button type="button" onClick={() => sW('bank')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold ${w === 'bank' ? 'bg-blue-500 text-white border-blue-500' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>البنك 📱</button>
-                  <button type="button" onClick={() => sW('cash')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold ${w === 'cash' ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>الكاش 💵</button>
+                  <button type="button" onClick={() => sW('bank')} className={`flex-1 py-3 rounded-xl border-2 text-xs font-bold transition ${w === 'bank' ? 'bg-blue-500 text-white border-blue-500 shadow-md' : 'bg-slate-900 text-slate-500 border-slate-800'}`}>البنك 📱</button>
+                  <button type="button" onClick={() => sW('cash')} className={`flex-1 py-3 rounded-xl border-2 text-xs font-bold transition ${w === 'cash' ? 'bg-emerald-500 text-white border-emerald-500 shadow-md' : 'bg-slate-900 text-slate-500 border-slate-800'}`}>الكاش 💵</button>
                 </div>
-                <input type="number" required placeholder="المبلغ (ج.س)" value={fD.amount || ''} onChange={x => sFd({ ...fD, amount: x.target.value })} className={cx.i + " text-center font-bold text-lg"} />
+                <input type="number" required placeholder="المبلغ (ج.س)" value={fD.amount || ''} onChange={x => sFd({ ...fD, amount: x.target.value })} className={cx.i + " text-center font-black text-xl tracking-tighter"} />
+                
                 {txT === 'expense' ? (
-                  <div className="space-y-1"><label className="text-xs text-slate-400">تصنيف المنصرف:</label><select value={fD.category || 'مصروف الأسرة'} onChange={x => sFd({ ...fD, category: x.target.value })} className={cx.i}><option>مصروف الأسرة</option><option>مصروف مدرسي</option><option>تسوق</option><option>أخرى</option></select></div>
+                  <div className="space-y-2">
+                    <label className="text-[11px] text-slate-400 font-bold px-1">تصنيف المنصرف:</label>
+                    <select 
+                      value={['مصروف الأسرة', 'مصروف مدرسي', 'تسوق'].includes(fD.category) ? fD.category : 'custom'} 
+                      onChange={x => sFd({ ...fD, category: x.target.value === 'custom' ? '' : x.target.value })} 
+                      className={cx.i}
+                    >
+                      <option value="مصروف الأسرة">مصروف الأسرة</option>
+                      <option value="مصروف مدرسي">مصروف مدرسي</option>
+                      <option value="تسوق">تسوق</option>
+                      <option value="custom">مخصص (كتابة يدوية) ✍️</option>
+                    </select>
+                    {!['مصروف الأسرة', 'مصروف مدرسي', 'تسوق'].includes(fD.category) && (
+                      <input 
+                        type="text" 
+                        required 
+                        placeholder="اكتب نوع المنصرف هنا..." 
+                        value={fD.category || ''} 
+                        onChange={x => sFd({ ...fD, category: x.target.value })} 
+                        className={cx.i + " mt-2 border-emerald-500/50 focus:border-emerald-500"} 
+                        autoFocus 
+                      />
+                    )}
+                  </div>
                 ) : (
-                  <div className="space-y-1"><label className="text-xs text-slate-400">البيان (اختياري):</label><input type="text" placeholder="مثال: أرباح تجارة..." value={fD.category || ''} onChange={x => sFd({ ...fD, category: x.target.value })} className={cx.i} /></div>
+                  <div className="space-y-1.5"><label className="text-[11px] text-slate-400 font-bold px-1">البيان (اختياري):</label><input type="text" placeholder="مثال: أرباح تجارة..." value={fD.category || ''} onChange={x => sFd({ ...fD, category: x.target.value })} className={cx.i} /></div>
                 )}
               </>
             )}
@@ -779,40 +852,40 @@
             {t === 'transfer' && (
               <>
                 <div className="flex gap-2">
-                  <button type="button" onClick={() => sDr('bank_to_cash')} className={`flex-1 py-3 rounded-xl border-2 text-xs font-bold ${dr === 'bank_to_cash' ? 'bg-blue-500 text-white border-blue-500' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>سحب لليد 💵</button>
-                  <button type="button" onClick={() => sDr('cash_to_bank')} className={`flex-1 py-3 rounded-xl border-2 text-xs font-bold ${dr === 'cash_to_bank' ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>إيداع للبنك 📱</button>
+                  <button type="button" onClick={() => sDr('bank_to_cash')} className={`flex-1 py-3.5 rounded-xl border-2 text-xs font-bold transition ${dr === 'bank_to_cash' ? 'bg-blue-500 text-white border-blue-500 shadow-md' : 'bg-slate-900 text-slate-500 border-slate-800'}`}>سحب لليد 💵</button>
+                  <button type="button" onClick={() => sDr('cash_to_bank')} className={`flex-1 py-3.5 rounded-xl border-2 text-xs font-bold transition ${dr === 'cash_to_bank' ? 'bg-emerald-500 text-white border-emerald-500 shadow-md' : 'bg-slate-900 text-slate-500 border-slate-800'}`}>إيداع للبنك 📱</button>
                 </div>
-                <input type="number" required placeholder="المبلغ المحول" value={fD.amount || ''} onChange={x => sFd({ ...fD, amount: x.target.value })} className={cx.i + " text-center text-lg font-bold"} />
+                <input type="number" required placeholder="المبلغ المحول" value={fD.amount || ''} onChange={x => sFd({ ...fD, amount: x.target.value })} className={cx.i + " text-center font-black text-xl tracking-tighter"} />
               </>
             )}
             
             {t === 'trust' && (
               <>
-                <div className="flex gap-2">
-                  <button type="button" onClick={() => sTxT('external')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold ${txT === 'external' ? 'border-blue-500 text-blue-400 bg-blue-500/10' : 'border-slate-700 text-slate-400'}`}>بالخارج</button>
-                  <button type="button" onClick={() => sTxT('with_me')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold ${txT === 'with_me' ? 'border-orange-500 text-orange-400 bg-orange-500/10' : 'border-slate-700 text-slate-400'}`}>بطرفي</button>
+                <div className="flex gap-2 mb-2">
+                  <button type="button" onClick={() => sTxT('external')} className={`flex-1 py-3 rounded-xl border-2 text-xs font-bold transition ${txT === 'external' ? 'border-blue-500 text-blue-400 bg-blue-500/10' : 'border-slate-800 text-slate-500 bg-slate-900'}`}>أمانة بالخارج</button>
+                  <button type="button" onClick={() => sTxT('with_me')} className={`flex-1 py-3 rounded-xl border-2 text-xs font-bold transition ${txT === 'with_me' ? 'border-orange-500 text-orange-400 bg-orange-500/10' : 'border-slate-800 text-slate-500 bg-slate-900'}`}>أمانة بطرفي</button>
                 </div>
                 <input type="text" required placeholder="اسم الشخص" value={fD.person || ''} onChange={x => sFd({ ...fD, person: x.target.value })} className={cx.i} />
-                <input type="number" required placeholder="المبلغ الكلي" value={fD.amount || ''} onChange={x => sFd({ ...fD, amount: x.target.value })} className={cx.i} />
-                {iE && <div className="bg-slate-800 p-3 rounded-xl border border-slate-700"><label className="text-xs text-slate-400">مُسدد (لتصحيح الأخطاء):</label><input type="number" value={fD.paid || ''} onChange={x => sFd({ ...fD, paid: x.target.value })} className={cx.i + " mt-1"} /></div>}
+                <input type="number" required placeholder="المبلغ الكلي" value={fD.amount || ''} onChange={x => sFd({ ...fD, amount: x.target.value })} className={cx.i + " text-center font-black text-lg"} />
+                {iE && <div className="bg-slate-950/50 p-4 rounded-2xl border border-slate-800"><label className="text-[11px] text-slate-400 font-bold mb-2 block">مُسدد (لتصحيح الأخطاء):</label><input type="number" value={fD.paid || ''} onChange={x => sFd({ ...fD, paid: x.target.value })} className={cx.i + " text-center font-bold"} /></div>}
               </>
             )}
             
             {t === 'debt' && (
               <>
-                <div className="flex gap-2">
-                  <button type="button" onClick={() => sTxT('to_me')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold ${txT === 'to_me' ? 'border-emerald-500 text-emerald-400 bg-emerald-500/10' : 'border-slate-700 text-slate-400'}`}>مستحق لي</button>
-                  <button type="button" onClick={() => sTxT('on_me')} className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-bold ${txT === 'on_me' ? 'border-red-500 text-red-400 bg-red-500/10' : 'border-slate-700 text-slate-400'}`}>التزام علي</button>
+                <div className="flex gap-2 mb-2">
+                  <button type="button" onClick={() => sTxT('to_me')} className={`flex-1 py-3 rounded-xl border-2 text-xs font-bold transition ${txT === 'to_me' ? 'border-emerald-500 text-emerald-400 bg-emerald-500/10' : 'border-slate-800 text-slate-500 bg-slate-900'}`}>مستحق لي</button>
+                  <button type="button" onClick={() => sTxT('on_me')} className={`flex-1 py-3 rounded-xl border-2 text-xs font-bold transition ${txT === 'on_me' ? 'border-red-500 text-red-400 bg-red-500/10' : 'border-slate-800 text-slate-500 bg-slate-900'}`}>التزام علي</button>
                 </div>
                 <input type="text" required placeholder="اسم الشخص" value={fD.person || ''} onChange={x => sFd({ ...fD, person: x.target.value })} className={cx.i} />
-                <input type="number" required placeholder="المبلغ الكلي" value={fD.amount || ''} onChange={x => sFd({ ...fD, amount: x.target.value })} className={cx.i} />
-                {iE && <div className="bg-slate-800 p-3 rounded-xl border border-slate-700"><label className="text-xs text-slate-400">مُسدد (لتصحيح الأخطاء):</label><input type="number" value={fD.paid || ''} onChange={x => sFd({ ...fD, paid: x.target.value })} className={cx.i + " mt-1"} /></div>}
+                <input type="number" required placeholder="المبلغ الكلي" value={fD.amount || ''} onChange={x => sFd({ ...fD, amount: x.target.value })} className={cx.i + " text-center font-black text-lg"} />
+                {iE && <div className="bg-slate-950/50 p-4 rounded-2xl border border-slate-800"><label className="text-[11px] text-slate-400 font-bold mb-2 block">مُسدد (لتصحيح الأخطاء):</label><input type="number" value={fD.paid || ''} onChange={x => sFd({ ...fD, paid: x.target.value })} className={cx.i + " text-center font-bold"} /></div>}
               </>
             )}
             
             {t === 'new_project' && (
-              <div className="space-y-3">
-                <input type="text" required placeholder="اسم المشروع (مثال: التسالي)" 
+              <div className="space-y-4">
+                <input type="text" required placeholder="اسم المشروع (مثال: التجارة العامة)" 
                   value={fD.projectName || fD.name || ''} 
                   onChange={x => sFd({ ...fD, projectName: x.target.value })} 
                   className={cx.i} />
@@ -820,15 +893,15 @@
                 <input type="number" required placeholder="رأس المال المشغل" 
                   value={fD.capital || ''} 
                   onChange={x => sFd({ ...fD, capital: x.target.value })} 
-                  className={cx.i + " text-center font-bold"} />
+                  className={cx.i + " text-center font-black text-lg"} />
                   
                 {iE && (
-                  <div className="bg-slate-800 p-3 rounded-xl border border-slate-700">
-                    <label className="text-xs text-slate-400">مال التطوير المحتجز (لتصحيح الرقم يدويًا):</label>
+                  <div className="bg-slate-950/50 p-4 rounded-2xl border border-slate-800">
+                    <label className="text-[11px] text-slate-400 font-bold mb-2 block">مال التطوير المحتجز (لتصحيح الرقم يدويًا):</label>
                     <input type="number" 
                       value={fD.devFund !== undefined ? fD.devFund : ''} 
                       onChange={x => sFd({ ...fD, devFund: x.target.value })} 
-                      className={cx.i + " mt-2 text-yellow-400 font-bold text-center"} />
+                      className={cx.i + " text-yellow-400 font-black text-center"} />
                   </div>
                 )}
               </div>
@@ -837,31 +910,31 @@
             {t === 'new_partnership' && (
               <>
                 <input type="text" required placeholder="اسم الشراكة الكبرى" value={fD.projectName || fD.name || ''} onChange={x => sFd({ ...fD, projectName: x.target.value })} className={cx.i} />
-                <div className="flex gap-2 bg-slate-800 p-1 mb-2 rounded-lg border border-slate-700">
-                  <button type="button" onClick={() => sAm('capital')} className={`flex-1 py-2 rounded text-xs font-bold ${aM === 'capital' ? 'bg-emerald-500 text-white' : 'text-slate-400'}`}>تلقائي (مال)</button>
-                  <button type="button" onClick={() => sAm('manual')} className={`flex-1 py-2 rounded text-xs font-bold ${aM === 'manual' ? 'bg-emerald-500 text-white' : 'text-slate-400'}`}>يدوي (نسب)</button>
+                <div className="flex gap-2 bg-slate-950 p-1.5 mb-3 rounded-2xl border border-slate-800">
+                  <button type="button" onClick={() => sAm('capital')} className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition ${aM === 'capital' ? 'bg-emerald-500 text-slate-950 shadow-sm' : 'text-slate-400'}`}>تلقائي (حسب المال)</button>
+                  <button type="button" onClick={() => sAm('manual')} className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition ${aM === 'manual' ? 'bg-emerald-500 text-slate-950 shadow-sm' : 'text-slate-400'}`}>يدوي (حسب النسب)</button>
                 </div>
                 {aM === 'capital' && (
-                  <div className="flex gap-2 bg-slate-800 p-1 rounded-lg border border-slate-700">
-                    <button type="button" onClick={() => sW('bank')} className={`flex-1 py-1.5 rounded text-xs font-bold ${w === 'bank' ? 'bg-blue-500 text-white' : 'text-slate-400'}`}>بنك</button>
-                    <button type="button" onClick={() => sW('cash')} className={`flex-1 py-1.5 rounded text-xs font-bold ${w === 'cash' ? 'bg-emerald-500 text-white' : 'text-slate-400'}`}>كاش</button>
+                  <div className="flex gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800 mb-2">
+                    <button type="button" onClick={() => sW('bank')} className={`flex-1 py-2 rounded-xl text-xs font-bold transition ${w === 'bank' ? 'bg-blue-500 text-white shadow-sm' : 'text-slate-400'}`}>حُفظ بالبنك</button>
+                    <button type="button" onClick={() => sW('cash')} className={`flex-1 py-2 rounded-xl text-xs font-bold transition ${w === 'cash' ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-400'}`}>حُفظ كاش</button>
                   </div>
                 )}
-                {aM === 'manual' && <input type="number" required placeholder="رأس المال الكلي" value={fD.capital || ''} onChange={x => sFd({ ...fD, capital: x.target.value })} className={cx.i} />}
-                <div className="pt-2">
-                  <p className="text-xs text-emerald-400 font-bold mb-2">قائمة الشركاء:</p>
+                {aM === 'manual' && <input type="number" required placeholder="رأس المال الكلي للشركة" value={fD.capital || ''} onChange={x => sFd({ ...fD, capital: x.target.value })} className={cx.i + " text-center font-black"} />}
+                <div className="pt-3 border-t border-slate-800/50 mt-2">
+                  <p className="text-[11px] text-emerald-400 font-bold mb-3 px-1">قائمة الشركاء:</p>
                   {pL.map((p, i) => (
-                    <div key={i} className="flex gap-1.5 mb-2 items-center">
-                      <input type="text" required value={p.name} onChange={x => { let l = [...pL]; l[i].name = x.target.value; sPl(l); }} className={cx.i + " w-2/5 px-2"} placeholder="الاسم" />
+                    <div key={i} className="flex gap-2 mb-3 items-center">
+                      <input type="text" required value={p.name} onChange={x => { let l = [...pL]; l[i].name = x.target.value; sPl(l); }} className={cx.i + " w-[45%]"} placeholder="الاسم" />
                       {aM === 'capital' ? (
-                        <input type="number" required value={p.amount} onChange={x => { let l = [...pL]; l[i].amount = x.target.value; sPl(l); }} className={cx.i + " w-3/5 text-center px-2"} placeholder="أودع كم؟" />
+                        <input type="number" required value={p.amount} onChange={x => { let l = [...pL]; l[i].amount = x.target.value; sPl(l); }} className={cx.i + " w-[55%] text-center"} placeholder="أودع كم؟" />
                       ) : (
-                        <input type="number" required value={p.share} onChange={x => { let l = [...pL]; l[i].share = x.target.value; sPl(l); }} className={cx.i + " w-3/5 text-center px-2"} placeholder="النسبة %" />
+                        <input type="number" required value={p.share} onChange={x => { let l = [...pL]; l[i].share = x.target.value; sPl(l); }} className={cx.i + " w-[55%] text-center"} placeholder="النسبة %" />
                       )}
-                      {i > 1 && <button type="button" onClick={() => sPl(pL.filter((_, id) => id !== i))} className="text-red-400 px-1 text-lg">❌</button>}
+                      {i > 1 && <button type="button" onClick={() => sPl(pL.filter((_, id) => id !== i))} className="text-red-400 p-2 bg-red-500/10 rounded-xl hover:bg-red-500/20 transition">❌</button>}
                     </div>
                   ))}
-                  <button type="button" onClick={() => sPl([...pL, { name: '', amount: '', share: '' }])} className="w-full text-emerald-400 py-2.5 mt-1 text-xs font-bold bg-slate-800 rounded-xl border border-emerald-500/30">➕ إضافة شريك</button>
+                  <button type="button" onClick={() => sPl([...pL, { name: '', amount: '', share: '' }])} className="w-full text-emerald-400 py-3 mt-2 text-xs font-bold bg-emerald-500/10 rounded-xl border border-emerald-500/20 hover:bg-emerald-500/20 transition">➕ إضافة شريك جديد</button>
                 </div>
               </>
             )}
@@ -869,19 +942,19 @@
             {t === 'evaluation' && (
               <>
                 <div className="flex gap-2">
-                  <button type="button" onClick={() => sW('bank')} className={`flex-1 py-3 rounded-xl border-2 text-xs font-bold ${w === 'bank' ? 'bg-blue-500 text-white border-blue-500' : 'text-slate-400 border-slate-700'}`}>أرباح للبنك</button>
-                  <button type="button" onClick={() => sW('cash')} className={`flex-1 py-3 rounded-xl border-2 text-xs font-bold ${w === 'cash' ? 'bg-emerald-500 text-white border-emerald-500' : 'text-slate-400 border-slate-700'}`}>أرباح كاش</button>
+                  <button type="button" onClick={() => sW('bank')} className={`flex-1 py-3.5 rounded-xl border-2 text-xs font-bold transition ${w === 'bank' ? 'bg-blue-500 text-white border-blue-500 shadow-md' : 'text-slate-500 border-slate-800 bg-slate-900'}`}>أرباح للبنك</button>
+                  <button type="button" onClick={() => sW('cash')} className={`flex-1 py-3.5 rounded-xl border-2 text-xs font-bold transition ${w === 'cash' ? 'bg-emerald-500 text-white border-emerald-500 shadow-md' : 'text-slate-500 border-slate-800 bg-slate-900'}`}>أرباح كاش</button>
                 </div>
                 <select required value={fD.projectId || ''} onChange={x => sFd({ ...fD, projectId: x.target.value })} className={cx.i}>
                   <option value="">اختر مشروع...</option>
                   {pts.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
-                <input type="number" required placeholder="إجمالي المال الفعلي الحالي" value={fD.totalCash || ''} onChange={x => sFd({ ...fD, totalCash: x.target.value })} className={cx.i + " text-center font-bold"} />
+                <input type="number" required placeholder="إجمالي المال الفعلي الحالي" value={fD.totalCash || ''} onChange={x => sFd({ ...fD, totalCash: x.target.value })} className={cx.i + " text-center font-black text-lg"} />
               </>
             )}
             
-            <input type="date" required value={fD.date} onChange={x => sFd({ ...fD, date: x.target.value })} className={cx.i + " text-center font-bold tracking-widest"} />
-            <button type="submit" className={cx.b + " mt-2"}>تأكيد وحفظ</button>
+            <input type="date" required value={fD.date} onChange={x => sFd({ ...fD, date: x.target.value })} className={cx.i + " text-center font-mono font-bold tracking-widest"} />
+            <button type="submit" className={cx.b + " mt-4"}>تأكيد وحفظ البيانات</button>
           </form>
         </div>
       </div>
@@ -894,13 +967,13 @@
     return (
       <div className={cx.m}>
         <div className={cx.mc + " mb-10"}>
-          <h2 className="font-bold text-white mb-2">{ti}</h2>
-          <p className="text-xs text-slate-400 mb-5">{ds} ({p.name})</p>
+          <h2 className="font-bold text-white mb-2 text-base">{ti}</h2>
+          <p className="text-xs text-slate-400 mb-6 font-semibold">{ds} <span className="text-white font-bold">({p.name})</span></p>
           <form onSubmit={sub}>
-            <input type="number" value={a} onChange={x => sA(x.target.value)} required className={cx.i + " text-center text-2xl font-black mb-5 focus:border-yellow-500"} placeholder="القيمة" autoFocus />
-            <button type="submit" className="w-full bg-yellow-500 text-slate-900 font-bold py-3.5 rounded-xl text-sm shadow">تأكيد العملية ⚙️</button>
+            <input type="number" value={a} onChange={x => sA(x.target.value)} required className={cx.i + " text-center text-2xl font-black tracking-tighter mb-6 focus:border-yellow-500"} placeholder="أدخل القيمة..." autoFocus />
+            <button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black py-4 rounded-xl text-sm shadow-md transition">تأكيد العملية ⚙️</button>
           </form>
-          <button onClick={oC} className="w-full mt-3 text-slate-400 text-sm py-2">إلغاء</button>
+          <button onClick={oC} className="w-full mt-4 text-slate-400 hover:text-white text-sm py-2 font-semibold transition">إلغاء</button>
         </div>
       </div>
     );
@@ -914,22 +987,22 @@
       e.preventDefault(); 
       const v = parseFloat(a); 
       if (v > 0 && v <= r) oS(i.id, v, w); 
-      else alert('خطأ في المبلغ'); 
+      else alert('خطأ في المبلغ المُدخل'); 
     };
     return (
       <div className={cx.m}>
         <div className={cx.mc + " mb-10"}>
-          <h2 className="font-bold text-white mb-2 text-base">{ti}</h2>
-          <p className="text-xs text-slate-400 mb-5">{s} <span className="font-bold text-white">{r.toLocaleString()}</span> ج</p>
-          <div className="flex gap-2.5 mb-5">
-            <button type="button" onClick={() => sW('bank')} className={`flex-1 py-3 rounded-xl text-xs font-bold transition ${w === 'bank' ? 'bg-blue-500 text-white shadow-md' : 'bg-slate-800 text-slate-400 border border-slate-600'}`}>البنك 📱</button>
-            <button type="button" onClick={() => sW('cash')} className={`flex-1 py-3 rounded-xl text-xs font-bold transition ${w === 'cash' ? 'bg-emerald-500 text-white shadow-md' : 'bg-slate-800 text-slate-400 border border-slate-600'}`}>الكاش 💵</button>
+          <h2 className="font-black text-white mb-2 text-base">{ti}</h2>
+          <p className="text-xs text-slate-400 mb-6 font-semibold">{s} <span className="font-black text-white" dir="ltr">{r.toLocaleString()}</span> ج</p>
+          <div className="flex gap-2.5 mb-6">
+            <button type="button" onClick={() => sW('bank')} className={`flex-1 py-3.5 rounded-xl text-xs font-bold transition ${w === 'bank' ? 'bg-blue-500 text-white shadow-md' : 'bg-slate-900 text-slate-500 border border-slate-800'}`}>البنك 📱</button>
+            <button type="button" onClick={() => sW('cash')} className={`flex-1 py-3.5 rounded-xl text-xs font-bold transition ${w === 'cash' ? 'bg-emerald-500 text-white shadow-md' : 'bg-slate-900 text-slate-500 border border-slate-800'}`}>الكاش 💵</button>
           </div>
           <form onSubmit={sub}>
-            <input type="number" value={a} onChange={x => sA(x.target.value)} required max={r} className={cx.i + " text-center text-2xl font-black mb-5"} placeholder="القيمة" autoFocus />
+            <input type="number" value={a} onChange={x => sA(x.target.value)} required max={r} className={cx.i + " text-center text-2xl font-black tracking-tighter mb-6"} placeholder="المبلغ..." autoFocus />
             <button type="submit" className={cx.b}>تأكيد وتقييد</button>
           </form>
-          <button onClick={oC} className="w-full mt-3 text-slate-400 text-sm py-2">إلغاء</button>
+          <button onClick={oC} className="w-full mt-4 text-slate-400 hover:text-white text-sm py-2 font-semibold transition">إلغاء النافذة</button>
         </div>
       </div>
     );
@@ -943,45 +1016,85 @@
     const ti = d.title || 'سند'; 
     const pr = d.person || 'عام';
     
-    const t = d.isDetailed 
-      ? `🧾 *${ti}*\n------------------\n▪️ الجهة: ${pr}\n▪️ التاريخ: ${dt}\n------------------\n💰 الإجمالي: ${a.toLocaleString()} ج\n✅ مُسدد: ${(d.paid || 0).toLocaleString()} ج\n⚠️ متبقي: ${(d.rem || 0).toLocaleString()} ج` 
-      : `🧾 *${ti}*\n------------------\n▪️ المرجع: ${rf}\n▪️ التاريخ: ${dt}\n▪️ البيان: ${pr}\n------------------\n💰 المبلغ: ${a.toLocaleString()} ج`;
+    let t = `🧾 *${ti}*\n------------------\n`;
+    if (d.isDetailed) {
+      t += `▪️ الجهة: ${pr}\n▪️ التاريخ: ${dt}\n------------------\n`;
+      t += `💰 الإجمالي: ${a.toLocaleString()} ج\n`;
+      t += `✅ مُسدد: ${(d.paid || 0).toLocaleString()} ج\n`;
+      t += `⚠️ متبقي: ${(d.rem || 0).toLocaleString()} ج`;
+    } else {
+      t += `▪️ المرجع: ${rf}\n▪️ التاريخ: ${dt}\n▪️ البيان: ${pr}\n------------------\n`;
+      t += `💰 المبلغ: ${a.toLocaleString()} ج`;
+    }
     
-    const cp = () => { vib(); navigator.clipboard.writeText(t); sT('تم النسخ للحافظة'); };
+    const cp = () => { vib(); navigator.clipboard.writeText(t); sT('تم النسخ للحافظة بنجاح'); };
     
     return (
-      <div className={cx.m + " z-[70]"}>
-        <div className="bg-white text-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl font-mono">
-          <h2 className="font-bold text-center border-b border-dashed border-slate-300 pb-3 mb-4 text-base">{ti}</h2>
+      <div className={cx.m + " z-[70] pop"}>
+        <div className="bg-white text-slate-900 w-full max-w-sm rounded-3xl p-7 shadow-2xl font-sans">
+          <h2 className="font-black text-center border-b border-dashed border-slate-300 pb-3 mb-5 text-lg">{ti}</h2>
+          
           {d.isDetailed ? (
             <>
-              <div className="space-y-2.5 text-xs mb-5 font-medium">
-                <div className={cx.f}><span>المرجع:</span><span>{rf}</span></div>
-                <div className={cx.f}><span>التاريخ:</span><span>{dt}</span></div>
-                <div className={cx.f}><span>الجهة:</span><span className="truncate max-w-[60%]">{pr}</span></div>
+              <div className="space-y-3 text-sm mb-6 font-semibold text-slate-700">
+                <div className={cx.f}>
+                  <span>المرجع:</span>
+                  <span className="font-mono bg-slate-100 px-2 rounded">{rf}</span>
+                </div>
+                <div className={cx.f}>
+                  <span>التاريخ:</span>
+                  <span className="font-mono">{dt}</span>
+                </div>
+                <div className={cx.f}>
+                  <span>الجهة:</span>
+                  <span className="truncate max-w-[60%] text-left">{pr}</span>
+                </div>
               </div>
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 text-sm font-bold">
-                <div className={cx.f + " text-slate-600"}><span>الإجمالي:</span><span>{a.toLocaleString()}</span></div>
-                <div className={cx.f + " text-emerald-600"}><span>الحركة:</span><span>{(d.paid || 0).toLocaleString()}</span></div>
-                <div className={cx.f + " text-red-600 border-t border-slate-200 pt-2 mt-2"}><span>متبقي:</span><span className="text-lg">{(d.rem || 0).toLocaleString()}</span></div>
+              
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3 text-sm font-bold">
+                <div className={cx.f + " text-slate-600"}>
+                  <span>الإجمالي:</span>
+                  <span dir="ltr">{a.toLocaleString()}</span>
+                </div>
+                <div className={cx.f + " text-emerald-600"}>
+                  <span>الحركة:</span>
+                  <span dir="ltr">{(d.paid || 0).toLocaleString()}</span>
+                </div>
+                <div className={cx.f + " text-red-600 border-t border-slate-200 pt-3 mt-2"}>
+                  <span>متبقي:</span>
+                  <span className="text-xl font-black" dir="ltr">{(d.rem || 0).toLocaleString()}</span>
+                </div>
               </div>
             </>
           ) : (
             <>
-              <div className="space-y-2.5 text-xs mb-6 font-medium">
-                <div className={cx.f}><span>المرجع:</span><span>{rf}</span></div>
-                <div className={cx.f}><span>التاريخ:</span><span>{dt}</span></div>
-                <div className={cx.f}><span>البيان:</span><span className="truncate max-w-[60%]">{pr}</span></div>
+              <div className="space-y-3 text-sm mb-6 font-semibold text-slate-700">
+                <div className={cx.f}>
+                  <span>المرجع:</span>
+                  <span className="font-mono bg-slate-100 px-2 rounded">{rf}</span>
+                </div>
+                <div className={cx.f}>
+                  <span>التاريخ:</span>
+                  <span className="font-mono">{dt}</span>
+                </div>
+                <div className={cx.f}>
+                  <span>البيان:</span>
+                  <span className="truncate max-w-[60%] text-left">{pr}</span>
+                </div>
               </div>
-              <div className="border-t border-dashed border-slate-300 pt-4 text-center">
-                <h3 className="text-2xl font-black">{a.toLocaleString()} <span className="text-sm font-normal">ج</span></h3>
+              <div className="border-t border-dashed border-slate-300 pt-5 text-center">
+                <h3 className="text-3xl font-black text-emerald-600" dir="ltr">
+                  {a.toLocaleString()} 
+                  <span className="text-sm font-semibold text-slate-500 ml-1">ج.س</span>
+                </h3>
               </div>
             </>
           )}
-          <div className="mt-6 space-y-3">
-            <button type="button" onClick={() => { vib(); window.location.href = `whatsapp://send?text=${encodeURIComponent(t)}`; }} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs shadow-md">📱 إرسال للواتساب</button>
-            <button type="button" onClick={cp} className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 py-3 rounded-xl font-bold text-xs transition">📋 نسخ كنص</button>
-            <button type="button" onClick={oC} className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold text-xs">إغلاق النافذة ❌</button>
+          
+          <div className="mt-7 space-y-3">
+            <button type="button" onClick={() => { vib(); window.location.href = `whatsapp://send?text=${encodeURIComponent(t)}`; }} className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-xl font-black text-sm shadow-md transition">📱 إرسال للواتساب</button>
+            <button type="button" onClick={cp} className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 py-3.5 rounded-xl font-bold text-sm transition">📋 نسخ كنص</button>
+            <button type="button" onClick={oC} className="w-full bg-slate-900 hover:bg-slate-800 text-white py-3.5 rounded-xl font-bold text-sm transition">إغلاق النافذة ❌</button>
           </div>
         </div>
       </div>
