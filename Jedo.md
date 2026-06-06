@@ -1,215 +1,199 @@
-dependencies {
-    // ... (الاعتماديات الافتراضية الخاصة بـ Compose و Core)
-    
-    // MediaPipe LLM Inference
-    implementation("com.google.mediapipe:tasks-genai:0.10.11")
-    
-    // Coroutines (إذا لم تكن مضافة)
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-}
-package com.yourpackage.name // استبدل هذا باسم الحزمة الخاصة بك
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صانع الأوامر الاحترافية | Prompt Enhancer</title>
+    <style>
+        :root {
+            --primary: #6200ea;
+            --background: #f4f5f7;
+            --surface: #ffffff;
+            --text: #333333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background-color: var(--surface);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            font-size: 24px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #4500b5;
+        }
+        button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+        .copy-btn {
+            background-color: #28a745;
+            margin-top: 10px;
+        }
+        .copy-btn:hover {
+            background-color: #218838;
+        }
+        #loading {
+            text-align: center;
+            color: var(--primary);
+            font-weight: bold;
+            display: none;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
 
-import android.content.Context
-import com.google.mediapipe.tasks.genai.llminference.LlmInference
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+<div class="container">
+    <h1>صانع الأوامر الاحترافية 🚀</h1>
 
-class LlmManager(private val context: Context) {
-    
-    private var llmInference: LlmInference? = null
-    
-    // مسار ملف نموذج Gemma 2B (تأكد من وجود الملف في هذا المسار على الهاتف)
-    private val modelPath = "/data/local/tmp/gemma-2b-it-gpu-int4.bin" 
+    <label for="apiKey">مفتاح API الخاص بـ Gemini (مطلوب للتشغيل):</label>
+    <input type="password" id="apiKey" placeholder="ألصق مفتاح API هنا...">
 
-    fun initializeModel() {
+    <label for="userInput">الفكرة البسيطة:</label>
+    <textarea id="userInput" placeholder="اكتب فكرتك هنا (مثال: أريد مقال عن التقنية، أو صورة رجل يقرأ في مقهى)..."></textarea>
+
+    <div class="buttons-container">
+        <button id="btnText" onclick="generatePrompt('text')">صياغة نص (لـ Gemini)</button>
+        <button id="btnImage" onclick="generatePrompt('image')">صياغة صورة (لـ Nano Banana)</button>
+    </div>
+
+    <div id="loading">جاري الصياغة... يرجى الانتظار ⏳</div>
+
+    <label for="outputResult">البرومبت الاحترافي الجاهز:</label>
+    <textarea id="outputResult" readonly placeholder="ستظهر النتيجة هنا..."></textarea>
+    
+    <button class="copy-btn" onclick="copyResult()">نسخ النتيجة 📋</button>
+</div>
+
+<script>
+    async function generatePrompt(type) {
+        const apiKey = document.getElementById('apiKey').value.trim();
+        const userInput = document.getElementById('userInput').value.trim();
+        const outputResult = document.getElementById('outputResult');
+        const loading = document.getElementById('loading');
+        const buttons = document.querySelectorAll('.buttons-container button');
+
+        if (!apiKey) {
+            alert('الرجاء إدخال مفتاح API الخاص بـ Gemini أولاً.');
+            return;
+        }
+        if (!userInput) {
+            alert('الرجاء كتابة فكرة بسيطة في مربع النص.');
+            return;
+        }
+
+        // إعداد التعليمة المخصصة بناءً على نوع الطلب (نص أو صورة)
+        let systemPrompt = "";
+        if (type === 'text') {
+            systemPrompt = `أنت خبير محترف في هندسة الأوامر. 
+المستخدم سيعطيك فكرة بسيطة. قم بصياغة "أمر (Prompt)" دقيق ومفصل لنموذج ذكاء اصطناعي (مثل Gemini) لطلب محتوى نصي أو عصف ذهني.
+اطلب أفكاراً متسلسلة، زوايا إبداعية، وهيكلة واضحة.
+الفكرة المبدئية هي: ${userInput}`;
+        } else {
+            systemPrompt = `أنت خبير محترف في هندسة الأوامر الخاصة بالصور. 
+المستخدم سيعطيك فكرة بسيطة. قم بصياغة "وصف بصري دقيق (Prompt)" لمولد صور (مثل نانو بنانا) باللغة الإنجليزية لتكون دقيقة.
+صف الإضاءة، التكوين، الألوان، والنمط الفني.
+إذا تضمن الطلب أكثر من طفل، أضف تعليمة صارمة بدمج الأطفال في صورة واحدة بواقعية تامة.
+في نهاية البرومبت، أضف دائماً تعليمة صارمة بدمج العلامة المائية "Nos Gady 0.5" وشعار "mdmjan" بحيث يكون الشعار كأنه مدمجاً داخل التكوين، شفافاً قليلاً، ولا إطارات عليه.
+الفكرة المبدئية هي: ${userInput}`;
+        }
+
+        // إظهار التحميل وتعطيل الأزرار
+        loading.style.display = 'block';
+        buttons.forEach(btn => btn.disabled = true);
+        outputResult.value = "";
+
         try {
-            val options = LlmInference.LlmInferenceOptions.builder()
-                .setModelPath(modelPath)
-                .setMaxTokens(1024)
-                .build()
-            
-            llmInference = LlmInference.createFromOptions(context, options)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{ text: systemPrompt }]
+                    }]
+                })
+            });
 
-    suspend fun generateProfessionalPrompt(userInput: String): String {
-        return withContext(Dispatchers.IO) {
-            val systemPrompt = """
-                أنت خبير محترف في هندسة الأوامر (Prompt Engineering). 
-                المستخدم سيعطيك فكرة بسيطة. مهمتك هي صياغة أمر (Prompt) احترافي ومفصل:
-                
-                1. إذا كان الطلب يخص "العصف الذهني أو كتابة المحتوى":
-                   - صغ الأمر ليكون موجهاً لنموذج "Gemini".
-                   - اطلب أفكاراً متسلسلة، زوايا إبداعية، وهيكلة واضحة.
-                   
-                2. إذا كان الطلب يخص "توليد الصور":
-                   - صغ الأمر كـ وصف بصري دقيق (الإضاءة، التكوين، الألوان، النمط الفني).
-                   - عند طلب دمج عناصر أو أشخاص في صورة واحدة، اكتب تعليمة صارمة لجعل الدمج واقعياً تماماً.
-                   - عند إضافة العلامة المائية "Nos Gady 0.5" أو الشعار "mdmjan"، أضف تعليمة واضحة بأن يكون الشعار مدمجاً داخل التكوين كجزء من الصورة، شفافاً قليلاً، وبدون أي إطارات خارجية.
-                
-                الطلب البسيط: $userInput
-                البرومبت الاحترافي:
-            """.trimIndent()
-
-            try {
-                llmInference?.generateResponse(systemPrompt) ?: "حدث خطأ: تأكد من تحميل النموذج على الهاتف."
-            } catch (e: Exception) {
-                "خطأ في المعالجة: ${e.localizedMessage}"
-            }
-        }
-    }
-
-    fun close() {
-        llmInference?.close()
-    }
-}
-package com.yourpackage.name // استبدل هذا باسم الحزمة الخاصة بك
-
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.os.Bundle
-import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-
-class MainActivity : ComponentActivity() {
-    
-    private lateinit var llmManager: LlmManager
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        
-        llmManager = LlmManager(this)
-        
-        // تشغيل التهيئة في الـ Background لتجنب تجميد الشاشة
-        Thread {
-            llmManager.initializeModel()
-        }.start()
-
-        setContent {
-            MaterialTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    PromptEnhancerApp(llmManager)
-                }
-            }
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        llmManager.close()
-    }
-}
-
-@Composable
-fun PromptEnhancerApp(llmManager: LlmManager) {
-    val context = LocalContext.current
-    var userInput by remember { mutableStateOf("") }
-    var resultText by remember { mutableStateOf("سيظهر البرومبت الاحترافي هنا...") }
-    var isLoading by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
-        Text(
-            text = "صانع الأوامر الاحترافية", 
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = userInput,
-            onValueChange = { userInput = it },
-            label = { Text("أدخل فكرتك البسيطة (نص أو صورة)") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(150.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                if (userInput.isNotBlank()) {
-                    isLoading = true
-                    resultText = "جاري الصياغة محلياً... يرجى الانتظار."
-                    coroutineScope.launch {
-                        resultText = llmManager.generateProfessionalPrompt(userInput)
-                        isLoading = false
-                    }
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isLoading
-        ) {
-            Text(if (isLoading) "جاري المعالجة..." else "تحويل إلى برومبت احترافي")
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .defaultMinSize(minHeight = 200.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
-            Text(
-                text = resultText,
-                modifier = Modifier.padding(16.dp),
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // أزرار النسخ لتسريع سير العمل
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            OutlinedButton(
-                onClick = { copyToClipboard(context, resultText, "تم النسخ لـ Gemini") },
-                enabled = resultText.isNotBlank() && !isLoading
-            ) {
-                Text("نسخ للنصوص (Gemini)")
+            if (!response.ok) {
+                throw new Error('فشل الاتصال بـ API. تأكد من صحة المفتاح.');
             }
 
-            OutlinedButton(
-                onClick = { copyToClipboard(context, resultText, "تم النسخ لتوليد الصور") },
-                enabled = resultText.isNotBlank() && !isLoading
-            ) {
-                Text("نسخ للصور")
-            }
+            const data = await response.json();
+            const generatedText = data.candidates[0].content.parts[0].text;
+            outputResult.value = generatedText;
+
+        } catch (error) {
+            outputResult.value = "حدث خطأ: " + error.message;
+        } finally {
+            // إخفاء التحميل وإعادة تفعيل الأزرار
+            loading.style.display = 'none';
+            buttons.forEach(btn => btn.disabled = false);
         }
     }
-}
 
-// دالة مساعدة لنسخ النص إلى الحافظة
-fun copyToClipboard(context: Context, text: String, toastMessage: String) {
-    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    val clip = ClipData.newPlainText("Professional Prompt", text)
-    clipboard.setPrimaryClip(clip)
-    Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
-}
+    function copyResult() {
+        const outputText = document.getElementById('outputResult');
+        if (outputText.value) {
+            outputText.select();
+            document.execCommand('copy');
+            alert('تم نسخ البرومبت بنجاح! 🚀');
+        } else {
+            alert('لا يوجد شيء لنسخه.');
+        }
+    }
+</script>
+
+</body>
+</html>
